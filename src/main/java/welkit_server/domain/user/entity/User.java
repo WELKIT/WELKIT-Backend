@@ -40,8 +40,9 @@ public class User extends BaseEntity{
     @Column(name = "lock_pin", length=45)
     private String lockPin;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 25)
-    private UserType userType;
+    private UserType userType = UserType.USER;
 
 }
