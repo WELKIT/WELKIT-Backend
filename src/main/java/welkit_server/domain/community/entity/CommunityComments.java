@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name="community_comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommunityComments {
+public class CommunityComments extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

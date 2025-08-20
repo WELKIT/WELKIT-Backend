@@ -11,7 +11,7 @@ import welkit_server.domain.user.entity.User;
 @Table(name="term_categories")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class TermCategory {
+public class TermCategory extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

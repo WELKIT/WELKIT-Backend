@@ -11,7 +11,7 @@ import welkit_server.domain.user.model.FeatureName;
 @Table(name="lock_settings")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LockSetting {
+public class LockSetting extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

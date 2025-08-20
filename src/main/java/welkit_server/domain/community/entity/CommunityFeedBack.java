@@ -17,7 +17,7 @@ import welkit_server.domain.user.entity.User;
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommunityFeedBack {
+public class CommunityFeedBack extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Table(name="retrospectives")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Retrospective {
+public class Retrospective extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -11,7 +11,7 @@ import welkit_server.domain.user.entity.User;
 @Table(name="community_posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommunityPosts {
+public class CommunityPosts extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

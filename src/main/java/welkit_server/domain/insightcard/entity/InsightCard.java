@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name="insight_cards")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class InsightCard {
+public class InsightCard extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
