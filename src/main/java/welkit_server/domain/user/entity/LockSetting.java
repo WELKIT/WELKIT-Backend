@@ -25,7 +25,7 @@ public class LockSetting extends BaseEntity{
     @Column(nullable = false, length = 25)
     private FeatureName featureName;
 
-    @Column(name = "is_locked", nullable = false)
+    @Column(name = "is_locked")
     private boolean isLocked;
 
 }

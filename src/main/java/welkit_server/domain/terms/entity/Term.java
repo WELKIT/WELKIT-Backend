@@ -7,13 +7,7 @@ import welkit_server.domain.user.entity.User;
 @Entity
 @Getter
 @Builder
-@Table(name="terms",
-        uniqueConstraints = {
-        @UniqueConstraint(
-                columnNames = {"name", "category_id"}
-        )
-    }
-)
+@Table(name="terms")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Term extends BaseEntity{
