@@ -29,8 +29,9 @@ public class User extends BaseEntity{
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "job_role", nullable = false, length = 40)
-    private String jobRole;
+    private JobRole jobRole;
 
     @Column(name = "is_company_verified", nullable = false)
     private boolean isCompanyVerified;
