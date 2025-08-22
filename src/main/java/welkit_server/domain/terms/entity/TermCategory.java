@@ -18,7 +18,7 @@ public class TermCategory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, length = 50, nullable = false)
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

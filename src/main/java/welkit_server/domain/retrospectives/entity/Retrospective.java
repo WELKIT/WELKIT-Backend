@@ -22,7 +22,7 @@ public class Retrospective extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Enumerated(EnumType.STRING)

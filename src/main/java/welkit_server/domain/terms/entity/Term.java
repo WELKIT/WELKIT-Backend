@@ -17,10 +17,10 @@ public class Term extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable=false, length = 50)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String definition;
 
     @ManyToOne(fetch = FetchType.LAZY)

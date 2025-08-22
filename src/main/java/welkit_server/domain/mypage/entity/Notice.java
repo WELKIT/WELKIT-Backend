@@ -20,7 +20,7 @@ public class Notice extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)

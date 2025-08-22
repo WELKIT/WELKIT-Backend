@@ -22,14 +22,14 @@ public class InsightCard extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(columnDefinition = "TEXT")
     private String note;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 25)
+    @Column(nullable = false, length = 25)
     private CardType cardType;
 
     @Column(name = "is_favorite", nullable = false)
