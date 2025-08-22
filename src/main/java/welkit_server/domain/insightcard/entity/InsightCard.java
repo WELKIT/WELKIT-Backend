@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.insightcard.model.CardType;
 import welkit_server.domain.user.entity.User;
+import welkit_server.global.domain.BaseEntity;
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name="insight_cards")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class InsightCard extends BaseEntity{
+public class InsightCard extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

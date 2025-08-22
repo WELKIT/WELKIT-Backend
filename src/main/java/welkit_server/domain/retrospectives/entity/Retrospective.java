@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.retrospectives.model.Type;
 import welkit_server.domain.user.entity.User;
+import welkit_server.global.domain.BaseEntity;
 import java.time.LocalDate;
 
 @Entity
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @Table(name="retrospectives")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Retrospective extends BaseEntity{
+public class Retrospective extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

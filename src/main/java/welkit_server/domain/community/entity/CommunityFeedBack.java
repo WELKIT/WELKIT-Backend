@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.community.model.TargetType;
 import welkit_server.domain.user.entity.User;
+import welkit_server.global.domain.BaseEntity;
 
 @Entity
 @Getter
@@ -17,7 +18,7 @@ import welkit_server.domain.user.entity.User;
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommunityFeedBack extends BaseEntity{
+public class CommunityFeedBack extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
