@@ -1,6 +1,8 @@
 package welkit_server.domain.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import welkit_server.domain.user.model.*;
 import welkit_server.global.domain.BaseEntity;
@@ -18,6 +20,8 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(unique = true, length = 50)
+    @NotBlank
+    @Email
     private String email;
 
     @Enumerated(EnumType.STRING)
