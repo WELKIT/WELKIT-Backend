@@ -9,7 +9,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import welkit_server.domain.user.mail.dto.response.EmailMessageResponse;
+import welkit_server.domain.user.mail.dto.response.EmailResponse;
+import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
+import welkit_server.global.redis.RedisUtil;
+
 import java.util.Random;
 
 @Slf4j
@@ -19,6 +24,22 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RedisUtil redisUtil;
+
+    public EmailResponse sendVerificationEmail(String email, String type) {
+        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
+                .to(email)
+                .subject("[welkit] " + type + " 이메일 인증을 위한 인증 코드 발송")
+                .build();
+
+        String code = sendMail(emailMessageResponse, "email");
+        redisUtil.saveEmailCode(email, code);
+
+        return EmailResponse.builder()
+                .code(code)
+                .message("인증코드 전송 완료")
+                .build();
+    }
 
     public String sendMail(EmailMessageResponse emailMessage, String type){
         String authNum = createCode();
@@ -38,6 +59,29 @@ public class EmailService {
         return authNum;
     }
 
+    public void verifyEmail(String email, String inputCode, String type) {
+        String emailCode = redisUtil.getEmailCode(email);
+
+        if (emailCode == null) {
+            log.warn("{} 이메일 인증 코드 없음 또는 만료됨 - email: {}", type, email);
+            throw new BadRequestException(ErrorMessage.INTERNAL_SERVER_ERROR); //EMAIL CODE EXPIRED
+        }
+
+        if (!emailCode.equals(inputCode.trim())) {
+            log.warn("{} 이메일 인증 코드 불일치 - email: {}, 입력된 코드: {}", type, email, inputCode);
+            throw new BadRequestException(ErrorMessage.INTERNAL_SERVER_ERROR); //ERROR CODE NOT MATCH
+        }
+
+        try {
+            redisUtil.saveVerifiedEmail(email);
+            redisUtil.deleteEmailCode(email);
+        } catch (Exception e) {
+            log.error("Redis 처리 중 오류 - email: {}", email, e);
+            throw new BadRequestException(ErrorMessage.INTERNAL_SERVER_ERROR);
+        }
+        log.info("{} 이메일 인증 성공 - email: {}", type, email);
+    }
+
     public String createCode() {
         Random random = new Random();
         StringBuilder key = new StringBuilder();
@@ -47,4 +91,5 @@ public class EmailService {
         }
         return key.toString();
     }
+
 }
