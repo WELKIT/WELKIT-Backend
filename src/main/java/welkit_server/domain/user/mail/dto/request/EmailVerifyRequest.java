@@ -14,4 +14,5 @@ public class EmailVerifyRequest {
 
     @NotBlank(message = "인증 코드는 필수 입니다")
     private String code;
+
 }
