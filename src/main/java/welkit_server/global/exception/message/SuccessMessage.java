@@ -14,11 +14,16 @@ public enum SuccessMessage {
     LOGIN_SUCCESS_PERSONAL(HttpStatus.OK.value(), "개인 메일 계정으로 로그인에 성공했습니다."),
     LOGOUT_SUCCESS(HttpStatus.OK.value(), "로그아웃 되었습니다."),
 
+    COMPANY_EMAIL_SEND_SUCCESS(HttpStatus.OK.value(), "회사 메일 인증 코드 전송이 완료되었습니다."),
+    PERSONAL_EMAIL_SEND_SUCCESS(HttpStatus.OK.value(), "개인 메일 인증 코드 전송이 완료되었습니다."),
+    COMPANY_EMAIL_VERIFICATION_SUCCESS(HttpStatus.CREATED.value(), "회사 메일 인증이 완료되었습니다."),
+    PERSONAL_EMAIL_VERIFICATION_SUCCESS(HttpStatus.CREATED.value(), "개인 메일 인증이 완료되었습니다."),
+
     /*
     201 Created
      */
-    COMPANY_EMAIL_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "회사 메일 인증 후 회원가입이 완료되었습니다."),
-    PERSONAL_EMAIL_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "개인 메일 인증 후 회원가입이 완료되었습니다."),
+    COMPANY_EMAIL_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "회사 메일 회원가입이 완료되었습니다."),
+    PERSONAL_EMAIL_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "개인 메일 회원가입이 완료되었습니다."),
     GOOGLE_COMPANY_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "구글 로그인을 통한 회사 인증 회원가입이 완료되었습니다."),
     ;
 
