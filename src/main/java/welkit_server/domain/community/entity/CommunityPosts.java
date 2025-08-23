@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.community.model.CommunityPostStatus;
 import welkit_server.domain.user.entity.User;
+import welkit_server.global.domain.BaseEntity;
 
 @Entity
 @Getter
@@ -11,7 +12,7 @@ import welkit_server.domain.user.entity.User;
 @Table(name="community_posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommunityPosts extends BaseEntity{
+public class CommunityPosts extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

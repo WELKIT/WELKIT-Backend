@@ -3,6 +3,7 @@ package welkit_server.domain.terms.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.user.entity.User;
+import welkit_server.global.domain.BaseEntity;
 
 @Entity
 @Getter
@@ -10,16 +11,16 @@ import welkit_server.domain.user.entity.User;
 @Table(name="terms")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Term extends BaseEntity{
+public class Term extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable=false, length = 50)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String definition;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -3,6 +3,7 @@ package welkit_server.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.user.model.*;
+import welkit_server.global.domain.BaseEntity;
 
 @Entity
 @Getter
@@ -10,7 +11,7 @@ import welkit_server.domain.user.model.*;
 @Table(name="users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -3,6 +3,7 @@ package welkit_server.domain.mypage.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.mypage.model.NoticePriority;
+import welkit_server.global.domain.BaseEntity;
 
 @Entity
 @Getter
@@ -10,7 +11,7 @@ import welkit_server.domain.mypage.model.NoticePriority;
 @Table(name="notices")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Notice extends BaseEntity{
+public class Notice extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +20,7 @@ public class Notice extends BaseEntity{
     @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)

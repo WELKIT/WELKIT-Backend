@@ -3,6 +3,7 @@ package welkit_server.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import welkit_server.domain.user.model.FeatureName;
+import welkit_server.global.domain.BaseEntity;
 
 
 @Entity
@@ -11,7 +12,7 @@ import welkit_server.domain.user.model.FeatureName;
 @Table(name="lock_settings")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LockSetting extends BaseEntity{
+public class LockSetting extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
