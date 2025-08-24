@@ -1,4 +1,4 @@
-package welkit_server.domain.user.mail.dto.response;
+package welkit_server.domain.mail.dto.response;
 
 import lombok.*;
 

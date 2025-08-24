@@ -1,4 +1,4 @@
-package welkit_server.domain.user.mail.dto.response;
+package welkit_server.domain.mail.dto.response;
 
 import lombok.*;
 
@@ -9,5 +9,4 @@ import lombok.*;
 public class EmailResponse {
 
     private String code;
-    private String message;
 }

@@ -45,25 +45,29 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
+            final MethodArgumentNotValidException e) {
+
         FieldError fieldError = e.getBindingResult().getFieldError();
 
         ErrorMessage errorMessage = fieldError == null
-                ? ErrorMessage.VALIDATION_REQUEST_MISSING_EXCEPTION
+                ? ErrorMessage.WK_VALIDATION_MISSING
                 : switch (fieldError.getCode()) {
-            case "NotNull", "NotBlank" -> ErrorMessage.VALIDATION_REQUEST_NULL_OR_BLANK_EXCEPTION;
-            case "Size" -> ErrorMessage.VALIDATION_REQUEST_LENGTH_EXCEPTION;
-            default -> ErrorMessage.VALIDATION_REQUEST_MISSING_EXCEPTION;
+            case "NotNull", "NotBlank" -> ErrorMessage.WK_VALIDATION_NULL_OR_BLANK;
+            case "Email" -> ErrorMessage.WK_VALIDATION_EMAIL;
+            case "Size" -> ErrorMessage.WK_VALIDATION_LENGTH_EXCEEDED;
+            default -> ErrorMessage.WK_VALIDATION_MISSING;
         };
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(errorMessage.getStatus())
                 .body(ErrorResponse.of(errorMessage));
     }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(ErrorMessage.ENUM_VALUE_BAD_REQUEST));
+                .body(ErrorResponse.of(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST));
     }
 
     @ExceptionHandler(Exception.class)

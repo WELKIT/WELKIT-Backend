@@ -1,4 +1,4 @@
-package welkit_server.domain.user.mail.service;
+package welkit_server.domain.mail.service;
 
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import welkit_server.domain.user.mail.dto.response.EmailMessageResponse;
-import welkit_server.domain.user.mail.dto.response.EmailResponse;
+import welkit_server.domain.mail.dto.response.EmailMessageResponse;
+import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
@@ -37,7 +37,6 @@ public class EmailService {
 
         return EmailResponse.builder()
                 .code(code)
-                .message("인증코드 전송 완료")
                 .build();
     }
 
@@ -64,21 +63,22 @@ public class EmailService {
 
         if (emailCode == null) {
             log.warn("{} 이메일 인증 코드 없음 또는 만료됨 - email: {}", type, email);
-            throw new BadRequestException(ErrorMessage.INTERNAL_SERVER_ERROR); //EMAIL CODE EXPIRED
+            throw new BadRequestException(ErrorMessage.EXPIRED_EMAIL_CODE); // 코드 만료
         }
 
         if (!emailCode.equals(inputCode.trim())) {
             log.warn("{} 이메일 인증 코드 불일치 - email: {}, 입력된 코드: {}", type, email, inputCode);
-            throw new BadRequestException(ErrorMessage.INTERNAL_SERVER_ERROR); //ERROR CODE NOT MATCH
+            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_CODE); // 코드 불일치
         }
 
         try {
             redisUtil.saveVerifiedEmail(email);
             redisUtil.deleteEmailCode(email);
         } catch (Exception e) {
-            log.error("Redis 처리 중 오류 - email: {}", email, e);
-            throw new BadRequestException(ErrorMessage.INTERNAL_SERVER_ERROR);
+            log.error("이메일 인증 실패 - email: {}", email, e);
+            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION); // 시스템 오류
         }
+
         log.info("{} 이메일 인증 성공 - email: {}", type, email);
     }
 

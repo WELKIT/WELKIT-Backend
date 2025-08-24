@@ -1,4 +1,4 @@
-package welkit_server.domain.user.mail.dto.request;
+package welkit_server.domain.mail.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
