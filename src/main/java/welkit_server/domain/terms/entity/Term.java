@@ -2,6 +2,7 @@ package welkit_server.domain.terms.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import welkit_server.domain.terms.dto.request.EditTermRequest;
 import welkit_server.domain.user.entity.User;
 import welkit_server.global.domain.BaseEntity;
 
@@ -31,4 +32,15 @@ public class Term extends BaseEntity {
     @JoinColumn(name = "user_id") //nullable = false
     private User user;
 
+    public void editTerm(EditTermRequest editTermRequest, TermCategory newCategory) {
+        if (editTermRequest.getName() != null) {
+            this.name = editTermRequest.getName();
+        }
+        if (editTermRequest.getDefinition() != null) {
+            this.definition = editTermRequest.getDefinition();
+        }
+        if (newCategory != null) {
+            this.category = newCategory;
+        }
+    }
 }

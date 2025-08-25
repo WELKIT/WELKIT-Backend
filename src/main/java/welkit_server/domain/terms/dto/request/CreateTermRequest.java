@@ -1,11 +1,8 @@
 package welkit_server.domain.terms.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import welkit_server.domain.terms.entity.Term;
-import welkit_server.domain.terms.entity.TermCategory;
+import lombok.*;
+import welkit_server.domain.terms.entity.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
