@@ -4,13 +4,19 @@ import welkit_server.global.exception.message.ErrorMessage;
 
 public record ErrorResponse(
         int status,
+        String code,
         String message
 ) {
     public static ErrorResponse of(final ErrorMessage errorMessage) {
-        return new ErrorResponse(errorMessage.getStatus(), errorMessage.getMessage());
+        return new ErrorResponse(
+                errorMessage.getStatus(),
+                errorMessage.getCode(),
+                errorMessage.getMessage()
+        );
     }
 
-    public static ErrorResponse of(final int status, final String message) {
-        return new ErrorResponse(status, message);
+    public static ErrorResponse of(final int status, final String code, final String message) {
+        return new ErrorResponse(status, code, message);
     }
+
 }
