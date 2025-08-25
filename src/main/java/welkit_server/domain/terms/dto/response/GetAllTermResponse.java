@@ -4,8 +4,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class GetAllTermResponse {
 
     private Long termId;

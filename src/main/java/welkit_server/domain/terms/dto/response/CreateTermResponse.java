@@ -3,8 +3,9 @@ package welkit_server.domain.terms.dto.response;
 import lombok.*;
 
 @Getter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class CreateTermResponse {
 
     private Long termId;

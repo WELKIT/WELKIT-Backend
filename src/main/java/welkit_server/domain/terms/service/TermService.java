@@ -11,8 +11,10 @@ import welkit_server.domain.terms.dto.response.GetAllTermResponse;
 import welkit_server.domain.terms.dto.response.GetCategoryTermResponse;
 import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.terms.entity.TermCategory;
+import welkit_server.domain.terms.repository.TermCategoryRepository;
 import welkit_server.domain.terms.repository.TermRepository;
 import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.exception.model.NotFoundException;
 import java.util.List;
 
@@ -22,6 +24,7 @@ import java.util.List;
 public class TermService {
 
     private final TermRepository termRepository;
+    private final TermCategoryRepository termCategoryRepository;
     private final TermCategoryService termCategoryService;
 
     public List<GetAllTermResponse> getTerms(){
@@ -38,6 +41,9 @@ public class TermService {
     }
 
     public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId){
+        if(termCategoryRepository.findTermCategoryById(categoryId).isEmpty()) {
+            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
+        }
         List<Term> sortedCategoryTerms = termRepository.findAllTermsByCategoryId(categoryId);
         return sortedCategoryTerms.stream()
                 .map(term -> GetCategoryTermResponse.builder()
