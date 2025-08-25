@@ -1,15 +1,15 @@
-package welkit_server.domain.terms.dto.request;
+package welkit_server.domain.terms.dto.response;
 
 import lombok.*;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class EditTermRequest {
+public class GetCategoryTermResponse {
 
+    private Long termId;
     private String name;
     private String definition;
     private Long categoryId;
-    private String categoryName;
 
 }

@@ -8,15 +8,17 @@ import welkit_server.domain.terms.repository.TermCategoryRepository;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class TermCategoryService {
 
     private final TermCategoryRepository termCategoryRepository;
 
+    @Transactional
     public TermCategory findOrCreate(Long categoryId, String categoryName) {
         return termCategoryRepository.findTermCategoryById(categoryId)
                 .orElseGet(() -> termCategoryRepository.save(
                         TermCategory.builder().name(categoryName).build()
                 ));
     }
+
 }

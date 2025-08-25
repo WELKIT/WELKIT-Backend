@@ -26,4 +26,5 @@ public class CreateTermRequest {
                 .category(category)
                 .build();
     }
+
 }

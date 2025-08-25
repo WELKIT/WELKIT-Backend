@@ -7,11 +7,14 @@ import welkit_server.domain.terms.dto.request.CreateTermRequest;
 import welkit_server.domain.terms.dto.request.EditTermRequest;
 import welkit_server.domain.terms.dto.response.EditTermResponse;
 import welkit_server.domain.terms.dto.response.CreateTermResponse;
+import welkit_server.domain.terms.dto.response.GetAllTermResponse;
+import welkit_server.domain.terms.dto.response.GetCategoryTermResponse;
 import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.terms.repository.TermRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,31 @@ public class TermService {
 
     private final TermRepository termRepository;
     private final TermCategoryService termCategoryService;
+
+    public List<GetAllTermResponse> getTerms(){
+        List<Term> termList = termRepository.findAllTerms();
+        return termList.stream()
+                .map(term -> GetAllTermResponse.builder()
+                        .termId(term.getId())
+                        .name(term.getName())
+                        .definition(term.getDefinition())
+                        .categoryId(term.getCategory().getId())
+                        .updatedAt(term.getLastModifiedDate())
+                        .build())
+                .toList();
+    }
+
+    public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId){
+        List<Term> sortedCategoryTerms = termRepository.findAllTermsByCategoryId(categoryId);
+        return sortedCategoryTerms.stream()
+                .map(term -> GetCategoryTermResponse.builder()
+                        .termId(term.getId())
+                        .name(term.getName())
+                        .definition(term.getDefinition())
+                        .categoryId(term.getCategory().getId())
+                        .build())
+                .toList();
+    }
 
     @Transactional
     public CreateTermResponse createTerm(CreateTermRequest createTermRequest) {
@@ -57,4 +85,5 @@ public class TermService {
         return termRepository.findById(termId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.TERM_NOT_FOUND));
     }
+
 }
