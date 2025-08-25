@@ -8,3 +8,5 @@ spring:
       mail.smtp.auth: true
       mail.smtp.timeout: 5000
       mail.smtp.starttls.enable: true
+blocked:
+  email-domains: []

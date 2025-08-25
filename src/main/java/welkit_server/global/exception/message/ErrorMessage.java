@@ -22,6 +22,7 @@ public enum ErrorMessage {
     INVALID_EMAIL_CODE(400, "USR2003", "이메일 인증 코드가 올바르지 않습니다."),
     EXPIRED_EMAIL_CODE(400, "USR2004", "이메일 인증 코드가 만료되었습니다."),
     INVALID_EMAIL_VERIFICATION(400, "USR2005", "이메일 인증에 실패했습니다."),
+    USR_EMAIL_COMPANY_DOMAIN_INVALID(400, "USR2006", "범용 이메일은 회사 인증 회원가입이 불가능합니다."),
 
     // 용어 사전 (TRM)
     TERM_NOT_FOUND(404, "TRM1001", "해당 용어를 찾을 수 없습니다."),
