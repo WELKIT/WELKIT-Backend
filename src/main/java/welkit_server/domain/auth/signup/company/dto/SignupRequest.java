@@ -1,4 +1,4 @@
-package welkit_server.domain.auth.dto;
+package welkit_server.domain.auth.signup.company.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
