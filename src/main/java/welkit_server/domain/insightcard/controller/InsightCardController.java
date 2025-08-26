@@ -7,10 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
+import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
 import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.service.InsightCardService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +21,20 @@ import welkit_server.global.exception.message.SuccessMessage;
 public class InsightCardController {
 
     private final InsightCardService insightCardService;
+
+    @Operation(summary = "인물 카드 전체 조회", description = "등록된 인물 카드를 전체 조회합니다")
+    @GetMapping("/person")
+    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightPersonCard() {
+        List<GetAllInsightCardResponse> insightPersonCards = insightCardService.getAllInsightCards();
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insightPersonCards));
+    }
+
+    @Operation(summary = "인물 카드 상세 조회", description = "등록된 인물 카드 중 선택한 인물 카드를 조회합니다")
+    @GetMapping("/person/{id}")
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> getInsightPersonCardByCardNumber(@PathVariable("id") Long insightPersonCardId) {
+        InsightCardResponse insighPersonCard = insightCardService.getInsightCardById(insightPersonCardId);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insighPersonCard));
+    }
 
     @Operation(summary = "인물 카드 생성", description = "새로운 인물 카드를 생성합니다")
     @PostMapping("/person")
@@ -43,6 +60,20 @@ public class InsightCardController {
     public ResponseEntity<SuccessResponse> deleteInsightPersonCard(@PathVariable("id") Long insightPersonCardId) {
         insightCardService.deleteInsightCard(insightPersonCardId);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
+    }
+
+    @Operation(summary = "업무 카드 전체 조회", description = "등록된 업무 카드를 전체 조회합니다")
+    @GetMapping("/work")
+    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightWorkCard() {
+        List<GetAllInsightCardResponse> insightWorkCards = insightCardService.getAllInsightCards();
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insightWorkCards));
+    }
+
+    @Operation(summary = "업무 카드 상세 조회", description = "등록된 업무 카드 중 선택한 업무 카드를 조회합니다")
+    @GetMapping("/work/{id}")
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> getInsightWorkCardByCardNumber(@PathVariable("id") Long insightWorkCardId) {
+        InsightCardResponse insighWorkCard = insightCardService.getInsightCardById(insightWorkCardId);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insighWorkCard));
     }
 
     @Operation(summary = "업무 카드 생성", description = "새로운 업무 카드를 생성합니다")
