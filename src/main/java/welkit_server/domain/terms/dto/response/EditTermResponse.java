@@ -1,6 +1,7 @@
 package welkit_server.domain.terms.dto.response;
 
 import lombok.*;
+import welkit_server.domain.terms.entity.Term;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -13,8 +14,13 @@ public class EditTermResponse {
     private String definition;
     private Long categoryId;
 
-    public static EditTermResponse of(Long termId, String name, String definition, Long categoryId) {
-        return new EditTermResponse(termId, name, definition, categoryId);
+    public static EditTermResponse fromEntity(Term term) {
+        return EditTermResponse.builder()
+                .termId(term.getId())
+                .name(term.getName())
+                .definition(term.getDefinition())
+                .categoryId(term.getCategory().getId())
+                .build();
     }
 
 }

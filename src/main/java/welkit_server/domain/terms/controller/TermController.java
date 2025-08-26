@@ -62,7 +62,7 @@ public class TermController {
     @DeleteMapping("/{id}")
     public ResponseEntity<SuccessResponse> deleteTerm(@PathVariable("id") Long termId){
         termService.deleteTerm(termId);
-        return new ResponseEntity<>(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS), HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
     }
 
 }
