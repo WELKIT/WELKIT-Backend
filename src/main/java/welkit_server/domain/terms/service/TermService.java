@@ -59,13 +59,7 @@ public class TermService {
     public CreateTermResponse createTerm(CreateTermRequest createTermRequest) {
         TermCategory category = termCategoryService.findOrCreate(createTermRequest.getCategoryId(), createTermRequest.getCategoryName());
         Term term = termRepository.save(createTermRequest.toEntity(category));
-        return CreateTermResponse.of(
-                term.getId(),
-                term.getName(),
-                term.getDefinition(),
-                category.getId(),
-                category.getName()
-        );
+        return CreateTermResponse.fromEntity(term);
     }
 
     @Transactional
@@ -73,12 +67,7 @@ public class TermService {
         Term term = getTermById(termId);
         TermCategory category = termCategoryService.findOrCreate(editTermRequest.getCategoryId(), editTermRequest.getCategoryName());
         term.editTerm(editTermRequest, category);
-        return EditTermResponse.of(
-                term.getId(),
-                term.getName(),
-                term.getDefinition(),
-                term.getCategory().getId()
-        );
+        return EditTermResponse.fromEntity(term);
     }
 
     @Transactional
