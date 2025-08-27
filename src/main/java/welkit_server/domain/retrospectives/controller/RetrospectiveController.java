@@ -7,11 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.retrospectives.dto.request.RetrospectiveRequest;
+import welkit_server.domain.retrospectives.dto.response.GetAllRetrospectiveResponse;
 import welkit_server.domain.retrospectives.dto.response.RetrospectiveResponse;
-import welkit_server.domain.retrospectives.entity.Retrospective;
+import welkit_server.domain.retrospectives.model.Type;
 import welkit_server.domain.retrospectives.service.RetrospectiveService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +21,23 @@ import welkit_server.global.exception.message.SuccessMessage;
 public class RetrospectiveController {
     
     private final RetrospectiveService retrospectiveService;
+
+    @Operation(summary = "회고 전체 조회", description = "등록되어 있는 회고를 전체 조회합니다")
+    @GetMapping
+    public ResponseEntity<SuccessResponse<GetAllRetrospectiveResponse>> getAllRetrospectives(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam Type type)  {
+        List<GetAllRetrospectiveResponse> response = retrospectiveService.getAllRetrospectives(type, page, size);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
+    @Operation(summary = "회고 상세 조회", description = "등록되어 있는 회고를 상세 조회합니다")
+    @GetMapping("/{id}")
+    public ResponseEntity<SuccessResponse<RetrospectiveResponse>> getRetrospectiveById(@PathVariable("id") Long retrospectiveId) {
+        RetrospectiveResponse retrospectiveResponse = retrospectiveService.getRetrospectiveById(retrospectiveId);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, retrospectiveResponse));
+    }
     
     @Operation(summary = "회고 등록", description = "새로운 회고를 등록합니다")
     @PostMapping
