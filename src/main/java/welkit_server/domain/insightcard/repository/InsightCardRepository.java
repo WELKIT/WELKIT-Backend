@@ -9,7 +9,10 @@ import java.util.List;
 @Repository
 public interface InsightCardRepository extends JpaRepository<InsightCard, Long> {
 
-    @Query("SELECT i FROM InsightCard i ORDER BY i.lastModifiedDate DESC")
-    List<InsightCard> findAllInsightCards();
+    @Query("SELECT i FROM InsightCard i WHERE i.type = 'PERSON' ORDER BY i.updatedAt DESC")
+    List<InsightCard> findAllInsightPersonCards();
+
+    @Query("SELECT i FROM InsightCard i WHERE i.type = 'WORK' ORDER BY i.updatedAt DESC")
+    List<InsightCard> findAllInsightWorkCards();
 
 }

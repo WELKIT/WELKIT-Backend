@@ -44,8 +44,15 @@ public class InsightCard extends BaseEntity {
     @Column(name = "last_viewed_at") //nullable = false
     private LocalDateTime lastViewedAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     public void updateLastViewedAt() {
         this.lastViewedAt = LocalDateTime.now();
+    }
+
+    public void updateUpdatedAt(){
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void editInsightCard(InsightCardRequest request) {

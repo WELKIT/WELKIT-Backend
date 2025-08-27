@@ -1,5 +1,6 @@
 package welkit_server.domain.insightcard.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.model.CardType;
@@ -10,21 +11,22 @@ import welkit_server.domain.insightcard.model.CardType;
 @Builder
 public class InsightCardResponse {
 
-    private Long insightCardId;
+    private Long cardId;
     private String title;
     private String description;
     private String note;
     private CardType type;
-    private boolean isFavorite;
+    @JsonProperty("isFavorite")
+    private boolean favorite;
 
     public static InsightCardResponse fromEntity(InsightCard insightCard) {
         return InsightCardResponse.builder()
-                .insightCardId(insightCard.getId())
+                .cardId(insightCard.getId())
                 .title(insightCard.getTitle())
                 .description(insightCard.getDescription())
                 .note(insightCard.getNote())
                 .type(insightCard.getType())
-                .isFavorite(insightCard.isFavorite())
+                .favorite(insightCard.isFavorite())
                 .build();
     }
 

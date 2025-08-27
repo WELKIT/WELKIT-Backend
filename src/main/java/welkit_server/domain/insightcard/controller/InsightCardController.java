@@ -12,7 +12,6 @@ import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.service.InsightCardService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
-
 import java.util.List;
 
 @RestController
@@ -25,7 +24,7 @@ public class InsightCardController {
     @Operation(summary = "인물 카드 전체 조회", description = "등록된 인물 카드를 전체 조회합니다")
     @GetMapping("/person")
     public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightPersonCard() {
-        List<GetAllInsightCardResponse> insightPersonCards = insightCardService.getAllInsightCards();
+        List<GetAllInsightCardResponse> insightPersonCards = insightCardService.getAllInsightPersonCards();
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insightPersonCards));
     }
 
@@ -47,10 +46,10 @@ public class InsightCardController {
     @Operation(summary = "인물 카드 수정", description = "등록되어 있는 인물 카드를 수정합니다")
     @PatchMapping("/person/{id}")
     public ResponseEntity<SuccessResponse<InsightCardResponse>> updatInsightPersonCard(
-            @PathVariable("id") Long insightCardId,
+            @PathVariable("id") Long insightPersonCardId,
             @Valid @RequestBody InsightCardRequest editInsightPersonCardRequest
     ) {
-        InsightCardResponse editInsightPersonCardResponse = insightCardService.editInsightCard(insightCardId, editInsightPersonCardRequest);
+        InsightCardResponse editInsightPersonCardResponse = insightCardService.editInsightCard(insightPersonCardId, editInsightPersonCardRequest);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, editInsightPersonCardResponse));
     }
@@ -65,7 +64,7 @@ public class InsightCardController {
     @Operation(summary = "업무 카드 전체 조회", description = "등록된 업무 카드를 전체 조회합니다")
     @GetMapping("/work")
     public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightWorkCard() {
-        List<GetAllInsightCardResponse> insightWorkCards = insightCardService.getAllInsightCards();
+        List<GetAllInsightCardResponse> insightWorkCards = insightCardService.getAllInsightWorkCards();
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insightWorkCards));
     }
 
@@ -87,10 +86,10 @@ public class InsightCardController {
     @Operation(summary = "업무 카드 수정", description = "등록되어 있는 업무 카드를 수정합니다")
     @PatchMapping("/work/{id}")
     public ResponseEntity<SuccessResponse<InsightCardResponse>> updateInsightWorkCard(
-            @PathVariable("id") Long insightCardId,
+            @PathVariable("id") Long insightWorkCardId,
             @Valid @RequestBody InsightCardRequest editInsightWorkCardRequest
     ) {
-        InsightCardResponse editInsightWorkCardResponse = insightCardService.editInsightCard(insightCardId, editInsightWorkCardRequest);
+        InsightCardResponse editInsightWorkCardResponse = insightCardService.editInsightCard(insightWorkCardId, editInsightWorkCardRequest);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, editInsightWorkCardResponse));
     }

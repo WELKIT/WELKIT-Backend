@@ -1,5 +1,6 @@
 package welkit_server.domain.insightcard.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import welkit_server.domain.insightcard.model.CardType;
 import java.time.LocalDateTime;
@@ -10,12 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 public class GetAllInsightCardResponse {
 
-    private Long insightCardId;
+    private Long cardId;
     private String title;
     private String description;
     private String note;
     private CardType type;
-    private boolean isFavorite;
+    @JsonProperty("isFavorite")
+    private boolean favorite;
     private LocalDateTime lastViewedAt;
     private LocalDateTime updatedAt;
 
