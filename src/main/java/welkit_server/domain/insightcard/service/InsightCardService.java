@@ -19,15 +19,32 @@ public class InsightCardService {
 
     private final InsightCardRepository insightCardRepository;
 
-    public List<GetAllInsightCardResponse> getAllInsightCards() {
-        List<InsightCard> insightCards = insightCardRepository.findAll();
+    public List<GetAllInsightCardResponse> getAllInsightPersonCards() {
+        List<InsightCard> insightCards = insightCardRepository.findAllInsightPersonCards();
         return insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()
-                        .insightCardId(insightCard.getId())
+                        .cardId(insightCard.getId())
                         .title(insightCard.getTitle())
                         .description(insightCard.getDescription())
                         .note(insightCard.getNote())
                         .type(insightCard.getType())
+                        .favorite(insightCard.isFavorite())
+                        .lastViewedAt(insightCard.getLastViewedAt())
+                        .updatedAt(insightCard.getLastModifiedDate())
+                        .build())
+                .toList();
+    }
+
+    public List<GetAllInsightCardResponse> getAllInsightWorkCards(){
+        List<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards();
+        return insightCards.stream()
+                .map(insightCard -> GetAllInsightCardResponse.builder()
+                        .cardId(insightCard.getId())
+                        .title(insightCard.getTitle())
+                        .description(insightCard.getDescription())
+                        .note(insightCard.getNote())
+                        .type(insightCard.getType())
+                        .favorite(insightCard.isFavorite())
                         .lastViewedAt(insightCard.getLastViewedAt())
                         .updatedAt(insightCard.getLastModifiedDate())
                         .build())
@@ -35,8 +52,8 @@ public class InsightCardService {
     }
 
     @Transactional
-    public InsightCardResponse getInsightCardById(Long insightCardId) {
-        InsightCard insightCard = findInsightCardById(insightCardId);
+    public InsightCardResponse getInsightCardById(Long cardId) {
+        InsightCard insightCard = findInsightCardById(cardId);
         insightCard.updateLastViewedAt();
         return InsightCardResponse.fromEntity(insightCard);
     }
@@ -44,24 +61,26 @@ public class InsightCardService {
     @Transactional
     public InsightCardResponse createInsightCard(InsightCardRequest createInsightCardRequest) {
         InsightCard insightCard = insightCardRepository.save(createInsightCardRequest.toEntity());
+        insightCard.updateUpdatedAt();
         return InsightCardResponse.fromEntity(insightCard);
     }
 
     @Transactional
-    public InsightCardResponse editInsightCard(Long insightCardId, InsightCardRequest editInsightCardRequest) {
-        InsightCard insightCard = findInsightCardById(insightCardId);
+    public InsightCardResponse editInsightCard(Long cardId, InsightCardRequest editInsightCardRequest) {
+        InsightCard insightCard = findInsightCardById(cardId);
         insightCard.editInsightCard(editInsightCardRequest);
+        insightCard.updateUpdatedAt();
         return InsightCardResponse.fromEntity(insightCard);
     }
 
     @Transactional
-    public void deleteInsightCard(Long insightCardId) {
-        InsightCard insightCard = findInsightCardById(insightCardId);
+    public void deleteInsightCard(Long cardId) {
+        InsightCard insightCard = findInsightCardById(cardId);
         insightCardRepository.delete(insightCard);
     }
 
-    public InsightCard findInsightCardById(Long insightCardId) {
-        return insightCardRepository.findById(insightCardId)
+    public InsightCard findInsightCardById(Long cardId) {
+        return insightCardRepository.findById(cardId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.INSIGHT_CARD_NOT_FOUND));
     }
 
