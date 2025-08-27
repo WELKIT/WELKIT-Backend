@@ -10,13 +10,11 @@ import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.repository.InsightCardRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
-
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-
 public class InsightCardService {
 
     private final InsightCardRepository insightCardRepository;

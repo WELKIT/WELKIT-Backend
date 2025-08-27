@@ -12,7 +12,6 @@ import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.service.InsightCardService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
-
 import java.util.List;
 
 @RestController
