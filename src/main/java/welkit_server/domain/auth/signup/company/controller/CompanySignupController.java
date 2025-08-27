@@ -21,6 +21,7 @@ public class CompanySignupController {
     public ResponseEntity<SuccessResponse> signup(@Valid @RequestBody SignupRequest request) {
         CompanySignupService.signup(request);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponse.of(SuccessMessage.PERSONAL_EMAIL_REGISTER_SUCCESS, null));
+                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_REGISTER_SUCCESS, null));
     }
+
 }

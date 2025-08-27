@@ -49,6 +49,7 @@ public enum ErrorMessage {
     SESSION_EXPIRED(401, "AUTH1001", "세션이 만료되었습니다. 다시 로그인해주세요."),
     LOGIN_REQUIRED(401, "AUTH1002", "로그인 후 진행해주세요."),
     ADMIN_PRIVILEGE_REQUIRED(403, "AUTH1003", "관리자 권한이 필요합니다."),
+    INVALID_TOKEN(401, "AUTH1004", "유효하지 않은 토큰입니다."),
 
     // 서버 에러
     INTERNAL_SERVER_ERROR(500, "INT5000", "서버 내부 오류가 발생했습니다.");
