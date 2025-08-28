@@ -12,9 +12,11 @@ public enum ErrorMessage {
     WK_VALIDATION_NULL_OR_BLANK(400, "WK1003", "필수 요청 값이 누락되었습니다."),
     WK_VALIDATION_LENGTH_EXCEEDED(400, "WK1004", "요청 값이 길이를 초과했습니다."),
     WK_VALIDATION_EMAIL(400, "WK1005", "유효하지 않은 이메일 형식입니다."),
+    WK_NO_PERMISSION(403, "WK1006","권한이 없습니다. "),
 
     // 로그인 (USR)
     INVALID_CREDENTIAL(400, "USR1001", "이메일 또는 비밀번호가 일치하지 않습니다."),
+    USER_NOT_FOUND(404, "USR1002", "사용자를 찾을 수 없습니다."),
 
     // 회원가입 (USR)
     DUPLICATE_EMAIL(400, "USR2001", "이미 사용중인 이메일 주소입니다."),
@@ -35,8 +37,8 @@ public enum ErrorMessage {
     RETROSPECTIVE_INVALID_DATE_RANGE(400, "RET1002", "회고의 날짜 범위가 올바르지 않습니다."),
 
     // 커뮤니티 (CMN)
-    COMMUNITY_NOT_FOUND(404, "CMN1001", "해당 게시물을 찾을 수 없습니다."),
-    COMMUNITY_NO_PERMISSION(401, "CMN1002", "권한이 없습니다."),
+    COMMUNITY_POST_NOT_FOUND(404, "CMN1001", "해당 게시글을 찾을 수 없습니다."),
+    COMMUNITY_COMMENT_NOT_FOUND(404, "CMN1002", "해당 댓글을 찾을 수 없습니다."),
 
     // 마이페이지 (MYP)
     MYP_NOTICE_NOT_FOUND(404, "MYP1001", "해당 공지를 찾을 수 없습니다."),

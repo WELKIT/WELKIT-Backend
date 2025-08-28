@@ -17,7 +17,6 @@ import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
-
 import java.util.Map;
 
 @Service
@@ -97,14 +96,14 @@ public class GoogleSignupService {
 
     // DB 저장
     public void signup(String email, String password, JobRole jobRole) {
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByGoogleEmail(email)) {
             throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
         }
 
         boolean isCompany = !email.endsWith("@gmail.com");
 
         User user = User.builder()
-                .email(email)
+                .googleEmail(email)
                 .password(passwordEncoder.encode(password))
                 .jobRole(jobRole)
                 .isCompanyVerified(isCompany)

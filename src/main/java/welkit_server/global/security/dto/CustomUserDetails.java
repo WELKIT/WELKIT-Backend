@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import welkit_server.domain.user.entity.User;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -55,11 +54,23 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getEmail() {
-        return user.getEmail();
+        return user.getLoginEmail();
     }
 
     public String getUserType() {
         return user.getUserType().name();
+    }
+
+    public String getJobRole() {
+        return user.getJobRole().name();
+    }
+
+    public Long getId() {
+        return user.getId();
+    }
+
+    public User getUser() {
+        return user;
     }
 
 }

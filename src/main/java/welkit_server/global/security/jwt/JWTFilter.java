@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import welkit_server.domain.user.entity.User;
+import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.model.UserType;
 import welkit_server.global.dto.ErrorResponse;
 import welkit_server.global.exception.message.ErrorMessage;
@@ -61,11 +62,13 @@ public class JWTFilter extends OncePerRequestFilter {
             Long userId = jwtUtil.getUserId(token);
             String email = jwtUtil.getEmail(token);
             String userType = jwtUtil.getUserType(token);
+            String jobRole = jwtUtil.getJobRole(token);
 
             User user = User.builder()
                     .id(userId)
                     .email(email)
                     .userType(Enum.valueOf(UserType.class, userType))
+                    .jobRole(Enum.valueOf(JobRole.class, jobRole))
                     .build();
 
             CustomUserDetails userDetails = new CustomUserDetails(user);

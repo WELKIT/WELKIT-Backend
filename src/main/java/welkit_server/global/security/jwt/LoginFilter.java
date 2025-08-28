@@ -12,7 +12,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.security.dto.CustomUserDetails;
-
 import java.io.IOException;
 
 @Slf4j
@@ -40,9 +39,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = customUserDetails.getEmail();
         Long userId = customUserDetails.getUserId();
         String userType = customUserDetails.getUserType();
+        String jobRole = customUserDetails.getJobRole();
 
         // JWT 생성 (1시간 유효)
-        String token = jwtUtil.createJwt(email, userId, userType, 60*60*1000L);
+        String token = jwtUtil.createJwt(email, userId, userType, jobRole, 60*60*1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
     }

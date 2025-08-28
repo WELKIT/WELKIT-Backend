@@ -4,7 +4,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +43,14 @@ public class JWTUtil {
                 .get("userType", String.class);
     }
 
+    public String getJobRole(String token) {
+        return Jwts.parser().verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("jobRole", String.class);
+    }
+
     public Boolean isExpired(String token) {
         return Jwts.parser().verifyWith(secretKey)
                 .build()
@@ -54,11 +61,12 @@ public class JWTUtil {
     }
 
     // JWT 생성
-    public String createJwt(String email, Long userId, String userType, Long expiredMs) {
+    public String createJwt(String loginEmail, Long userId, String userType, String jobRole, Long expiredMs) {
         return Jwts.builder()
-                .claim("email", email)
+                .claim("email", loginEmail)
                 .claim("userId", userId)
                 .claim("userType", userType)
+                .claim("jobRole", jobRole)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
