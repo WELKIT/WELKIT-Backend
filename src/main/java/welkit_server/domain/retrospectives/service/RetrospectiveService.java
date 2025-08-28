@@ -1,9 +1,12 @@
 package welkit_server.domain.retrospectives.service;
 
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.retrospectives.dto.request.RetrospectiveRequest;
@@ -12,8 +15,13 @@ import welkit_server.domain.retrospectives.dto.response.RetrospectiveResponse;
 import welkit_server.domain.retrospectives.entity.Retrospective;
 import welkit_server.domain.retrospectives.model.Type;
 import welkit_server.domain.retrospectives.repository.RetrospectiveRepository;
+import welkit_server.domain.user.entity.User;
+import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
+import welkit_server.global.exception.model.UnauthorizedException;
+import welkit_server.global.security.dto.CustomUserDetails;
 
 import java.util.List;
 
@@ -23,10 +31,12 @@ import java.util.List;
 public class RetrospectiveService {
 
     private final RetrospectiveRepository retrospectiveRepository;
+    private final UserRepository userRepository;
 
-    public List<GetAllRetrospectiveResponse> getAllRetrospectives(Type type, int page, int size) {
+    public List<GetAllRetrospectiveResponse> getAllRetrospectives(Type type, int page, int size, Authentication authentication) {
+        User currentUser = getAuthenticatedUser(authentication);
         Pageable pageable = PageRequest.of(page, size);
-        Page<Retrospective> retrospectives = retrospectiveRepository.findAllRetrospectives(type, pageable);
+        Page<Retrospective> retrospectives = retrospectiveRepository.findAllRetrospectives(currentUser, type, pageable);
 
         return retrospectives.getContent().stream()
                 .map(retrospective -> GetAllRetrospectiveResponse.builder()
@@ -40,33 +50,57 @@ public class RetrospectiveService {
                 .toList();
     }
 
-    public RetrospectiveResponse getRetrospectiveById(Long retrospectiveId) {
-        Retrospective retrospective = findRetrospectiveById(retrospectiveId);
+    public RetrospectiveResponse getRetrospectiveById(Long retrospectiveId, Authentication authentication) {
+        return RetrospectiveResponse.fromEntity(findOwnedRetrospective(retrospectiveId, authentication));
+    }
+
+    @Transactional
+    public RetrospectiveResponse createRetrospective(RetrospectiveRequest createRetrospectiveRequest, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        Retrospective retrospective = createRetrospectiveRequest.toEntity();
+        retrospective.setUser(user);
+        retrospectiveRepository.save(retrospective);
         return RetrospectiveResponse.fromEntity(retrospective);
     }
 
     @Transactional
-    public RetrospectiveResponse createRetrospective(RetrospectiveRequest createRetrospectiveRequest) {
-        Retrospective retrospective = retrospectiveRepository.save(createRetrospectiveRequest.toEntity());
-        return RetrospectiveResponse.fromEntity(retrospective);
-    }
-
-    @Transactional
-    public RetrospectiveResponse editRetrospective(Long retrospectiveId, RetrospectiveRequest editRetrospectiveRequest) {
-        Retrospective retrospective = findRetrospectiveById(retrospectiveId);
+    public RetrospectiveResponse editRetrospective(Long retrospectiveId, RetrospectiveRequest editRetrospectiveRequest, Authentication authentication) {
+        Retrospective retrospective = findOwnedRetrospective(retrospectiveId, authentication);
         retrospective.editRetrospective(editRetrospectiveRequest);
         return RetrospectiveResponse.fromEntity(retrospective);
     }
 
     @Transactional
-    public void deleteRetrospective(Long retrospectiveId) {
-        Retrospective retrospective = findRetrospectiveById(retrospectiveId);
+    public void deleteRetrospective(Long retrospectiveId, Authentication authentication) {
+        Retrospective retrospective = findOwnedRetrospective(retrospectiveId, authentication);
         retrospectiveRepository.delete(retrospective);
+    }
+
+    public Long getAuthenticatedUserId(Authentication authentication) {
+        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
+    }
+
+    public User getAuthenticatedUser(Authentication authentication) {
+        return userRepository.findById(getAuthenticatedUserId(authentication))
+                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     public Retrospective findRetrospectiveById(Long retrospectiveId) {
         return retrospectiveRepository.findById(retrospectiveId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.RETROSPECTIVE_NOT_FOUND));
+    }
+
+    private void validateOwnership(Retrospective retrospective, Authentication authentication) {
+        Long currentUserId = getAuthenticatedUserId(authentication);
+        if (!retrospective.getUser().getId().equals(currentUserId)) {
+            throw new ForbiddenException(ErrorMessage.WK_NO_PERMISSION);
+        }
+    }
+
+    public Retrospective findOwnedRetrospective(Long retrospectiveId, Authentication authentication) {
+        Retrospective retrospective = findRetrospectiveById(retrospectiveId);
+        validateOwnership(retrospective, authentication);
+        return retrospective;
     }
 
 }

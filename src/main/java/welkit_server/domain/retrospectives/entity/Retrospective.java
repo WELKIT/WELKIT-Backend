@@ -37,7 +37,7 @@ public class Retrospective extends BaseEntity {
     private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") //nullable = false
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public void editRetrospective(RetrospectiveRequest request) {
@@ -56,6 +56,10 @@ public class Retrospective extends BaseEntity {
         if (request.getEndDate() != null) {
             this.endDate = request.getEndDate();
         }
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
 }
