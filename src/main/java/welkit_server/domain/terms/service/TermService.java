@@ -1,6 +1,7 @@
 package welkit_server.domain.terms.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.terms.dto.request.CreateTermRequest;
@@ -13,9 +14,14 @@ import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.terms.repository.TermCategoryRepository;
 import welkit_server.domain.terms.repository.TermRepository;
+import welkit_server.domain.user.entity.User;
+import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
+import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
+import welkit_server.global.exception.model.UnauthorizedException;
+import welkit_server.global.security.dto.CustomUserDetails;
 import java.util.List;
 
 @Service
@@ -23,12 +29,16 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class TermService {
 
+    private final UserRepository userRepository;
     private final TermRepository termRepository;
     private final TermCategoryRepository termCategoryRepository;
     private final TermCategoryService termCategoryService;
 
-    public List<GetAllTermResponse> getTerms(){
-        List<Term> termList = termRepository.findAllTerms();
+    public List<GetAllTermResponse> getTerms(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        List<Term> termList = termRepository.findAllByUser(user);
+
         return termList.stream()
                 .map(term -> GetAllTermResponse.builder()
                         .termId(term.getId())
@@ -40,11 +50,13 @@ public class TermService {
                 .toList();
     }
 
-    public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId){
-        if(termCategoryRepository.findTermCategoryById(categoryId).isEmpty()) {
-            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
-        }
-        List<Term> sortedCategoryTerms = termRepository.findAllTermsByCategoryId(categoryId);
+    public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId, Authentication authentication){
+        User user = getAuthenticatedUser(authentication);
+        termCategoryRepository.findByIdAndUser(categoryId, user)
+                .orElseThrow(() -> new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST));
+
+        List<Term> sortedCategoryTerms = termRepository. findAllByUserAndCategoryId(user, categoryId);
+
         return sortedCategoryTerms.stream()
                 .map(term -> GetCategoryTermResponse.builder()
                         .termId(term.getId())
@@ -56,29 +68,72 @@ public class TermService {
     }
 
     @Transactional
-    public CreateTermResponse createTerm(CreateTermRequest createTermRequest) {
-        TermCategory category = termCategoryService.findOrCreate(createTermRequest.getCategoryId(), createTermRequest.getCategoryName());
-        Term term = termRepository.save(createTermRequest.toEntity(category));
+    public CreateTermResponse createTerm(CreateTermRequest createTermRequest, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        TermCategory category = termCategoryService.findOrCreate(
+                createTermRequest.getCategoryId(),
+                createTermRequest.getCategoryName(),
+                authentication
+        );
+
+        Term term = createTermRequest.toEntity(category);
+        term.setUser(user);
+
+        termRepository.save(term);
+
         return CreateTermResponse.fromEntity(term);
     }
 
     @Transactional
-    public EditTermResponse editTerm(Long termId, EditTermRequest editTermRequest) {
-        Term term = getTermById(termId);
-        TermCategory category = termCategoryService.findOrCreate(editTermRequest.getCategoryId(), editTermRequest.getCategoryName());
+    public EditTermResponse editTerm(Long termId, EditTermRequest editTermRequest, Authentication authentication) {
+        Long userId = getAuthenticatedUserId(authentication);
+
+        Term term = findOwnedTerm(termId, userId);
+        TermCategory category = termCategoryService.findOrCreate(
+                editTermRequest.getCategoryId(),
+                editTermRequest.getCategoryName(),
+                authentication
+        );
+
         term.editTerm(editTermRequest, category);
+
         return EditTermResponse.fromEntity(term);
     }
 
     @Transactional
-    public void deleteTerm(Long termId) {
-        Term term = getTermById(termId);
+    public void deleteTerm(Long termId, Authentication authentication) {
+        Long userId = getAuthenticatedUserId(authentication);
+
+        Term term = findOwnedTerm(termId, userId);
+
         termRepository.delete(term);
+    }
+
+    public Long getAuthenticatedUserId(Authentication authentication) {
+        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
+    }
+
+    public User getAuthenticatedUser(Authentication authentication) {
+        return userRepository.findById(getAuthenticatedUserId(authentication))
+                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     public Term getTermById(Long termId) {
         return termRepository.findById(termId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.TERM_NOT_FOUND));
+    }
+
+    private void validateOwnership(Long currentUserId, Term term) {
+        if (!term.getUser().getId().equals(currentUserId)) {
+            throw new ForbiddenException(ErrorMessage.WK_NO_PERMISSION);
+        }
+    }
+
+    private Term findOwnedTerm(Long userId, Long termId) {
+        Term term = getTermById(termId);
+        validateOwnership(userId,term);
+        return term;
     }
 
 }

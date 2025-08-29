@@ -33,7 +33,9 @@ public class RetrospectiveService {
     public List<GetAllRetrospectiveResponse> getAllRetrospectives(Type type, int page, int size, Authentication authentication) {
         User currentUser = getAuthenticatedUser(authentication);
         Pageable pageable = PageRequest.of(page, size);
-        Page<Retrospective> retrospectives = retrospectiveRepository.findAllRetrospectives(currentUser, type, pageable);
+
+        Page<Retrospective> retrospectives =
+                retrospectiveRepository.findAllRetrospectives(currentUser, type, pageable);
 
         return retrospectives.getContent().stream()
                 .map(retrospective -> GetAllRetrospectiveResponse.builder()
@@ -55,24 +57,31 @@ public class RetrospectiveService {
     @Transactional
     public RetrospectiveResponse createRetrospective(RetrospectiveRequest createRetrospectiveRequest, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+
         Retrospective retrospective = createRetrospectiveRequest.toEntity();
         retrospective.setUser(user);
+
         retrospectiveRepository.save(retrospective);
+
         return RetrospectiveResponse.fromEntity(retrospective);
     }
 
     @Transactional
     public RetrospectiveResponse editRetrospective(Long retrospectiveId, RetrospectiveRequest editRetrospectiveRequest, Authentication authentication) {
         Long userId = getAuthenticatedUserId(authentication);
+
         Retrospective retrospective  = findOwnedRetrospective(userId, retrospectiveId);
         retrospective.editRetrospective(editRetrospectiveRequest);
+
         return RetrospectiveResponse.fromEntity(retrospective);
     }
 
     @Transactional
     public void deleteRetrospective(Long retrospectiveId, Authentication authentication) {
         Long userId = getAuthenticatedUserId(authentication);
+
         Retrospective retrospective = findOwnedRetrospective(userId,retrospectiveId);
+
         retrospectiveRepository.delete(retrospective);
     }
 
