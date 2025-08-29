@@ -38,10 +38,10 @@ public class InsightCard extends BaseEntity {
     private boolean isFavorite = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") //nullable = false
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "last_viewed_at") //nullable = false
+    @Column(name = "last_viewed_at")
     private LocalDateTime lastViewedAt;
 
     @Column(name = "updated_at")
@@ -71,6 +71,10 @@ public class InsightCard extends BaseEntity {
         if (request.getIsFavorite() != null) {
             this.isFavorite = request.getIsFavorite();
         }
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
 }

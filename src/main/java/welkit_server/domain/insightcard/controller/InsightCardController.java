@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
@@ -23,22 +24,28 @@ public class InsightCardController {
 
     @Operation(summary = "인물 카드 전체 조회", description = "등록된 인물 카드를 전체 조회합니다")
     @GetMapping("/person")
-    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightPersonCard() {
-        List<GetAllInsightCardResponse> insightPersonCards = insightCardService.getAllInsightPersonCards();
+    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightPersonCard(Authentication authentication) {
+        List<GetAllInsightCardResponse> insightPersonCards = insightCardService.getAllInsightPersonCards(authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insightPersonCards));
     }
 
     @Operation(summary = "인물 카드 상세 조회", description = "등록된 인물 카드 중 선택한 인물 카드를 조회합니다")
     @GetMapping("/person/{id}")
-    public ResponseEntity<SuccessResponse<InsightCardResponse>> getInsightPersonCardByCardNumber(@PathVariable("id") Long insightPersonCardId) {
-        InsightCardResponse insighPersonCard = insightCardService.getInsightCardById(insightPersonCardId);
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> getInsightPersonCardByCardNumber(
+            @PathVariable("id") Long insightPersonCardId,
+            Authentication authentication
+    ) {
+        InsightCardResponse insighPersonCard = insightCardService.getInsightCardById(insightPersonCardId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insighPersonCard));
     }
 
     @Operation(summary = "인물 카드 생성", description = "새로운 인물 카드를 생성합니다")
     @PostMapping("/person")
-    public ResponseEntity<SuccessResponse<InsightCardResponse>> createInsightPersonCard(@Valid @RequestBody InsightCardRequest createInsightPersonCardRequest) {
-        InsightCardResponse  insightPersonCardResponse = insightCardService.createInsightCard(createInsightPersonCardRequest);
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> createInsightPersonCard(
+            @Valid @RequestBody InsightCardRequest createInsightPersonCardRequest,
+            Authentication authentication
+    ) {
+        InsightCardResponse  insightPersonCardResponse = insightCardService.createInsightCard(createInsightPersonCardRequest,authentication);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, insightPersonCardResponse));
     }
@@ -47,38 +54,48 @@ public class InsightCardController {
     @PatchMapping("/person/{id}")
     public ResponseEntity<SuccessResponse<InsightCardResponse>> updatInsightPersonCard(
             @PathVariable("id") Long insightPersonCardId,
-            @Valid @RequestBody InsightCardRequest editInsightPersonCardRequest
+            @Valid @RequestBody InsightCardRequest editInsightPersonCardRequest,
+            Authentication authentication
     ) {
-        InsightCardResponse editInsightPersonCardResponse = insightCardService.editInsightCard(insightPersonCardId, editInsightPersonCardRequest);
+        InsightCardResponse editInsightPersonCardResponse = insightCardService.editInsightCard(insightPersonCardId, editInsightPersonCardRequest,authentication);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, editInsightPersonCardResponse));
     }
 
     @Operation(summary = "인물 카드 삭제", description = "등록되어 있는 인물 카드를 삭제합니다")
     @DeleteMapping("/person/{id}")
-    public ResponseEntity<SuccessResponse> deleteInsightPersonCard(@PathVariable("id") Long insightPersonCardId) {
-        insightCardService.deleteInsightCard(insightPersonCardId);
+    public ResponseEntity<SuccessResponse> deleteInsightPersonCard(
+            @PathVariable("id") Long insightPersonCardId,
+            Authentication authentication
+    ) {
+        insightCardService.deleteInsightCard(insightPersonCardId,authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
     }
 
     @Operation(summary = "업무 카드 전체 조회", description = "등록된 업무 카드를 전체 조회합니다")
     @GetMapping("/work")
-    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightWorkCard() {
-        List<GetAllInsightCardResponse> insightWorkCards = insightCardService.getAllInsightWorkCards();
+    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getAllInsightWorkCard(Authentication authentication) {
+        List<GetAllInsightCardResponse> insightWorkCards = insightCardService.getAllInsightWorkCards(authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insightWorkCards));
     }
 
     @Operation(summary = "업무 카드 상세 조회", description = "등록된 업무 카드 중 선택한 업무 카드를 조회합니다")
     @GetMapping("/work/{id}")
-    public ResponseEntity<SuccessResponse<InsightCardResponse>> getInsightWorkCardByCardNumber(@PathVariable("id") Long insightWorkCardId) {
-        InsightCardResponse insighWorkCard = insightCardService.getInsightCardById(insightWorkCardId);
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> getInsightWorkCardByCardNumber(
+            @PathVariable("id") Long insightWorkCardId,
+            Authentication authentication
+    ) {
+        InsightCardResponse insighWorkCard = insightCardService.getInsightCardById(insightWorkCardId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insighWorkCard));
     }
 
     @Operation(summary = "업무 카드 생성", description = "새로운 업무 카드를 생성합니다")
     @PostMapping("/work")
-    public ResponseEntity<SuccessResponse<InsightCardResponse>> createInsightWorkCard(@Valid @RequestBody InsightCardRequest createInsightWorkCardRequest) {
-        InsightCardResponse  insightWorkCardResponse = insightCardService.createInsightCard(createInsightWorkCardRequest);
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> createInsightWorkCard(
+            @Valid @RequestBody InsightCardRequest createInsightWorkCardRequest,
+            Authentication authentication
+    ) {
+        InsightCardResponse  insightWorkCardResponse = insightCardService.createInsightCard(createInsightWorkCardRequest,authentication);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, insightWorkCardResponse));
     }
@@ -87,17 +104,21 @@ public class InsightCardController {
     @PatchMapping("/work/{id}")
     public ResponseEntity<SuccessResponse<InsightCardResponse>> updateInsightWorkCard(
             @PathVariable("id") Long insightWorkCardId,
-            @Valid @RequestBody InsightCardRequest editInsightWorkCardRequest
+            @Valid @RequestBody InsightCardRequest editInsightWorkCardRequest,
+            Authentication authentication
     ) {
-        InsightCardResponse editInsightWorkCardResponse = insightCardService.editInsightCard(insightWorkCardId, editInsightWorkCardRequest);
+        InsightCardResponse editInsightWorkCardResponse = insightCardService.editInsightCard(insightWorkCardId, editInsightWorkCardRequest,authentication);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, editInsightWorkCardResponse));
     }
 
     @Operation(summary = "업무 카드 삭제", description = "등록되어 있는 업무 카드를 삭제합니다")
     @DeleteMapping("/work/{id}")
-    public ResponseEntity<SuccessResponse> deleteInsightWorkCard(@PathVariable("id") Long insightWorkCardId) {
-        insightCardService.deleteInsightCard(insightWorkCardId);
+    public ResponseEntity<SuccessResponse> deleteInsightWorkCard(
+            @PathVariable("id") Long insightWorkCardId,
+            Authentication authentication
+    ) {
+        insightCardService.deleteInsightCard(insightWorkCardId,authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
     }
 

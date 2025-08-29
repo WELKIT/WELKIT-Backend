@@ -12,11 +12,15 @@ public class InsightCardRequest {
 
     @NotBlank
     private String title;
+
     @NotBlank
     private String description;
+
     private String note;
+
     @NotNull
     private CardType type;
+
     private Boolean isFavorite;
 
     public InsightCard toEntity() {
