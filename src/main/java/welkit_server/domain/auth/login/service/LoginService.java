@@ -20,6 +20,7 @@ public class LoginService {
 
     public String login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
+                .or(() -> userRepository.findByGoogleEmail(request.getEmail()))
                 .orElseThrow(() -> new BadRequestException(ErrorMessage.INVALID_CREDENTIAL));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -27,9 +28,10 @@ public class LoginService {
         }
 
         return jwtUtil.createJwt(
-                user.getEmail(),
+                user.getLoginEmail(),
                 user.getId(),
                 user.getUserType().name(),
+                user.getJobRole().name(),
                 60 * 60 * 1000L
         );
     }

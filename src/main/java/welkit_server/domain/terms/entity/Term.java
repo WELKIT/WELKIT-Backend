@@ -29,7 +29,7 @@ public class Term extends BaseEntity {
     private TermCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") //nullable = false
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public void editTerm(EditTermRequest editTermRequest, TermCategory newCategory) {
@@ -43,4 +43,9 @@ public class Term extends BaseEntity {
             this.category = newCategory;
         }
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 }

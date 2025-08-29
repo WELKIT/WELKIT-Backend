@@ -15,13 +15,17 @@ public class RetrospectiveRequest {
 
     @NotBlank
     private String title;
+
     @NotNull
     private Type type;
+
     @NotBlank
     private String content;
+
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
     private LocalDate startDate;
+
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
     private LocalDate endDate;

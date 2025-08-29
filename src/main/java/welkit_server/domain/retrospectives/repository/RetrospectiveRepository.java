@@ -8,12 +8,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import welkit_server.domain.retrospectives.entity.Retrospective;
 import welkit_server.domain.retrospectives.model.Type;
+import welkit_server.domain.user.entity.User;
 
 @Repository
 public interface RetrospectiveRepository extends JpaRepository<Retrospective, Long> {
 
-    @Query("SELECT r FROM Retrospective r WHERE r.type = :type ORDER BY r.createdDate DESC")
-    Page<Retrospective> findAllRetrospectives(@Param("type") Type type, Pageable pageable);
+    @Query("SELECT r FROM Retrospective r " +
+            "WHERE r.user = :user AND r.type = :type " +
+            "ORDER BY r.createdDate DESC")
+    Page<Retrospective> findAllRetrospectives(@Param("user") User user, @Param("type") Type type, Pageable pageable);
 
 }
 

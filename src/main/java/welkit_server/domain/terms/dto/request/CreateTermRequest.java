@@ -13,10 +13,13 @@ public class CreateTermRequest {
 
     @NotBlank
     private String name;
+
     @NotBlank
     private String definition;
+
     @NotNull
     private Long categoryId;
+
     @NotBlank
     private String categoryName;
 

@@ -5,7 +5,6 @@ import lombok.*;
 import welkit_server.domain.user.entity.User;
 import welkit_server.global.domain.BaseEntity;
 
-
 @Entity
 @Getter
 @Builder
@@ -24,4 +23,5 @@ public class TermCategory extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id") //nullable = false
     private User user;
+
 }

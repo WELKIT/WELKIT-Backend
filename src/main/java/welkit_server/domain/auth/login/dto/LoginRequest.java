@@ -5,9 +5,12 @@ import lombok.Getter;
 
 @Getter
 public class LoginRequest {
-    @NotBlank
+
     private String email;
+
+    private String googleEmail;
 
     @NotBlank
     private String password;
+
 }
