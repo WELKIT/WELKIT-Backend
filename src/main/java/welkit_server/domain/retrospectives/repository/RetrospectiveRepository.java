@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import welkit_server.domain.retrospectives.entity.Retrospective;
 import welkit_server.domain.retrospectives.model.Type;
 import welkit_server.domain.user.entity.User;
-import java.util.Optional;
 
 @Repository
 public interface RetrospectiveRepository extends JpaRepository<Retrospective, Long> {

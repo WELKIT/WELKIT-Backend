@@ -14,8 +14,6 @@ import welkit_server.domain.retrospectives.model.Type;
 import welkit_server.domain.retrospectives.service.RetrospectiveService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
-import welkit_server.global.security.dto.CustomUserDetails;
-
 import java.util.List;
 
 @RestController
@@ -68,10 +66,6 @@ public class RetrospectiveController {
     public ResponseEntity<SuccessResponse> deleteRetrospective(@PathVariable("id") Long retrospectiveId,Authentication authentication) {
         retrospectiveService.deleteRetrospective(retrospectiveId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
     }
 
 }
