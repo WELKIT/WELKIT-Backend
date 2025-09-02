@@ -89,7 +89,7 @@ public class TermService {
     public EditTermResponse editTerm(Long termId, EditTermRequest editTermRequest, Authentication authentication) {
         Long userId = getAuthenticatedUserId(authentication);
 
-        Term term = findOwnedTerm(termId, userId);
+        Term term = findOwnedTerm(userId, termId);
         TermCategory category = termCategoryService.findOrCreate(
                 editTermRequest.getCategoryId(),
                 editTermRequest.getCategoryName(),
@@ -105,7 +105,7 @@ public class TermService {
     public void deleteTerm(Long termId, Authentication authentication) {
         Long userId = getAuthenticatedUserId(authentication);
 
-        Term term = findOwnedTerm(termId, userId);
+        Term term = findOwnedTerm(userId, termId);
 
         termRepository.delete(term);
     }
