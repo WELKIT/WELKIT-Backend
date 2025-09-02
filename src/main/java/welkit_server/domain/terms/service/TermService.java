@@ -98,7 +98,7 @@ public class TermService {
 
         term.editTerm(editTermRequest, category);
 
-        return EditTermResponse.fromEntity(term);
+        return EditTermResponse.    fromEntity(term);
     }
 
     @Transactional

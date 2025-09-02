@@ -1,4 +1,4 @@
-package welkit_server.domain.user.model;
+package welkit_server.domain.mypage.model;
 
 public enum FeatureName {
     TERMS,

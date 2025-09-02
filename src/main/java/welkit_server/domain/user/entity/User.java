@@ -41,7 +41,7 @@ public class User extends BaseEntity {
     private boolean isCompanyVerified;
 
     //기능 잠금 설정용 비밀번호
-    @Column(name = "lock_pin", length=45)
+    @Column(name = "lock_pin", length=100)
     private String lockPin;
 
     @Builder.Default
@@ -51,6 +51,10 @@ public class User extends BaseEntity {
 
     public String getLoginEmail() {
         return this.email != null ? this.email : this.googleEmail;
+    }
+
+    public void settingLockPin(String lockPin){
+        this.lockPin = lockPin;
     }
 
 }

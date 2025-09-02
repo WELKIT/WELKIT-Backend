@@ -21,6 +21,8 @@ public enum SuccessMessage {
     LOAD_SUCCESS(HttpStatus.OK.value(),"조회가 완료되었습니다"),
     UPDATED_SUCCESS(HttpStatus.OK.value(), "수정이 완료되었습니다"),
 
+    LOCK_FEATURE_UPDATED(HttpStatus.OK.value(), "%s 기능의 잠금 상태가 변경되었습니다"),
+
     /*
     201 Created
      */
@@ -38,4 +40,9 @@ public enum SuccessMessage {
 
     private final int status;
     private final String message;
+
+    public String formatMessage(Object... args) {
+        return String.format(this.message, args);
+    }
+
 }

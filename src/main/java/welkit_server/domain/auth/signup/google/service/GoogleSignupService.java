@@ -7,16 +7,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import welkit_server.domain.auth.signup.google.dto.GoogleSignupRequest;
+import welkit_server.domain.mypage.entity.LockSetting;
+import welkit_server.domain.mypage.model.FeatureName;
+import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,6 +30,7 @@ import java.util.Map;
 public class GoogleSignupService {
 
     private final UserRepository userRepository;
+    private final LockSettingRepository lockSettingRepository;
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -95,6 +102,7 @@ public class GoogleSignupService {
     }
 
     // DB 저장
+    @Transactional
     public void signup(String email, String password, JobRole jobRole) {
         if (userRepository.existsByGoogleEmail(email)) {
             throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
@@ -111,6 +119,16 @@ public class GoogleSignupService {
                 .build();
 
         userRepository.save(user);
+
+        List<LockSetting> lockSettings = Arrays.stream(FeatureName.values())
+                .map(feature -> LockSetting.builder()
+                        .user(user)
+                        .featureName(feature)
+                        .isLocked(false)
+                        .build())
+                .toList();
+
+        lockSettingRepository.saveAll(lockSettings);
     }
 
 }
