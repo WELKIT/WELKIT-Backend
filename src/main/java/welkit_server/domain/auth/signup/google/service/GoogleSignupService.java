@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -24,7 +23,6 @@ import java.util.Map;
 public class GoogleSignupService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -53,7 +51,7 @@ public class GoogleSignupService {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
-        signup(email, request.getPassword(), request.getJobRole());
+        signup(email, request.getJobRole());
         session.removeAttribute("googleEmail");
     }
 
@@ -95,7 +93,7 @@ public class GoogleSignupService {
     }
 
     // DB 저장
-    public void signup(String email, String password, JobRole jobRole) {
+    public void signup(String email, JobRole jobRole) {
         if (userRepository.existsByGoogleEmail(email)) {
             throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
         }
@@ -104,7 +102,6 @@ public class GoogleSignupService {
 
         User user = User.builder()
                 .googleEmail(email)
-                .password(passwordEncoder.encode(password))
                 .jobRole(jobRole)
                 .isCompanyVerified(isCompany)
                 .emailType(isCompany ? EmailType.COMPANY_EMAIL : EmailType.PERSONAL_EMAIL)
