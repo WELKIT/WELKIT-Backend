@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
 import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
+import welkit_server.domain.insightcard.model.CardType;
 import welkit_server.domain.insightcard.service.InsightCardService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
@@ -37,6 +38,13 @@ public class InsightCardController {
     ) {
         InsightCardResponse insighPersonCard = insightCardService.getInsightCardById(insightPersonCardId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insighPersonCard));
+    }
+
+    @Operation(summary = "인물 카드 최근본 카드 조회", description = "등록된 인물 카드 중 최근 본 인물 카드를 조회합니다")
+    @GetMapping("/person/recent")
+    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getRecentInsightPersonCard(Authentication authentication) {
+        List<GetAllInsightCardResponse> recentInsightCard = insightCardService.getTop4LastViewedAtInsightCards(CardType.PERSON, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, recentInsightCard));
     }
 
     @Operation(summary = "인물 카드 생성", description = "새로운 인물 카드를 생성합니다")
@@ -87,6 +95,13 @@ public class InsightCardController {
     ) {
         InsightCardResponse insighWorkCard = insightCardService.getInsightCardById(insightWorkCardId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, insighWorkCard));
+    }
+
+    @Operation(summary = "업무 카드 최근본 카드 조회", description = "등록된 업무 카드 중 최근 본 업무 카드를 조회합니다")
+    @GetMapping("/work/recent")
+    public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getRecentInsightWorkCard(Authentication authentication) {
+        List<GetAllInsightCardResponse> recentInsightCard = insightCardService.getTop4LastViewedAtInsightCards(CardType.WORK, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, recentInsightCard));
     }
 
     @Operation(summary = "업무 카드 생성", description = "새로운 업무 카드를 생성합니다")
