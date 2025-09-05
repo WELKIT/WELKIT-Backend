@@ -10,10 +10,8 @@ import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
 import welkit_server.domain.admin.entity.Notice;
 import welkit_server.domain.admin.repository.NoticeRepository;
 import welkit_server.domain.user.entity.User;
-import welkit_server.domain.user.model.UserType;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
-import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.security.dto.CustomUserDetails;
@@ -41,7 +39,7 @@ public class NoticeAdminService {
 
     @Transactional
     public NoticeAdminResponse createNotice(NoticeAdminRequest createNoticeRequest, Authentication authentication) {
-        checkPermission(getAuthenticatedUser(authentication));
+        getAuthenticatedUser(authentication);
         Notice notice = createNoticeRequest.toEntity();
         noticeRepository.save(notice);
         return NoticeAdminResponse.fromEntity(notice);
@@ -49,7 +47,7 @@ public class NoticeAdminService {
 
     @Transactional
     public NoticeAdminResponse updateNotice(Long noticeId, NoticeAdminRequest updateNoticeRequest, Authentication authentication) {
-        checkPermission(getAuthenticatedUser(authentication));
+        getAuthenticatedUser(authentication);
         Notice notice = findNoticeById(noticeId);
         notice.editNotice(updateNoticeRequest);
         return NoticeAdminResponse.fromEntity(notice);
@@ -57,7 +55,7 @@ public class NoticeAdminService {
 
     @Transactional
     public void deleteNotice(Long noticeId, Authentication authentication) {
-        checkPermission(getAuthenticatedUser(authentication));
+        getAuthenticatedUser(authentication);
         Notice notice = findNoticeById(noticeId);
         noticeRepository.delete(notice);
     }
@@ -74,12 +72,6 @@ public class NoticeAdminService {
     public Notice findNoticeById(Long noticeId) {
         return noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.MYP_NOTICE_NOT_FOUND));
-    }
-
-    public void checkPermission(User user){
-        if (user.getUserType() != UserType.ADMIN) {
-            throw new ForbiddenException(ErrorMessage.WK_NO_PERMISSION);
-        }
     }
 
 }
