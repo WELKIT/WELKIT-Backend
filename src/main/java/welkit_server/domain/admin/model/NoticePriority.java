@@ -1,4 +1,4 @@
-package welkit_server.domain.mypage.model;
+package welkit_server.domain.admin.model;
 
 public enum NoticePriority {
     LOW,
