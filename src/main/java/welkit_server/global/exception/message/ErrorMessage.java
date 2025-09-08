@@ -13,6 +13,8 @@ public enum ErrorMessage {
     WK_VALIDATION_LENGTH_EXCEEDED(400, "WK1004", "요청 값이 길이를 초과했습니다."),
     WK_VALIDATION_EMAIL(400, "WK1005", "유효하지 않은 이메일 형식입니다."),
     WK_NO_PERMISSION(403, "WK1006","권한이 없습니다. "),
+    INVALID_PASSWORD_LENGTH(400, "WK1007", "비밀번호는 최소 8자 이상이어야 합니다."),
+    INVALID_PASSWORD_SPECIAL_CHAR(400, "WK1008", "비밀번호는 최소 하나의 특수문자를 포함해야 합니다."),
 
     // 로그인 (USR)
     INVALID_CREDENTIAL(400, "USR1001", "이메일 또는 비밀번호가 일치하지 않습니다."),
