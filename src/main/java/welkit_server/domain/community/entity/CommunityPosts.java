@@ -2,8 +2,10 @@ package welkit_server.domain.community.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import welkit_server.domain.community.dto.request.PostUpdateRequest;
 import welkit_server.domain.community.model.CommunityPostStatus;
 import welkit_server.domain.user.entity.User;
+import welkit_server.domain.user.model.JobRole;
 import welkit_server.global.domain.BaseEntity;
 
 @Entity
@@ -24,6 +26,9 @@ public class CommunityPosts extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    private JobRole jobRole;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -31,5 +36,11 @@ public class CommunityPosts extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CommunityPostStatus status;
+
+    public void editPost(PostUpdateRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.jobRole = request.getJobRole(); // 게시글의 jobRole만 업데이트
+    }
 
 }

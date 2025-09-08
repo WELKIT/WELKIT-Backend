@@ -10,7 +10,7 @@ import welkit_server.domain.user.model.JobRole;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostCreateRequest {
+public class PostUpdateRequest {
     @NotNull
     private JobRole jobRole;
     @NotBlank
