@@ -35,11 +35,7 @@ public class CommunityService {
 
         CommunityPosts saved = postRepository.save(post);
 
-        return PostResponse.builder()
-                .id(saved.getId())
-                .title(saved.getTitle())
-                .content(saved.getContent())
-                .build();
+        return PostResponse.fromEntity(saved);
     }
 
     public Long getAuthenticatedUserId(Authentication authentication) {
