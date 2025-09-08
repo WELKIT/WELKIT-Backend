@@ -15,12 +15,8 @@ public record SuccessResponse<T>(
         return new SuccessResponse(successMessage.getStatus(), successMessage.getMessage(), null);
     }
 
-    public static <T> SuccessResponse<T> of(final T data, final String message, final int status) {
+    public static <T> SuccessResponse<T> of(int status, String message, T data) {
         return new SuccessResponse<>(status, message, data);
-    }
-
-    public static <T> SuccessResponse<T> of(final SuccessMessage successMessage, final T data, final String formattedMessage) {
-        return new SuccessResponse(successMessage.getStatus(), formattedMessage, data);
     }
 
 }

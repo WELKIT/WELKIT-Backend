@@ -19,7 +19,6 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(unique = true, length = 50)
-
     @Email
     private String email;
 
