@@ -10,19 +10,23 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import welkit_server.domain.auth.signup.google.dto.GoogleSignupRequest;
+import welkit_server.domain.mypage.entity.LockSetting;
+import welkit_server.domain.mypage.model.FeatureName;
+import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class GoogleSignupService {
 
     private final UserRepository userRepository;
+    private final LockSettingRepository lockSettingRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -88,7 +92,7 @@ public class GoogleSignupService {
         if (body == null || !body.containsKey("email")) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
-
+      
         return (String) body.get("email");
     }
 
@@ -108,6 +112,16 @@ public class GoogleSignupService {
                 .build();
 
         userRepository.save(user);
+
+        List<LockSetting> lockSettings = Arrays.stream(FeatureName.values())
+                .map(feature -> LockSetting.builder()
+                        .user(user)
+                        .featureName(feature)
+                        .isLocked(false)
+                        .build())
+                .toList();
+
+        lockSettingRepository.saveAll(lockSettings);
     }
 
 }

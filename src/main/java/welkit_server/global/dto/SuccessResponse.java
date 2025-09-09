@@ -14,4 +14,9 @@ public record SuccessResponse<T>(
     public static SuccessResponse of(final SuccessMessage successMessage) {
         return new SuccessResponse(successMessage.getStatus(), successMessage.getMessage(), null);
     }
+
+    public static <T> SuccessResponse<T> of(int status, String message, T data) {
+        return new SuccessResponse<>(status, message, data);
+    }
+
 }

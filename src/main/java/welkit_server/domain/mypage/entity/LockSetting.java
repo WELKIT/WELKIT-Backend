@@ -1,8 +1,9 @@
-package welkit_server.domain.user.entity;
+package welkit_server.domain.mypage.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import welkit_server.domain.user.model.FeatureName;
+import welkit_server.domain.user.entity.User;
+import welkit_server.domain.mypage.model.FeatureName;
 import welkit_server.global.domain.BaseEntity;
 
 
@@ -28,5 +29,9 @@ public class LockSetting extends BaseEntity {
 
     @Column(name = "is_locked")
     private boolean isLocked;
+
+    public void settingLock(boolean isLocked) {
+        this.isLocked = isLocked;
+    }
 
 }

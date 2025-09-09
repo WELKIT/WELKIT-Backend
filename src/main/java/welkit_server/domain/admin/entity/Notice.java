@@ -1,8 +1,8 @@
-package welkit_server.domain.mypage.entity;
+package welkit_server.domain.admin.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import welkit_server.domain.mypage.model.NoticePriority;
+import welkit_server.domain.admin.model.NoticePriority;
 import welkit_server.global.domain.BaseEntity;
 
 @Entity

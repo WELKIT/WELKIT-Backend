@@ -56,10 +56,10 @@ public class RetrospectiveService {
 
     @Transactional
     public RetrospectiveResponse createRetrospective(RetrospectiveRequest createRetrospectiveRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
         Retrospective retrospective = createRetrospectiveRequest.toEntity();
-        retrospective.setUser(user);
+        retrospective.setUser(currentUser);
 
         retrospectiveRepository.save(retrospective);
 
@@ -68,9 +68,9 @@ public class RetrospectiveService {
 
     @Transactional
     public RetrospectiveResponse editRetrospective(Long retrospectiveId, RetrospectiveRequest editRetrospectiveRequest, Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        Retrospective retrospective  = findOwnedRetrospective(userId, retrospectiveId);
+        Retrospective retrospective  = findOwnedRetrospective(currentUser.getId(), retrospectiveId);
         retrospective.editRetrospective(editRetrospectiveRequest);
 
         return RetrospectiveResponse.fromEntity(retrospective);
@@ -78,9 +78,9 @@ public class RetrospectiveService {
 
     @Transactional
     public void deleteRetrospective(Long retrospectiveId, Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        Retrospective retrospective = findOwnedRetrospective(userId,retrospectiveId);
+        Retrospective retrospective = findOwnedRetrospective(currentUser.getId(),retrospectiveId);
 
         retrospectiveRepository.delete(retrospective);
     }
