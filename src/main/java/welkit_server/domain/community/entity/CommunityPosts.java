@@ -2,11 +2,15 @@ package welkit_server.domain.community.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
 import welkit_server.domain.community.model.CommunityPostStatus;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.global.domain.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,6 +40,13 @@ public class CommunityPosts extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CommunityPostStatus status;
+
+    @OneToMany(mappedBy = "targetId", fetch = FetchType.LAZY)
+    @Where(clause = "target_type = 'POSTS'")
+    private List<CommunityFeedBack> feedbacks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<CommunityComments> comments = new ArrayList<>();
 
     public void editPost(PostUpdateRequest request) {
         this.title = request.getTitle();

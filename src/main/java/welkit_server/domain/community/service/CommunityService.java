@@ -2,28 +2,59 @@ package welkit_server.domain.community.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
+import welkit_server.domain.community.dto.response.FeedbackResponse;
 import welkit_server.domain.community.dto.response.PostResponse;
+import welkit_server.domain.community.dto.response.PostSummaryResponse;
 import welkit_server.domain.community.dto.response.PostUpdateResponse;
+import welkit_server.domain.community.entity.CommunityFeedBack;
 import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.domain.community.model.CommunityPostStatus;
+import welkit_server.domain.community.model.TargetType;
+import welkit_server.domain.community.repository.CommunityCommentRepository;
+import welkit_server.domain.community.repository.CommunityFeedBackRepository;
 import welkit_server.domain.community.repository.CommunityPostRepository;
 import welkit_server.domain.user.entity.User;
+import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.security.dto.CustomUserDetails;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommunityService {
 
     private final CommunityPostRepository postRepository;
+    private final CommunityFeedBackRepository feedbackRepository;
+    private final CommunityCommentRepository commentRepository;
     private final UserRepository userRepository;
+
+    public List<PostSummaryResponse> getAllCommunityPosts(JobRole jobRole, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<CommunityPosts> posts;
+
+        if (jobRole != null) {
+            posts = postRepository.findAllByJobRole(jobRole, pageable); // 게시글의 jobRole 기준
+        } else {
+            posts = postRepository.findAll(pageable);
+        }
+
+        return posts.getContent().stream()
+                .map(PostSummaryResponse::fromEntity)
+                .toList();
+    }
 
     @Transactional
     public PostResponse createPost(PostCreateRequest request, Authentication authentication) {

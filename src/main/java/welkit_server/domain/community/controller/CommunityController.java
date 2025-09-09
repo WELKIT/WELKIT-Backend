@@ -6,23 +6,46 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
+import welkit_server.domain.community.dto.response.FeedbackResponse;
 import welkit_server.domain.community.dto.response.PostResponse;
+import welkit_server.domain.community.dto.response.PostSummaryResponse;
 import welkit_server.domain.community.dto.response.PostUpdateResponse;
+import welkit_server.domain.community.model.TargetType;
 import welkit_server.domain.community.service.CommunityService;
+import welkit_server.domain.user.model.JobRole;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/community/posts")
+@RequestMapping("/community")
 @RequiredArgsConstructor
 public class CommunityController {
 
     private final CommunityService communityService;
 
+    @Operation(summary = "커뮤니티 글 전체 조회", description = "커뮤니티 글을 전체 조회합니다. 카테고리(직무)별로 필터링할 수 있습니다.")
+    @GetMapping("/posts")
+    public ResponseEntity<SuccessResponse<Map<String, List<PostSummaryResponse>>>> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) JobRole category,
+            Authentication authentication
+    ) {
+        List<PostSummaryResponse> posts = communityService.getAllCommunityPosts(category, page, size);
+
+        Map<String, List<PostSummaryResponse>> response = Map.of("posts", posts);
+
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
     @Operation(summary = "커뮤니티 글 작성", description = "새로운 커뮤니티 글을 작성합니다.")
-    @PostMapping
+    @PostMapping("/posts")
     public ResponseEntity<SuccessResponse<PostResponse>> createPost(
             @RequestBody PostCreateRequest request,
             Authentication authentication
@@ -33,7 +56,7 @@ public class CommunityController {
     }
 
     @Operation(summary = "커뮤니티 글 수정", description = "기존 커뮤니티 글을 수정합니다.")
-    @PatchMapping("/{postId}")
+    @PatchMapping("posts/{postId}")
     public ResponseEntity<SuccessResponse<PostUpdateResponse>> updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequest request,
@@ -45,13 +68,24 @@ public class CommunityController {
     }
 
     @Operation(summary = "커뮤니티 글 삭제", description = "기존 커뮤니티 글을 삭제합니다.")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("posts/{postId}")
     public ResponseEntity<SuccessResponse<Void>> deletePost(
             @PathVariable Long postId,
             Authentication authentication
     ) {
         communityService.deletePost(postId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS, null));
+    }
+
+
+    @Operation(summary = "커뮤니티 글/댓글 공감 버튼 토글", description = "유익했어요/유익하지 않았어요 버튼을 토글합니다.")
+    @PostMapping("/feedback")
+    public ResponseEntity<SuccessResponse<FeedbackResponse>> toggleHelpful(
+            @Valid @RequestBody FeedbackRequest request,
+            Authentication authentication
+    ) {
+        FeedbackResponse response = communityService.toggleHelpful(request, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, response));
     }
 
 }
