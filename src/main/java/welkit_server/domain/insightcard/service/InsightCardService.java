@@ -132,6 +132,5 @@ public class InsightCardService {
         validateOwnership(userId, insightCard);
         return insightCard;
     }
-
-
+    
 }

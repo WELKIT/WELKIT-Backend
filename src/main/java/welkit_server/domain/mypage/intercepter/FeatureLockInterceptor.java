@@ -12,7 +12,7 @@ import welkit_server.domain.mypage.entity.LockSetting;
 import welkit_server.domain.mypage.model.FeatureName;
 import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.global.exception.message.ErrorMessage;
-import welkit_server.global.exception.model.ForbiddenException;
+import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.security.dto.CustomUserDetails;
 
@@ -51,6 +51,6 @@ public class FeatureLockInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        throw new ForbiddenException(ErrorMessage.MYP_INVALID_LOCK_PIN);
+        throw new BadRequestException(ErrorMessage.MYP_INVALID_LOCK_PIN);
     }
 }

@@ -56,4 +56,8 @@ public class User extends BaseEntity {
         this.lockPin = lockPin;
     }
 
+    public void setEmailType(EmailType emailType){
+        this.emailType = emailType;
+    }
+
 }
