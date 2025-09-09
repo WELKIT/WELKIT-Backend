@@ -1,5 +1,6 @@
 package welkit_server.domain.community.service;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
 import welkit_server.domain.community.dto.response.*;
+import welkit_server.domain.community.entity.CommunityComments;
 import welkit_server.domain.community.entity.CommunityFeedBack;
 import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.domain.community.model.CommunityPostStatus;
@@ -62,6 +64,50 @@ public class CommunityService {
         return PostDetailResponse.fromEntity(post, user);
     }
 
+    @Transactional(readOnly = true)
+    public List<PostSummaryResponse> getMyPosts(int page, int size, JobRole jobRole, Authentication authentication) {
+        User currentUser = getAuthenticatedUser(authentication);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        List<CommunityPosts> posts = postRepository.findByUserAndOptionalJobRole(currentUser, jobRole, pageable);
+
+        if (jobRole != null && posts.isEmpty()) {
+            return List.of();
+        }
+
+        return posts.stream()
+                .map(PostSummaryResponse::fromEntity)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostSummaryResponse> getMyCommentedPosts(int page, int size, JobRole jobRole, Authentication authentication) {
+        User currentUser = getAuthenticatedUser(authentication);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        List<CommunityPosts> posts = postRepository.findDistinctByComments_UserAndOptionalJobRole(currentUser, jobRole, pageable);
+
+        return posts.stream()
+                .map(PostSummaryResponse::fromEntity)
+                .toList();
+    }
+
+    public List<PostSummaryResponse> searchPosts(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+        Page<CommunityPosts> posts;
+
+        if (keyword == null || keyword.isBlank()) {
+            posts = postRepository.findAll(pageable);
+        } else {
+            posts = postRepository.searchPostsOptionalKeyword(keyword, pageable);
+        }
+
+        return posts.stream()
+                .map(PostSummaryResponse::fromEntity)
+                .toList();
+    }
+
     @Transactional
     public PostResponse createPost(PostCreateRequest request, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
@@ -69,6 +115,7 @@ public class CommunityService {
         CommunityPosts post = CommunityPosts.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                .jobRole(request.getJobRole())
                 .user(user)
                 .status(CommunityPostStatus.NORMAL)
                 .build();

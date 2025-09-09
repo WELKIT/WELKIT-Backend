@@ -3,6 +3,7 @@ package welkit_server.domain.community.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,6 @@ import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
 import welkit_server.domain.community.dto.response.*;
-import welkit_server.domain.community.model.TargetType;
 import welkit_server.domain.community.service.CommunityService;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.global.dto.SuccessResponse;
@@ -47,6 +47,41 @@ public class CommunityController {
             Authentication authentication
     ) {
         PostDetailResponse response = communityService.getPostDetail(postId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
+    @Operation(summary = "내가 작성한 글 조회", description = "내가 작성한 커뮤니티 글을 조회합니다.")
+    @GetMapping("/myposts")
+    public ResponseEntity<SuccessResponse<Page<PostSummaryResponse>>> getMyPosts(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) JobRole category,
+            Authentication authentication
+    ) {
+        List<PostSummaryResponse> response = communityService.getMyPosts(page, size, category, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
+    @Operation(summary = "내가 댓글 단 글 조회", description = "내가 댓글을 단 커뮤니티 글을 조회합니다.")
+    @GetMapping("/mycomments")
+    public ResponseEntity<SuccessResponse<Page<PostSummaryResponse>>> getMyCommentedPosts(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) JobRole category,
+            Authentication authentication
+    ) {
+        List<PostSummaryResponse> response = communityService.getMyCommentedPosts(page, size, category, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
+    @Operation(summary = "게시글 검색", description = "키워드로 게시글을 검색합니다.")
+    @GetMapping("/posts/search")
+    public ResponseEntity<SuccessResponse<Page<PostSummaryResponse>>> searchPosts(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String keyword
+    ) {
+        List<PostSummaryResponse> response = communityService.searchPosts(page, size, keyword);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
     }
 
