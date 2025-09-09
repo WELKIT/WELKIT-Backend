@@ -9,15 +9,8 @@ import welkit_server.global.domain.BaseEntity;
 @Entity
 @Getter
 @Builder
-@Table(name="community_feedbacks",
-        uniqueConstraints = {
-        @UniqueConstraint(
-                columnNames = {"target_type", "target_id", "user_id"}
-        )
-    }
-)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class CommunityFeedBack extends BaseEntity {
 
     @Id
@@ -28,7 +21,7 @@ public class CommunityFeedBack extends BaseEntity {
     @Column(nullable = false, length = 20)
     private TargetType targetType;
 
-    @Column(nullable = false)
+    @Column(name = "target_id", nullable = false)
     private Long targetId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -38,5 +31,21 @@ public class CommunityFeedBack extends BaseEntity {
     @Column(name = "is_helpful")
     private Boolean isHelpful;
 
-}
+    public static CommunityFeedBack create(TargetType targetType, Long targetId, User user) {
+        CommunityFeedBack feedback = new CommunityFeedBack();
+        feedback.targetType = targetType;
+        feedback.targetId = targetId;
+        feedback.user = user;
+        feedback.isHelpful = null;
+        return feedback;
+    }
 
+    public void toggleHelpful(Boolean newValue) {
+        if (this.isHelpful != null && this.isHelpful.equals(newValue)) {
+            this.isHelpful = null; 
+        } else {
+            this.isHelpful = newValue;
+        }
+    }
+    
+}

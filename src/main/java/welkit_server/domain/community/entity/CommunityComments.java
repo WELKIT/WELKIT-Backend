@@ -2,6 +2,7 @@ package welkit_server.domain.community.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import welkit_server.domain.user.entity.User;
 import welkit_server.global.domain.BaseEntity;
 import java.time.LocalDateTime;
@@ -37,6 +38,11 @@ public class CommunityComments extends BaseEntity {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityComments> children = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @Where(clause = "target_type = 'COMMENTS'")
+    @JoinColumn(name = "target_id", insertable = false, updatable = false)
+    private List<CommunityFeedBack> feedbacks = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

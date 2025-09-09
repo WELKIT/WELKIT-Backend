@@ -50,14 +50,29 @@ public class GlobalExceptionHandler {
 
         FieldError fieldError = e.getBindingResult().getFieldError();
 
-        ErrorMessage errorMessage = fieldError == null
-                ? ErrorMessage.WK_VALIDATION_MISSING
-                : switch (fieldError.getCode()) {
-            case "NotNull", "NotBlank" -> ErrorMessage.WK_VALIDATION_NULL_OR_BLANK;
-            case "Email" -> ErrorMessage.WK_VALIDATION_EMAIL;
-            case "Size" -> ErrorMessage.WK_VALIDATION_LENGTH_EXCEEDED;
-            default -> ErrorMessage.WK_VALIDATION_MISSING;
-        };
+        ErrorMessage errorMessage;
+        if (fieldError == null) {
+            errorMessage = ErrorMessage.WK_VALIDATION_MISSING;
+        } else if ("password".equals(fieldError.getField())) {
+            // password 필드 validation
+            String rejectedValue = String.valueOf(fieldError.getRejectedValue());
+
+            if (rejectedValue.length() < 8) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_LENGTH; // 공통 validation 에러
+            } else if (!rejectedValue.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_SPECIAL_CHAR; // 공통 validation 에러
+            } else {
+                errorMessage = ErrorMessage.WK_VALIDATION_MISSING;
+            }
+        } else {
+            // 기존 필드별 에러 처리
+            errorMessage = switch (fieldError.getCode()) {
+                case "NotNull", "NotBlank" -> ErrorMessage.WK_VALIDATION_NULL_OR_BLANK;
+                case "Email" -> ErrorMessage.WK_VALIDATION_EMAIL;
+                case "Size" -> ErrorMessage.WK_VALIDATION_LENGTH_EXCEEDED;
+                default -> ErrorMessage.WK_VALIDATION_MISSING;
+            };
+        }
 
         return ResponseEntity.status(errorMessage.getStatus())
                 .body(ErrorResponse.of(errorMessage));
@@ -72,6 +87,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(final Exception e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(ErrorMessage.INTERNAL_SERVER_ERROR));
     }
