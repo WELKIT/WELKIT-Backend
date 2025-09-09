@@ -29,7 +29,7 @@ public class User extends BaseEntity {
     @Column(name = "google_email", length = 50)
     private String googleEmail;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Enumerated(EnumType.STRING)

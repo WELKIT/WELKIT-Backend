@@ -5,9 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -21,9 +19,7 @@ import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +27,6 @@ public class GoogleSignupService {
 
     private final UserRepository userRepository;
     private final LockSettingRepository lockSettingRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -60,7 +55,7 @@ public class GoogleSignupService {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
-        signup(email, request.getPassword(), request.getJobRole());
+        signup(email, request.getJobRole());
         session.removeAttribute("googleEmail");
     }
 
@@ -97,13 +92,12 @@ public class GoogleSignupService {
         if (body == null || !body.containsKey("email")) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
-
+      
         return (String) body.get("email");
     }
 
     // DB 저장
-    @Transactional
-    public void signup(String email, String password, JobRole jobRole) {
+    public void signup(String email, JobRole jobRole) {
         if (userRepository.existsByGoogleEmail(email)) {
             throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
         }
@@ -112,7 +106,6 @@ public class GoogleSignupService {
 
         User user = User.builder()
                 .googleEmail(email)
-                .password(passwordEncoder.encode(password))
                 .jobRole(jobRole)
                 .isCompanyVerified(isCompany)
                 .emailType(isCompany ? EmailType.COMPANY_EMAIL : EmailType.PERSONAL_EMAIL)

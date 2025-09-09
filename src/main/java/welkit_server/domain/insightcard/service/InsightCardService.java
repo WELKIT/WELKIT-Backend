@@ -8,6 +8,7 @@ import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
 import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.entity.InsightCard;
+import welkit_server.domain.insightcard.model.CardType;
 import welkit_server.domain.insightcard.repository.InsightCardRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.repository.UserRepository;
@@ -49,6 +50,25 @@ public class InsightCardService {
         User currentUser = getAuthenticatedUser(authentication);
 
         List<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards(currentUser);
+
+        return insightCards.stream()
+                .map(insightCard -> GetAllInsightCardResponse.builder()
+                        .cardId(insightCard.getId())
+                        .title(insightCard.getTitle())
+                        .description(insightCard.getDescription())
+                        .note(insightCard.getNote())
+                        .type(insightCard.getType())
+                        .favorite(insightCard.isFavorite())
+                        .lastViewedAt(insightCard.getLastViewedAt())
+                        .updatedAt(insightCard.getLastModifiedDate())
+                        .build())
+                .toList();
+    }
+
+    public List<GetAllInsightCardResponse> getTop4LastViewedAtInsightCards(CardType cardType, Authentication authentication) {
+        Long userId = getAuthenticatedUserId(authentication);
+
+        List<InsightCard> insightCards = insightCardRepository.findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(userId,cardType);
 
         return insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()

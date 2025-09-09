@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import welkit_server.domain.insightcard.entity.InsightCard;
+import welkit_server.domain.insightcard.model.CardType;
 import welkit_server.domain.user.entity.User;
 import java.util.List;
 
@@ -21,4 +22,5 @@ public interface InsightCardRepository extends JpaRepository<InsightCard, Long> 
             "ORDER BY i.updatedAt DESC")
     List<InsightCard> findAllInsightWorkCards(@Param("user") User user);
 
+    List<InsightCard> findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(Long userId, CardType type);
 }
