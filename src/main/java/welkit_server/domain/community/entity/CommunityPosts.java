@@ -41,12 +41,13 @@ public class CommunityPosts extends BaseEntity {
     @Column(nullable = false, length = 20)
     private CommunityPostStatus status;
 
-    @OneToMany(mappedBy = "targetId", fetch = FetchType.LAZY)
-    @Where(clause = "target_type = 'POSTS'")
-    private List<CommunityFeedBack> feedbacks = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityComments> comments = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @Where(clause = "target_type = 'POSTS'")
+    @JoinColumn(name = "target_id", insertable = false, updatable = false)
+    private List<CommunityFeedBack> feedbacks = new ArrayList<>();
 
     public void editPost(PostUpdateRequest request) {
         this.title = request.getTitle();

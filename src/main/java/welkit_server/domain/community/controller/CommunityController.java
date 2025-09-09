@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
-import welkit_server.domain.community.dto.response.FeedbackResponse;
-import welkit_server.domain.community.dto.response.PostResponse;
-import welkit_server.domain.community.dto.response.PostSummaryResponse;
-import welkit_server.domain.community.dto.response.PostUpdateResponse;
+import welkit_server.domain.community.dto.response.*;
 import welkit_server.domain.community.model.TargetType;
 import welkit_server.domain.community.service.CommunityService;
 import welkit_server.domain.user.model.JobRole;
@@ -34,13 +31,22 @@ public class CommunityController {
     public ResponseEntity<SuccessResponse<Map<String, List<PostSummaryResponse>>>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) JobRole category,
-            Authentication authentication
+            @RequestParam(required = false) JobRole category
     ) {
         List<PostSummaryResponse> posts = communityService.getAllCommunityPosts(category, page, size);
 
         Map<String, List<PostSummaryResponse>> response = Map.of("posts", posts);
 
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
+    @Operation(summary = "커뮤니티 글 상세 조회", description = "커뮤니티 글의 상세 내용을 조회합니다. 글과 함께 해당 글의 댓글도 함께 조회합니다.")
+    @GetMapping("posts/{postId}")
+    public ResponseEntity<SuccessResponse<PostDetailResponse>> getPostDetail(
+            @PathVariable Long postId,
+            Authentication authentication
+    ) {
+        PostDetailResponse response = communityService.getPostDetail(postId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
     }
 

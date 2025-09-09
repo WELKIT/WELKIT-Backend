@@ -1,6 +1,6 @@
 package welkit_server.domain.community.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
-import welkit_server.domain.community.dto.response.FeedbackResponse;
-import welkit_server.domain.community.dto.response.PostResponse;
-import welkit_server.domain.community.dto.response.PostSummaryResponse;
-import welkit_server.domain.community.dto.response.PostUpdateResponse;
+import welkit_server.domain.community.dto.response.*;
 import welkit_server.domain.community.entity.CommunityFeedBack;
 import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.domain.community.model.CommunityPostStatus;
@@ -54,6 +51,15 @@ public class CommunityService {
         return posts.getContent().stream()
                 .map(PostSummaryResponse::fromEntity)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PostDetailResponse getPostDetail(Long postId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        CommunityPosts post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
+
+        return PostDetailResponse.fromEntity(post, user);
     }
 
     @Transactional

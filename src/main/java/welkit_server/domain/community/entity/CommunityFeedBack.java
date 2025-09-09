@@ -21,7 +21,7 @@ public class CommunityFeedBack extends BaseEntity {
     @Column(nullable = false, length = 20)
     private TargetType targetType;
 
-    @Column(nullable = false)
+    @Column(name = "target_id", nullable = false)
     private Long targetId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
