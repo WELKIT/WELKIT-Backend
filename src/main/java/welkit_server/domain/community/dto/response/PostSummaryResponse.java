@@ -34,7 +34,7 @@ public class PostSummaryResponse {
                 .filter(f -> Boolean.TRUE.equals(f.getIsHelpful()))
                 .count();
         int notHelpfulCount = (int) post.getFeedbacks().stream()
-                .filter(f -> !Boolean.TRUE.equals(f.getIsHelpful()))
+                .filter(f -> Boolean.FALSE.equals(f.getIsHelpful()))
                 .count();
 
         return PostSummaryResponse.builder()
