@@ -3,7 +3,11 @@ package welkit_server.domain.auth.signup.company.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.auth.signup.company.dto.SignupRequest;
+import welkit_server.domain.mypage.entity.LockSetting;
+import welkit_server.domain.mypage.model.FeatureName;
+import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.repository.UserRepository;
@@ -11,7 +15,7 @@ import welkit_server.global.config.BlockedDomainsConfig;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisUtil;
-
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -19,10 +23,12 @@ import java.util.List;
 public class CompanySignupService {
 
     private final UserRepository userRepository;
+    private final LockSettingRepository lockSettingRepository;
     private final RedisUtil redisUtil;
     private final PasswordEncoder passwordEncoder;
     private final BlockedDomainsConfig blockedDomainsConfig;
 
+    @Transactional
     public void signup(SignupRequest request) {
         String email = request.getEmail();
 
@@ -49,6 +55,17 @@ public class CompanySignupService {
                 .build();
 
         userRepository.save(user);
+
+        List<LockSetting> lockSettings = Arrays.stream(FeatureName.values())
+                        .map(feature -> LockSetting.builder()
+                                .user(user)
+                                .featureName(feature)
+                                .isLocked(false)
+                                .build())
+                       .toList();
+
+        lockSettingRepository.saveAll(lockSettings);
+
         redisUtil.deleteEmailCode(email);
     }
 

@@ -28,9 +28,9 @@ public class InsightCardService {
     private final UserRepository userRepository;
 
     public List<GetAllInsightCardResponse> getAllInsightPersonCards(Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        List<InsightCard> insightCards = insightCardRepository.findAllInsightPersonCards(user);
+        List<InsightCard> insightCards = insightCardRepository.findAllInsightPersonCards(currentUser);
 
         return insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()
@@ -47,9 +47,9 @@ public class InsightCardService {
     }
 
     public List<GetAllInsightCardResponse> getAllInsightWorkCards(Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        List<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards(user);
+        List<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards(currentUser);
 
         return insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()
@@ -86,9 +86,9 @@ public class InsightCardService {
 
     @Transactional
     public InsightCardResponse getInsightCardById(Long cardId,Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        InsightCard insightCard = findOwnedInsightCard(userId, cardId);
+        InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
         insightCard.updateLastViewedAt();
 
         return InsightCardResponse.fromEntity(insightCard);
@@ -96,10 +96,10 @@ public class InsightCardService {
 
     @Transactional
     public InsightCardResponse createInsightCard(InsightCardRequest createInsightCardRequest,Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
         InsightCard insightCard = createInsightCardRequest.toEntity();
-        insightCard.setUser(user);
+        insightCard.setUser(currentUser);
         insightCard.updateUpdatedAt();
 
         insightCardRepository.save(insightCard);
@@ -109,9 +109,9 @@ public class InsightCardService {
 
     @Transactional
     public InsightCardResponse editInsightCard(Long cardId, InsightCardRequest editInsightCardRequest, Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        InsightCard insightCard = findOwnedInsightCard(userId, cardId);
+        InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
         insightCard.editInsightCard(editInsightCardRequest);
         insightCard.updateUpdatedAt();
 
@@ -120,9 +120,9 @@ public class InsightCardService {
 
     @Transactional
     public void deleteInsightCard(Long cardId, Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        User currentUser = getAuthenticatedUser(authentication);
 
-        InsightCard insightCard = findOwnedInsightCard(userId, cardId);
+        InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
 
         insightCardRepository.delete(insightCard);
     }
@@ -152,6 +152,5 @@ public class InsightCardService {
         validateOwnership(userId, insightCard);
         return insightCard;
     }
-
-
+    
 }
