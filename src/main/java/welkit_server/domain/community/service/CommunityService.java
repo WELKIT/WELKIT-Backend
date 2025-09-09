@@ -102,6 +102,33 @@ public class CommunityService {
         postRepository.delete(post);
     }
 
+    @Transactional
+    public FeedbackResponse toggleHelpful(FeedbackRequest request, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        Long targetId = request.getTargetId();
+        TargetType targetType = request.getTargetType();
+        Boolean isHelpful = request.getIsHelpful();
+
+        if (targetType == TargetType.POSTS && !postRepository.existsById(targetId)) {
+            throw new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND);
+        }
+        if (targetType == TargetType.COMMENTS && !commentRepository.existsById(targetId)) {
+            throw new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND);
+        }
+
+        CommunityFeedBack feedback = feedbackRepository
+                .findByTargetTypeAndTargetIdAndUser(targetType, targetId, user)
+                .orElseGet(() -> feedbackRepository.save(CommunityFeedBack.create(targetType, targetId, user)));
+
+        feedback.toggleHelpful(isHelpful);
+
+        int helpfulCount = feedbackRepository.countByTargetTypeAndTargetIdAndIsHelpful(targetType, targetId, true);
+        int notHelpfulCount = feedbackRepository.countByTargetTypeAndTargetIdAndIsHelpful(targetType, targetId, false);
+
+        return FeedbackResponse.fromEntity(targetType, targetId, helpfulCount, notHelpfulCount);
+    }
+
     public Long getAuthenticatedUserId(Authentication authentication) {
         // 토큰 검증 + payload에서 userId 추출
         return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
