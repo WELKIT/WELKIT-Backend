@@ -47,6 +47,7 @@ public enum ErrorMessage {
     MYP_EXPIRED_EMAIL_CODE(400, "MYP1004", "이메일 인증 코드가 만료되었습니다."),
     MYP_INVALID_DATE_RANGE(400, "MYP1005", "공지 사항의 날짜 범위가 올바르지 않습니다."),
     MYP_LOCK_PIN_NOT_FOUND(400, "MYP1006", "PIN이 설정되어 있지 않아 잠금 기능을 사용할 수 없습니다"),
+    MYP_INVALID_LOCK_PIN(403, "MYP1007","PIN이 올바르지 않습니다."),
 
     // 인증/인가 (AUTH)
     SESSION_EXPIRED(401, "AUTH1001", "세션이 만료되었습니다. 다시 로그인해주세요."),

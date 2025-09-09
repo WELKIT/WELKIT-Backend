@@ -1,8 +1,26 @@
 package welkit_server.domain.mypage.model;
+import lombok.Getter;
 
+@Getter
 public enum FeatureName {
-    TERMS,
-    INSIGHT_CARDS,
-    RETROSPECTIVES,
-    COMMUNITY
+    INSIGHT_CARDS("/cards"),
+    TERMS("/terms"),
+    COMMUNITY("/community"),
+    RETROSPECTIVES("/retrospectives");
+
+    private final String pathPrefix;
+
+    FeatureName(String pathPrefix) {
+        this.pathPrefix = pathPrefix;
+    }
+
+    public static FeatureName fromUrl(String uri) {
+        for (FeatureName feature : values()) {
+            if (uri.startsWith(feature.getPathPrefix())) {
+                return feature;
+            }
+        }
+        return null;
+    }
+
 }

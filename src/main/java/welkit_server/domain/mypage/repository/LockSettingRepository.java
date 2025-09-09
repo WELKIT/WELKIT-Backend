@@ -10,7 +10,6 @@ import welkit_server.domain.mypage.model.FeatureName;
 @Repository
 public interface LockSettingRepository extends JpaRepository<LockSetting, Long> {
 
-    @Query("SELECT l FROM LockSetting l WHERE l.user.id = :userId AND l.featureName = :featureName")
-    LockSetting findIsLockedByUserIdAndFeatureName(@Param("userId") Long userId, @Param("featureName") FeatureName featureName);
+    LockSetting findByUserIdAndFeatureName(Long userId, FeatureName featureName);
 
 }

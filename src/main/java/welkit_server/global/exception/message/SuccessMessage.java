@@ -22,6 +22,7 @@ public enum SuccessMessage {
     UPDATED_SUCCESS(HttpStatus.OK.value(), "수정이 완료되었습니다"),
 
     LOCK_FEATURE_UPDATED(HttpStatus.OK.value(), "%s 기능의 잠금 상태가 변경되었습니다"),
+    LOCK_SOLVE_SUCCESS(HttpStatus.OK.value(), "%s 기능 잠금 해제되었습니다"),
 
     /*
     201 Created
