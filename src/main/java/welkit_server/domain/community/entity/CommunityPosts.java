@@ -55,4 +55,7 @@ public class CommunityPosts extends BaseEntity {
         this.jobRole = request.getJobRole(); // 게시글의 jobRole만 업데이트
     }
 
+    public void setFeedbacks(List<CommunityFeedBack> feedbacks) { this.feedbacks = feedbacks; }
+    public void setComments(List<CommunityComments> comments) { this.comments = comments; }
+
 }

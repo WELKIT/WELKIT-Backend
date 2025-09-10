@@ -36,11 +36,12 @@ public class CommentResponse {
         int notHelpfulCount = (int) comment.getFeedbacks().stream()
                 .filter(f -> Boolean.FALSE.equals(f.getIsHelpful()))
                 .count();
-        Boolean isHelpful = comment.getFeedbacks().stream()
-                .filter(f -> f.getUser().equals(currentUser))
-                .map(CommunityFeedBack::getIsHelpful)
-                .findFirst()
-                .orElse(null);
+        Boolean isHelpful = (comment.getFeedbacks() == null ? null :
+                comment.getFeedbacks().stream()
+                        .filter(f -> f.getUser() != null && f.getUser().equals(currentUser))
+                        .map(CommunityFeedBack::getIsHelpful)
+                        .findFirst()
+                        .orElse(null));
 
         List<CommentResponse> replies = comment.getChildren().stream()
                 .map(child -> fromEntity(child, currentUser))
