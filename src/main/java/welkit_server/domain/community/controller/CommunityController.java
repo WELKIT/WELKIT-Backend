@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import welkit_server.domain.community.dto.request.CommentCreateRequest;
 import welkit_server.domain.community.dto.request.FeedbackRequest;
 import welkit_server.domain.community.dto.request.PostCreateRequest;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
@@ -118,6 +119,16 @@ public class CommunityController {
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS, null));
     }
 
+    @Operation(summary = "댓글 등록", description = "게시글에 댓글을 등록합니다. parentId가 있으면 대댓글로 등록됩니다.")
+    @PostMapping("/posts/{postId}/comments")
+    public ResponseEntity<SuccessResponse<CommentResponse>> createComment(
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentCreateRequest request,
+            Authentication authentication
+    ) {
+        CommentResponse response = communityService.createComment(request, postId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, response));
+    }
 
     @Operation(summary = "커뮤니티 글/댓글 공감 버튼 토글", description = "유익했어요/유익하지 않았어요 버튼을 토글합니다.")
     @PostMapping("/feedback")
