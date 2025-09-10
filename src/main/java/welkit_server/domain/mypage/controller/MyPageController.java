@@ -14,6 +14,7 @@ import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
 import welkit_server.domain.mypage.dto.request.SolveLockRequest;
 import welkit_server.domain.mypage.dto.response.FeatureLockSettingResponse;
+import welkit_server.domain.mypage.dto.response.MyPageResponse;
 import welkit_server.domain.mypage.service.MyPageService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
@@ -24,6 +25,13 @@ import welkit_server.global.exception.message.SuccessMessage;
 public class MyPageController {
 
     private final MyPageService mypageService;
+
+    @Operation(summary = "전체 마이페이지 조회", description = "사용자의 정보, 공지사항, 기능별 암호 설정 상태를 포함한 마이페이지 전체 데이터를 조회합니다 ")
+    @GetMapping
+    public ResponseEntity<SuccessResponse<MyPageResponse>> getAllMyPages(Authentication authentication) {
+        MyPageResponse mypage = mypageService.getMyPage(authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS,mypage));
+    }
 
     @Operation(summary = "암호 생성", description = "기능별 암호 설정을 위한 암호를 생성합니다")
     @PutMapping("/lock/pin")
