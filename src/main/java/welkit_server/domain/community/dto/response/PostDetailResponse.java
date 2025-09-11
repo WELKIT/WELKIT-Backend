@@ -41,11 +41,13 @@ public class PostDetailResponse {
         int notHelpfulCount = (int) post.getFeedbacks().stream()
                 .filter(f -> Boolean.FALSE.equals(f.getIsHelpful()))
                 .count();
-        Boolean isHelpful = post.getFeedbacks().stream()
-                .filter(f -> f.getUser().equals(currentUser))
-                .map(CommunityFeedBack::getIsHelpful)
-                .findFirst()
-                .orElse(null);
+
+        Boolean isHelpful = (post.getFeedbacks() == null ? null :
+                post.getFeedbacks().stream()
+                        .filter(f -> f.getUser() != null && f.getUser().equals(currentUser))
+                        .map(CommunityFeedBack::getIsHelpful)
+                        .findFirst()
+                        .orElse(null));
 
         List<CommentResponse> comments = post.getComments().stream()
                 .filter(c -> c.getParent() == null) // 최상위 댓글만
