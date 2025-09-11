@@ -8,9 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import welkit_server.domain.community.dto.request.FeedbackRequest;
-import welkit_server.domain.community.dto.request.PostCreateRequest;
-import welkit_server.domain.community.dto.request.PostUpdateRequest;
+import welkit_server.domain.community.dto.request.*;
 import welkit_server.domain.community.dto.response.*;
 import welkit_server.domain.community.entity.CommunityComments;
 import welkit_server.domain.community.entity.CommunityFeedBack;
@@ -28,6 +26,7 @@ import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.security.dto.CustomUserDetails;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -60,6 +59,9 @@ public class CommunityService {
         User user = getAuthenticatedUser(authentication);
         CommunityPosts post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
+
+        if (post.getFeedbacks() == null) post.setFeedbacks(new ArrayList<>());
+        if (post.getComments() == null) post.setComments(new ArrayList<>());
 
         return PostDetailResponse.fromEntity(post, user);
     }
@@ -153,6 +155,60 @@ public class CommunityService {
         }
 
         postRepository.delete(post);
+    }
+
+    @Transactional
+    public CommentResponse createComment(CommentCreateRequest request, Long postId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        CommunityPosts post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
+
+        CommunityComments parent = null;
+        if (request.getParentId() != null) {
+            parent = commentRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
+        }
+
+        CommunityComments comment = CommunityComments.builder()
+                .comment(request.getContent())
+                .user(user)
+                .post(post)
+                .parent(parent)
+                .feedbacks(new ArrayList<>())
+                .build();
+
+        CommunityComments saved = commentRepository.save(comment);
+        return CommentResponse.fromEntity(saved, user);
+    }
+
+    @Transactional
+    public CommentUpdateResponse updateComment(Long commentId, CommentUpdateRequest request, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        CommunityComments comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException(ErrorMessage.WK_NO_PERMISSION);
+        }
+
+        comment.editComment(request.getContent());
+
+        return CommentUpdateResponse.fromEntity(comment);
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        CommunityComments comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException(ErrorMessage.WK_NO_PERMISSION);
+        }
+
+        commentRepository.delete(comment);
     }
 
     @Transactional

@@ -37,12 +37,13 @@ public class CommunityComments extends BaseEntity {
     private CommunityComments parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CommunityComments> children = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "target_type = 'COMMENTS'")
     @JoinColumn(name = "target_id", insertable = false, updatable = false)
-    private List<CommunityFeedBack> feedbacks = new ArrayList<>();
+    private List<CommunityFeedBack> feedbacks;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -50,6 +51,10 @@ public class CommunityComments extends BaseEntity {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void editComment(String comment) {
+        this.comment = comment;
     }
 
 }
