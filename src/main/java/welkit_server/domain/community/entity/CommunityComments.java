@@ -53,4 +53,8 @@ public class CommunityComments extends BaseEntity {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void editComment(String comment) {
+        this.comment = comment;
+    }
+
 }

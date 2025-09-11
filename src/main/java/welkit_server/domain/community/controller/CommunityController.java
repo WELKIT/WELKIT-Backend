@@ -7,10 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import welkit_server.domain.community.dto.request.CommentCreateRequest;
-import welkit_server.domain.community.dto.request.FeedbackRequest;
-import welkit_server.domain.community.dto.request.PostCreateRequest;
-import welkit_server.domain.community.dto.request.PostUpdateRequest;
+import welkit_server.domain.community.dto.request.*;
 import welkit_server.domain.community.dto.response.*;
 import welkit_server.domain.community.service.CommunityService;
 import welkit_server.domain.user.model.JobRole;
@@ -128,6 +125,18 @@ public class CommunityController {
     ) {
         CommentResponse response = communityService.createComment(request, postId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, response));
+    }
+
+    @Operation(summary = "댓글 수정", description = "본인의 댓글을 수정합니다. 대댓글도 동일하게 수정할 수 있습니다.")
+    @PatchMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<SuccessResponse<CommentUpdateResponse>> updateComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentUpdateRequest request,
+            Authentication authentication
+    ) {
+        CommentUpdateResponse response = communityService.updateComment(commentId, request, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, response));
     }
 
     @Operation(summary = "커뮤니티 글/댓글 공감 버튼 토글", description = "유익했어요/유익하지 않았어요 버튼을 토글합니다.")

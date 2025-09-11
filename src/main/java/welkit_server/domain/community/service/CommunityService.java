@@ -8,10 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import welkit_server.domain.community.dto.request.CommentCreateRequest;
-import welkit_server.domain.community.dto.request.FeedbackRequest;
-import welkit_server.domain.community.dto.request.PostCreateRequest;
-import welkit_server.domain.community.dto.request.PostUpdateRequest;
+import welkit_server.domain.community.dto.request.*;
 import welkit_server.domain.community.dto.response.*;
 import welkit_server.domain.community.entity.CommunityComments;
 import welkit_server.domain.community.entity.CommunityFeedBack;
@@ -182,6 +179,22 @@ public class CommunityService {
 
         CommunityComments saved = commentRepository.save(comment);
         return CommentResponse.fromEntity(saved, user);
+    }
+
+    @Transactional
+    public CommentUpdateResponse updateComment(Long commentId, CommentUpdateRequest request, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        CommunityComments comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException(ErrorMessage.WK_NO_PERMISSION);
+        }
+
+        comment.editComment(request.getContent());
+
+        return CommentUpdateResponse.fromEntity(comment);
     }
 
     @Transactional
