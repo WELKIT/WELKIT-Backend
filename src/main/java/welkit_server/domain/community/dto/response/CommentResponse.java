@@ -21,12 +21,12 @@ public class CommentResponse {
 
     private Long commentId;
     private String content;
-    private Long userId;
     private JobRole jobRole;
     private LocalDateTime createdAt;
     private Boolean isHelpful;
     private int helpfulCount;
     private int notHelpfulCount;
+    private Long parentId;
     private List<CommentResponse> replies; // 대댓글 재귀 구조
 
     public static CommentResponse fromEntity(CommunityComments comment, User currentUser) {
@@ -36,6 +36,7 @@ public class CommentResponse {
         int notHelpfulCount = (int) comment.getFeedbacks().stream()
                 .filter(f -> Boolean.FALSE.equals(f.getIsHelpful()))
                 .count();
+
         Boolean isHelpful = (comment.getFeedbacks() == null ? null :
                 comment.getFeedbacks().stream()
                         .filter(f -> f.getUser() != null && f.getUser().equals(currentUser))
@@ -54,12 +55,12 @@ public class CommentResponse {
         return CommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getComment())
-                .userId(comment.getUser().getId())
                 .jobRole(comment.getUser().getJobRole())
                 .createdAt(comment.getCreatedAt())
                 .isHelpful(isHelpful)
                 .helpfulCount(helpfulCount)
                 .notHelpfulCount(notHelpfulCount)
+                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .replies(replies)
                 .build();
     }
