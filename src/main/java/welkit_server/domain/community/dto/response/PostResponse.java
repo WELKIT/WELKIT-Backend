@@ -22,7 +22,7 @@ public class PostResponse {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .jobRole(post.getUser().getJobRole())
+                .jobRole(post.getJobRole())
                 .createdAt(post.getCreatedDate())
                 .build();
     }
