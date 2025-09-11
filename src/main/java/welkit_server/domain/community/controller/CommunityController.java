@@ -139,6 +139,17 @@ public class CommunityController {
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, response));
     }
 
+    @Operation(summary = "댓글 삭제", description = "본인의 댓글을 삭제합니다. 대댓글도 동일하게 삭제할 수 있습니다.")
+    @DeleteMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<SuccessResponse<Void>> deleteComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            Authentication authentication
+    ) {
+        communityService.deleteComment(commentId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
+    }
+
     @Operation(summary = "커뮤니티 글/댓글 공감 버튼 토글", description = "유익했어요/유익하지 않았어요 버튼을 토글합니다.")
     @PostMapping("/feedback")
     public ResponseEntity<SuccessResponse<FeedbackResponse>> toggleHelpful(

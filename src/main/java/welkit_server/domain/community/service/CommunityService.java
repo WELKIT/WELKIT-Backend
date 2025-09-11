@@ -198,6 +198,20 @@ public class CommunityService {
     }
 
     @Transactional
+    public void deleteComment(Long commentId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        CommunityComments comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException(ErrorMessage.WK_NO_PERMISSION);
+        }
+
+        commentRepository.delete(comment);
+    }
+
+    @Transactional
     public FeedbackResponse toggleHelpful(FeedbackRequest request, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
