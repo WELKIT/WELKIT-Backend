@@ -1,9 +1,11 @@
 package welkit_server.domain.admin.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import welkit_server.domain.admin.entity.Notice;
 import welkit_server.domain.admin.model.NoticePriority;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -16,7 +18,8 @@ public class GetAllNoticeResponse {
     private String title;
     private String content;
     private NoticePriority priority;
-    private String lastModified;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDateTime lastModified;
 
     public static GetAllNoticeResponse fromEntity(Notice notice) {
         return GetAllNoticeResponse.builder()
@@ -24,9 +27,9 @@ public class GetAllNoticeResponse {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .priority(notice.getPriority())
-                .lastModified(notice.getLastModifiedDate()
-                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                .lastModified(notice.getLastModifiedDate())
                 .build();
+
     }
 
 }

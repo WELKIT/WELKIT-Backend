@@ -10,6 +10,7 @@ import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommunityPostRepository extends JpaRepository<CommunityPosts, Long> {
     Page<CommunityPosts> findAllByJobRole(JobRole jobRole, Pageable pageable);
@@ -43,4 +44,27 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPosts, L
        OR LOWER(p.content) LIKE LOWER(CONCAT('%', COALESCE(:keyword, ''), '%')))
     """)
     Page<CommunityPosts> searchPostsOptionalKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM CommunityPosts p
+    JOIN p.feedbacks f
+    WHERE f.isHelpful = false
+    GROUP BY p
+    HAVING COUNT(f) >= 10
+    ORDER BY p.createdDate DESC
+""")
+    Page<CommunityPosts> findSanctionPosts(Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM CommunityPosts p
+    JOIN p.feedbacks f
+    WHERE f.isHelpful = false
+    AND p.id = :postId
+    GROUP BY p
+    HAVING COUNT(f) >= 10
+""")
+    Optional<CommunityPosts> findSanctionPostById(@Param("postId") Long postId);
+
 }
