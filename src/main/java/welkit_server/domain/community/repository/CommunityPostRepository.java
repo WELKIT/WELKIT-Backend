@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
-
 import java.util.List;
 import java.util.Optional;
 

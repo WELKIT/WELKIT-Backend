@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
-import welkit_server.domain.admin.service.NoticeAdminService;
+import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.dto.response.EmailResponse;
@@ -40,7 +40,7 @@ public class MyPageService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
-    private final NoticeAdminService noticeAdminService;
+    private final NoticeService noticeService;
     private final LockSettingRepository lockSettingRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
@@ -50,7 +50,7 @@ public class MyPageService {
     public MyPageResponse getMyPage(Authentication authentication) {
 
         UserInfoResponse user = getUserInfo(authentication);
-        List<GetAllNoticeResponse> notices = noticeAdminService.getAllNotices();
+        List<GetAllNoticeResponse> notices = noticeService.getAllNotices(authentication);
         List<FeatureLockSettingResponse> lockSettings =
                 lockSettingRepository.findByUserId(user.getId()).stream()
                         .map(FeatureLockSettingResponse::fromEntity)
