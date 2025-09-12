@@ -42,4 +42,10 @@ public class CommunityManagementService {
         return CommunityManagementPostDetailResponse.fromEntity(getSectionPost);
     }
 
+    public void deleteSanctionPostById(Long postId) {
+        CommunityPosts getSectionPost = communityPostRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
+        communityPostRepository.delete(getSectionPost);
+    }
+
 }
