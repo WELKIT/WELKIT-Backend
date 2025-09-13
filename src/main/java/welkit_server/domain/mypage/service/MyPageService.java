@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
+import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.dto.response.EmailResponse;
@@ -14,9 +16,11 @@ import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
 import welkit_server.domain.mypage.dto.request.SolveLockRequest;
 import welkit_server.domain.mypage.dto.response.FeatureLockSettingResponse;
+import welkit_server.domain.mypage.dto.response.MyPageResponse;
 import welkit_server.domain.mypage.entity.LockSetting;
 import welkit_server.domain.mypage.model.FeatureName;
 import welkit_server.domain.mypage.repository.LockSettingRepository;
+import welkit_server.domain.user.dto.UserInfoResponse;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.repository.UserRepository;
@@ -36,12 +40,33 @@ public class MyPageService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+    private final NoticeService noticeService;
     private final LockSettingRepository lockSettingRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
     private final EmailService emailService;
     private final BlockedDomainsConfig blockedDomainsConfig;
 
+    public MyPageResponse getMyPage(Authentication authentication) {
+
+        UserInfoResponse user = getUserInfo(authentication);
+        List<GetAllNoticeResponse> notices = noticeService.getAllNotices(authentication);
+        List<FeatureLockSettingResponse> lockSettings =
+                lockSettingRepository.findByUserId(user.getId()).stream()
+                        .map(FeatureLockSettingResponse::fromEntity)
+                        .toList();
+
+        return MyPageResponse.builder()
+                .user(user)
+                .noticeList(notices)
+                .lockSettings(lockSettings)
+                .build();
+    }
+
+    public UserInfoResponse getUserInfo(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        return UserInfoResponse.fromEntity(user);
+    }
 
     @Transactional
     public void setLock(LockSettingRequest lockSettingRequest, Authentication authentication) {

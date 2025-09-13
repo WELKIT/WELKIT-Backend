@@ -8,8 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.admin.dto.request.NoticeAdminRequest;
+import welkit_server.domain.admin.dto.response.AdminMainPageResponse;
+import welkit_server.domain.admin.dto.response.CommunityManagementPostDetailResponse;
 import welkit_server.domain.admin.dto.response.NoticeAdminResponse;
-import welkit_server.domain.admin.service.NoticeAdminService;
+import welkit_server.domain.admin.service.AdminService;
+import welkit_server.domain.admin.service.CommunityManagementService;
+import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
 
@@ -18,12 +22,25 @@ import welkit_server.global.exception.message.SuccessMessage;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final NoticeAdminService noticeAdminService;
+    private final NoticeService noticeService;
+    private final AdminService adminService;
+    private final CommunityManagementService communityManagementService;
+
+    @Operation(summary = "어드민 페이지 전체 조회", description = "어드민 페이지에 있는 공지사항과 제재 글 리스트를 모두 조회합니다")
+    @GetMapping
+    public ResponseEntity<SuccessResponse<AdminMainPageResponse>> getAdminMainPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
+    ) {
+        AdminMainPageResponse adminMainPageResponse = adminService.getAdminMainPage(page, size, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, adminMainPageResponse));
+    }
 
     @Operation(summary = "공지사항 상세 조회", description = "등록되어 있는 공지사항을 상세 조회합니다")
     @GetMapping("/notices/{id}")
-    public ResponseEntity<SuccessResponse<NoticeAdminResponse>> getNotice(@PathVariable Long noticeId) {
-        NoticeAdminResponse notice= noticeAdminService.getNotice(noticeId);
+    public ResponseEntity<SuccessResponse<NoticeAdminResponse>> getNotice(@PathVariable("id") Long noticeId, Authentication authentication) {
+        NoticeAdminResponse notice= noticeService.getNotice(noticeId,authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS,notice));
     }
 
@@ -33,7 +50,7 @@ public class AdminController {
             @Valid @RequestBody NoticeAdminRequest createNoticeRequest,
             Authentication authentication
     ) {
-        NoticeAdminResponse createNoticeResponse = noticeAdminService.createNotice(createNoticeRequest, authentication);
+        NoticeAdminResponse createNoticeResponse = noticeService.createNotice(createNoticeRequest, authentication);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, createNoticeResponse));
     }
@@ -45,7 +62,7 @@ public class AdminController {
             @PathVariable("id") Long noticeId,
             Authentication authentication
     ){
-        NoticeAdminResponse editNoticeResponse = noticeAdminService.updateNotice(noticeId, editNoticeRequest, authentication);
+        NoticeAdminResponse editNoticeResponse = noticeService.updateNotice(noticeId, editNoticeRequest, authentication);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, editNoticeResponse));
     }
@@ -53,7 +70,21 @@ public class AdminController {
     @Operation(summary = "공지사항 삭제", description = "등록되어 있는 공지사항을 삭제합니다")
     @DeleteMapping("/notices/{id}")
     public ResponseEntity<SuccessResponse> deleteNotice(@PathVariable("id") Long noticeId, Authentication authentication) {
-        noticeAdminService.deleteNotice(noticeId, authentication);
+        noticeService.deleteNotice(noticeId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
+    }
+
+    @Operation(summary = "제재 커뮤니티 글 상세 조회", description = "제재할 커뮤니티 글을 상세 조회합니다")
+    @GetMapping("/sanction-posts/{id}")
+    public ResponseEntity<SuccessResponse<CommunityManagementPostDetailResponse>> getSectionPostById(@PathVariable("id") Long postId, Authentication authentication) {
+        CommunityManagementPostDetailResponse communityPosts = communityManagementService.getSanctionPostById(postId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS,communityPosts));
+    }
+
+    @Operation(summary = "제재 커뮤니티 글 삭제",description = "제재할 커뮤니티 글을 삭제합니다")
+    @DeleteMapping("/sanction-posts/{id}")
+    public ResponseEntity<SuccessResponse> deleteSectionPostById(@PathVariable("id") Long postId,Authentication authentication) {
+        communityManagementService.deleteSanctionPostById(postId,authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
     }
 

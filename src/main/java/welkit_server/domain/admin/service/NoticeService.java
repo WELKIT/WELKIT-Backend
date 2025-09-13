@@ -20,42 +20,52 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class NoticeAdminService {
+public class NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final UserRepository userRepository;
 
-    public List<GetAllNoticeResponse> getAllNotices() {
+    public List<GetAllNoticeResponse> getAllNotices(Authentication authentication) {
+        getAuthenticatedUser(authentication);
+
         return noticeRepository.findAllByOrderByLastModifiedDateDesc()
                 .stream()
                 .map(notice -> GetAllNoticeResponse.fromEntity(notice))
                 .toList();
     }
 
-    public NoticeAdminResponse getNotice(Long noticeId) {
+    public NoticeAdminResponse getNotice(Long noticeId, Authentication authentication) {
+        getAuthenticatedUser(authentication);
+
         Notice notice = findNoticeById(noticeId);
+
         return NoticeAdminResponse.fromEntity(notice);
     }
 
     @Transactional
     public NoticeAdminResponse createNotice(NoticeAdminRequest createNoticeRequest, Authentication authentication) {
         getAuthenticatedUser(authentication);
+
         Notice notice = createNoticeRequest.toEntity();
         noticeRepository.save(notice);
+
         return NoticeAdminResponse.fromEntity(notice);
     }
 
     @Transactional
     public NoticeAdminResponse updateNotice(Long noticeId, NoticeAdminRequest updateNoticeRequest, Authentication authentication) {
         getAuthenticatedUser(authentication);
+
         Notice notice = findNoticeById(noticeId);
         notice.editNotice(updateNoticeRequest);
+
         return NoticeAdminResponse.fromEntity(notice);
     }
 
     @Transactional
     public void deleteNotice(Long noticeId, Authentication authentication) {
         getAuthenticatedUser(authentication);
+
         Notice notice = findNoticeById(noticeId);
         noticeRepository.delete(notice);
     }
