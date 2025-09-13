@@ -44,7 +44,7 @@ public class CommunityPosts extends BaseEntity {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityComments> comments = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @Where(clause = "target_type = 'POSTS'")
     @JoinColumn(name = "target_id", insertable = false, updatable = false)
     private List<CommunityFeedBack> feedbacks = new ArrayList<>();

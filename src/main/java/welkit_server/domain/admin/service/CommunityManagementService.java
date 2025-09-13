@@ -48,7 +48,8 @@ public class CommunityManagementService {
         return CommunityManagementPostDetailResponse.fromEntity(getSectionPost);
     }
 
-    public void deleteSanctionPostById(Long postId,Authentication authentication) {
+    @Transactional
+    public void deleteSanctionPostById(Long postId, Authentication authentication) {
         getAuthenticatedUser(authentication);
 
         CommunityPosts getSectionPost = communityPostRepository.findById(postId)
