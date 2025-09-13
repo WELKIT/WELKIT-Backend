@@ -14,7 +14,6 @@ import welkit_server.domain.admin.dto.response.NoticeAdminResponse;
 import welkit_server.domain.admin.service.AdminService;
 import welkit_server.domain.admin.service.CommunityManagementService;
 import welkit_server.domain.admin.service.NoticeService;
-import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
 

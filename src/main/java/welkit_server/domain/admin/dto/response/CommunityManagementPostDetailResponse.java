@@ -9,11 +9,13 @@ import welkit_server.domain.community.entity.CommunityPosts;
 @Builder
 public class CommunityManagementPostDetailResponse {
 
+    private Long id;
     private String title;
     private String content;
 
     public static CommunityManagementPostDetailResponse fromEntity(CommunityPosts post) {
         return CommunityManagementPostDetailResponse.builder()
+                .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .build();

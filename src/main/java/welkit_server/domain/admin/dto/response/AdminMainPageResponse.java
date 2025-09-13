@@ -1,7 +1,6 @@
 package welkit_server.domain.admin.dto.response;
 
 import lombok.*;
-
 import java.util.List;
 
 @Getter

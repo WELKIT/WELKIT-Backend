@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommunityManagementPostResponse {
 
+    private Long id;
     private String title;
     private int notHelpfulCount;
     private LocalDateTime createdAt;
@@ -22,6 +23,7 @@ public class CommunityManagementPostResponse {
                 .count();
 
         return CommunityManagementPostResponse.builder()
+                .id(post.getId())
                 .title(post.getTitle())
                 .notHelpfulCount(notHelpfulCount)
                 .createdAt(post.getCreatedDate())
