@@ -3,6 +3,7 @@ package welkit_server.domain.user.dto;
 import lombok.*;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
+import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.model.UserType;
 
 @Getter
@@ -14,6 +15,7 @@ public class UserInfoResponse {
     private String email;
     private EmailType emailType;
     private boolean isCompanyVerified;
+    private JobRole jobRole;
     private UserType userType;
 
     public static UserInfoResponse fromEntity(User user) {
@@ -22,6 +24,7 @@ public class UserInfoResponse {
                 .email(user.getEmail() != null ? user.getEmail() : user.getGoogleEmail())
                 .emailType(user.getEmailType())
                 .isCompanyVerified(user.isCompanyVerified())
+                .jobRole(user.getJobRole())
                 .userType(user.getUserType())
                 .build();
     }
