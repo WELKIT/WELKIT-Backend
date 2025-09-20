@@ -64,4 +64,8 @@ public class User extends BaseEntity {
         this.emailType = emailType;
     }
 
+    public void updateJobRole(JobRole newRole){
+        this.jobRole = newRole;
+    }
+
 }
