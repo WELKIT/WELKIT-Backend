@@ -13,8 +13,10 @@ import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
 import welkit_server.domain.mypage.dto.request.SolveLockRequest;
+import welkit_server.domain.mypage.dto.request.UpdateJobRoleRequest;
 import welkit_server.domain.mypage.dto.response.FeatureLockSettingResponse;
 import welkit_server.domain.mypage.dto.response.MyPageResponse;
+import welkit_server.domain.mypage.dto.response.UpdateJobRoleResponse;
 import welkit_server.domain.mypage.service.MyPageService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
@@ -93,6 +95,18 @@ public class MyPageController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_VERIFICATION_SUCCESS, null));
+    }
+
+    @Operation(summary = "사용자 직무 변경", description = "사용자가 마이페이지에서 자신의 직무(Job Role)를 변경합니다")
+    @PatchMapping("/job")
+    public ResponseEntity<SuccessResponse<UpdateJobRoleResponse>> updateJobRole(
+            @Valid @RequestBody UpdateJobRoleRequest updateJobRoleRequest,
+            Authentication authentication
+    ) {
+        UpdateJobRoleResponse response = mypageService.updateJobRole(updateJobRoleRequest, authentication);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, response));
     }
 
 }
