@@ -31,9 +31,11 @@ public class User extends BaseEntity {
     @Column(name = "google_email", length = 50)
     private String googleEmail;
 
-    @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
-    @Pattern(regexp = "^(?=.*[!@#$%^&*()\\-_=+\\[\\]{};:'\",.<>/?]).+$",
-            message = "비밀번호는 최소 1개의 특수문자를 포함해야 합니다.")
+    @Size(min = 8, max = 64, message = "비밀번호는 8자 이상 64자 이하이어야 합니다.")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*()\\-_=+\\[\\]{};:'\",.<>/?]).+$",
+            message = "비밀번호는 최소 1개의 숫자와 1개의 특수문자를 포함해야 합니다."
+    )
     private String password;
 
     @Enumerated(EnumType.STRING)

@@ -51,21 +51,24 @@ public class GlobalExceptionHandler {
         FieldError fieldError = e.getBindingResult().getFieldError();
 
         ErrorMessage errorMessage;
+
         if (fieldError == null) {
             errorMessage = ErrorMessage.WK_VALIDATION_MISSING;
         } else if ("password".equals(fieldError.getField())) {
-            // password 필드 validation
             String rejectedValue = String.valueOf(fieldError.getRejectedValue());
 
             if (rejectedValue.length() < 8) {
-                errorMessage = ErrorMessage.INVALID_PASSWORD_LENGTH; // 공통 validation 에러
-            } else if (!rejectedValue.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
-                errorMessage = ErrorMessage.INVALID_PASSWORD_SPECIAL_CHAR; // 공통 validation 에러
+                errorMessage = ErrorMessage.INVALID_PASSWORD_MIN_LENGTH; // 최소 8자
+            } else if (rejectedValue.length() > 64) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_MAX_LENGTH; // 최대 64자
+            } else if (!rejectedValue.matches(".*[0-9].*")) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_NUMBER; // 숫자 포함
+            } else if (!rejectedValue.matches(".*[!@#$%^&*(),.?\":{}|<>\\-_=+\\[\\]{};:'\",.<>/?].*")) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_SPECIAL_CHAR; // 특수문자 포함
             } else {
                 errorMessage = ErrorMessage.WK_VALIDATION_MISSING;
             }
         } else {
-            // 기존 필드별 에러 처리
             errorMessage = switch (fieldError.getCode()) {
                 case "NotNull", "NotBlank" -> ErrorMessage.WK_VALIDATION_NULL_OR_BLANK;
                 case "Email" -> ErrorMessage.WK_VALIDATION_EMAIL;
