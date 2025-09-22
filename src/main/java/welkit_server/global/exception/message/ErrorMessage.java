@@ -13,20 +13,22 @@ public enum ErrorMessage {
     WK_VALIDATION_LENGTH_EXCEEDED(400, "WK1004", "요청 값이 길이를 초과했습니다."),
     WK_VALIDATION_EMAIL(400, "WK1005", "유효하지 않은 이메일 형식입니다."),
     WK_NO_PERMISSION(403, "WK1006","권한이 없습니다. "),
-    INVALID_PASSWORD_LENGTH(400, "WK1007", "비밀번호는 최소 8자 이상이어야 합니다."),
-    INVALID_PASSWORD_SPECIAL_CHAR(400, "WK1008", "비밀번호는 최소 하나의 특수문자를 포함해야 합니다."),
+    INVALID_PASSWORD_MIN_LENGTH(400, "WK1007", "비밀번호는 최소 8자 이상이어야 합니다."),
+    INVALID_PASSWORD_MAX_LENGTH(400, "WK1008", "비밀번호는 최대 64자를 초과할 수 없습니다."),
+    INVALID_PASSWORD_NUMBER(400, "WK1009", "비밀번호는 최소 1개의 숫자를 포함해야 합니다."),
+    INVALID_PASSWORD_SPECIAL_CHAR(400, "WK1010", "비밀번호는 최소 1개의 특수문자를 포함해야 합니다."),
 
     // 로그인 (USR)
     INVALID_CREDENTIAL(400, "USR1001", "이메일 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(404, "USR1002", "사용자를 찾을 수 없습니다."),
 
+
     // 회원가입 (USR)
     DUPLICATE_EMAIL(400, "USR2001", "이미 사용중인 이메일 주소입니다."),
-    INVALID_PASSWORD_FORMAT(400, "USR2002", "비밀번호 형식이 맞지 않습니다."),
-    INVALID_EMAIL_CODE(400, "USR2003", "이메일 인증 코드가 올바르지 않습니다."),
-    EXPIRED_EMAIL_CODE(400, "USR2004", "이메일 인증 코드가 만료되었습니다."),
-    INVALID_EMAIL_VERIFICATION(400, "USR2005", "이메일 인증에 실패했습니다."),
-    USR_EMAIL_COMPANY_DOMAIN_INVALID(400, "USR2006", "범용 이메일은 회사 인증 회원가입이 불가능합니다."),
+    INVALID_EMAIL_CODE(400, "USR2002", "이메일 인증 코드가 올바르지 않습니다."),
+    EXPIRED_EMAIL_CODE(400, "USR2003", "이메일 인증 코드가 만료되었습니다."),
+    INVALID_EMAIL_VERIFICATION(400, "USR2004", "이메일 인증에 실패했습니다."),
+    USR_EMAIL_COMPANY_DOMAIN_INVALID(400, "USR2005", "범용 이메일은 회사 인증 회원가입이 불가능합니다."),
 
     // 용어 사전 (TRM)
     TERM_NOT_FOUND(404, "TRM1001", "해당 용어를 찾을 수 없습니다."),
