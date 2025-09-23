@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
+import welkit_server.domain.insightcard.dto.response.GetFavoriteInsightCardResponse;
 import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.model.CardType;
 import welkit_server.domain.insightcard.service.InsightCardService;
@@ -46,6 +47,18 @@ public class InsightCardController {
         List<GetAllInsightCardResponse> recentInsightCard = insightCardService.getTop4LastViewedAtInsightCards(CardType.PERSON, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, recentInsightCard));
     }
+
+    @Operation(summary = "인물 카드 즐겨찾기 등록된 카드 조회", description = "사용자가 즐겨찾기에 등록한 인물 카드를 조회합니다 ")
+    @GetMapping("/person/favorites")
+    public ResponseEntity<SuccessResponse<GetFavoriteInsightCardResponse>> getFavoriteInsightPersonCard(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
+    ) {
+        GetFavoriteInsightCardResponse favoritePersonInsightCards  = insightCardService.getFavoritePersonInsightCards(page, size, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, favoritePersonInsightCards));
+    }
+
 
     @Operation(summary = "인물 카드 생성", description = "새로운 인물 카드를 생성합니다")
     @PostMapping("/person")
@@ -102,6 +115,17 @@ public class InsightCardController {
     public ResponseEntity<SuccessResponse<GetAllInsightCardResponse>> getRecentInsightWorkCard(Authentication authentication) {
         List<GetAllInsightCardResponse> recentInsightCard = insightCardService.getTop4LastViewedAtInsightCards(CardType.WORK, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, recentInsightCard));
+    }
+
+    @Operation(summary = "인물 카드 즐겨찾기 등록된 카드 조회", description = "사용자가 즐겨찾기에 등록한 인물 카드를 조회합니다 ")
+    @GetMapping("/work/favorites")
+    public ResponseEntity<SuccessResponse<GetFavoriteInsightCardResponse>> getFavoriteInsightWorkCard(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
+    ) {
+        GetFavoriteInsightCardResponse favoriteWorkInsightCards  = insightCardService.getFavoriteWorkInsightCards(page, size, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, favoriteWorkInsightCards));
     }
 
     @Operation(summary = "업무 카드 생성", description = "새로운 업무 카드를 생성합니다")

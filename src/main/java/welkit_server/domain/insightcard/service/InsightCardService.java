@@ -1,11 +1,15 @@
 package welkit_server.domain.insightcard.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
+import welkit_server.domain.insightcard.dto.response.GetFavoriteInsightCardResponse;
 import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.model.CardType;
@@ -92,6 +96,60 @@ public class InsightCardService {
         insightCard.updateLastViewedAt();
 
         return InsightCardResponse.fromEntity(insightCard);
+    }
+
+    public GetFavoriteInsightCardResponse getFavoritePersonInsightCards(int page, int size, Authentication authentication) {
+        User currentUser = getAuthenticatedUser(authentication);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<InsightCard> favoritePersonInsightCard = insightCardRepository.findFavoritePersonCards(currentUser, pageable);
+
+        long totalFavoritePersonCardAmount = insightCardRepository.countByUserAndTypeAndIsFavoriteTrue(currentUser,CardType.PERSON);
+
+        List<GetAllInsightCardResponse> favoritePersonInsightCards = favoritePersonInsightCard.stream()
+                .map(insightPersonCards-> GetAllInsightCardResponse.builder()
+                        .cardId(insightPersonCards.getId())
+                        .title(insightPersonCards.getTitle())
+                        .description(insightPersonCards.getDescription())
+                        .note(insightPersonCards.getNote())
+                        .type(insightPersonCards.getType())
+                        .favorite(insightPersonCards.isFavorite())
+                        .lastViewedAt(insightPersonCards.getLastViewedAt())
+                        .updatedAt(insightPersonCards.getLastModifiedDate())
+                        .build())
+                .toList();
+
+        return GetFavoriteInsightCardResponse.builder()
+                .favoriteTotal(totalFavoritePersonCardAmount)
+                .cards(favoritePersonInsightCards)
+                .build();
+    }
+
+    public GetFavoriteInsightCardResponse getFavoriteWorkInsightCards(int page, int size, Authentication authentication) {
+        User currentUser = getAuthenticatedUser(authentication);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<InsightCard> favoriteWorkInsightCard = insightCardRepository.findFavoriteWorkCards(currentUser, pageable);
+
+        long totalFavoriteWorkCardAmount = insightCardRepository.countByUserAndTypeAndIsFavoriteTrue(currentUser,CardType.WORK);
+
+        List<GetAllInsightCardResponse> favoriteWorkInsightCards =  favoriteWorkInsightCard.stream()
+                .map(insightWorkCards-> GetAllInsightCardResponse.builder()
+                        .cardId(insightWorkCards.getId())
+                        .title(insightWorkCards.getTitle())
+                        .description(insightWorkCards.getDescription())
+                        .note(insightWorkCards.getNote())
+                        .type(insightWorkCards.getType())
+                        .favorite(insightWorkCards.isFavorite())
+                        .lastViewedAt(insightWorkCards.getLastViewedAt())
+                        .updatedAt(insightWorkCards.getLastModifiedDate())
+                        .build())
+                .toList();
+
+        return GetFavoriteInsightCardResponse.builder()
+                .favoriteTotal(totalFavoriteWorkCardAmount)
+                .cards(favoriteWorkInsightCards)
+                .build();
     }
 
     @Transactional
