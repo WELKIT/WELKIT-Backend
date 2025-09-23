@@ -11,11 +11,14 @@ import welkit_server.domain.insightcard.model.CardType;
 public class InsightCardRequest {
 
     @NotBlank
+    @Size(min = 1, max = 30)
     private String title;
 
     @NotBlank
+    @Size(min = 1, max = 500)
     private String description;
 
+    @Size(max = 200)
     private String note;
 
     @NotNull

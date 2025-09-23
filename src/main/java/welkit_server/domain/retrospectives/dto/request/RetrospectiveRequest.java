@@ -14,12 +14,14 @@ import java.time.LocalDate;
 public class RetrospectiveRequest {
 
     @NotBlank
+    @Size(min = 1, max = 30)
     private String title;
 
     @NotNull
     private Type type;
 
     @NotBlank
+    @Size(min = 1, max = 2000)
     private String content;
 
     @NotNull

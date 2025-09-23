@@ -20,13 +20,13 @@ public class InsightCard extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 30)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, length = 500)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 200)
     private String note;
 
     @Enumerated(EnumType.STRING)

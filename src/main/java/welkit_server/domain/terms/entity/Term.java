@@ -21,7 +21,7 @@ public class Term extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, length = 500)
     private String definition;
 
     @ManyToOne(fetch = FetchType.LAZY)
