@@ -29,13 +29,15 @@ public class TermController {
     @GetMapping
     public ResponseEntity<SuccessResponse<?>> getTerms(
             @RequestParam(value = "categoryId", required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Authentication authentication
     ) {
         if(categoryId != null){
-            List<GetCategoryTermResponse> terms = termService.getCategoryTerms(categoryId,authentication);
+            List<GetCategoryTermResponse> terms = termService.getCategoryTerms(categoryId,page,size,authentication);
             return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, terms));
         } else {
-            List<GetAllTermResponse> terms = termService.getTerms(authentication);
+            List<GetAllTermResponse> terms = termService.getTerms(page,size,authentication);
             return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, terms));
         }
     }

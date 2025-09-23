@@ -1,6 +1,9 @@
 package welkit_server.domain.terms.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +37,13 @@ public class TermService {
     private final TermCategoryRepository termCategoryRepository;
     private final TermCategoryService termCategoryService;
 
-    public List<GetAllTermResponse> getTerms(Authentication authentication) {
+    public List<GetAllTermResponse> getTerms(int page, int size, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+        Pageable pageable = PageRequest.of(page,size);
 
-        List<Term> termList = termRepository.findAllByUser(user);
+        Page<Term> termList = termRepository.findAllByUser(user,pageable);
 
-        return termList.stream()
+        return termList.getContent().stream()
                 .map(term -> GetAllTermResponse.builder()
                         .termId(term.getId())
                         .name(term.getName())
@@ -50,12 +54,12 @@ public class TermService {
                 .toList();
     }
 
-    public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId, Authentication authentication){
+    public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId, int page, int size, Authentication authentication){
         User user = getAuthenticatedUser(authentication);
         termCategoryRepository.findByIdAndUser(categoryId, user)
                 .orElseThrow(() -> new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST));
-
-        List<Term> sortedCategoryTerms = termRepository. findAllByUserAndCategoryId(user, categoryId);
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Term> sortedCategoryTerms = termRepository. findAllByUserAndCategoryId(user,categoryId,pageable);
 
         return sortedCategoryTerms.stream()
                 .map(term -> GetCategoryTermResponse.builder()
