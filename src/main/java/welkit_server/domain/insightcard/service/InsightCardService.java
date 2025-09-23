@@ -22,7 +22,6 @@ import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.security.dto.CustomUserDetails;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +50,7 @@ public class InsightCardService {
                         .lastViewedAt(insightCard.getLastViewedAt())
                         .updatedAt(insightCard.getLastModifiedDate())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return GetInsightCardResponse.builder()
                 .totalAmount(totalPersonCardAmount)
@@ -78,7 +77,7 @@ public class InsightCardService {
                         .lastViewedAt(insightCard.getLastViewedAt())
                         .updatedAt(insightCard.getLastModifiedDate())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return GetInsightCardResponse.builder()
                 .totalAmount(totalWorkCardAmount)
