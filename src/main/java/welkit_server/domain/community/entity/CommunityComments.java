@@ -29,7 +29,7 @@ public class CommunityComments extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(nullable = false, length = 200)
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
