@@ -1,11 +1,15 @@
 package welkit_server.domain.insightcard.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetAllInsightCardResponse;
+import welkit_server.domain.insightcard.dto.response.GetInsightCardResponse;
 import welkit_server.domain.insightcard.dto.response.InsightCardResponse;
 import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.model.CardType;
@@ -27,12 +31,15 @@ public class InsightCardService {
     private final InsightCardRepository insightCardRepository;
     private final UserRepository userRepository;
 
-    public List<GetAllInsightCardResponse> getAllInsightPersonCards(Authentication authentication) {
+    public GetInsightCardResponse getAllInsightPersonCards(int page, int size, Authentication authentication) {
         User currentUser = getAuthenticatedUser(authentication);
 
-        List<InsightCard> insightCards = insightCardRepository.findAllInsightPersonCards(currentUser);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<InsightCard> insightCards = insightCardRepository.findAllInsightPersonCards(currentUser,pageable);
 
-        return insightCards.stream()
+        long totalPersonCardAmount = insightCardRepository.countByUserAndType(currentUser, CardType.PERSON);
+
+        List<GetAllInsightCardResponse> personWorkList = insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()
                         .cardId(insightCard.getId())
                         .title(insightCard.getTitle())
@@ -44,14 +51,22 @@ public class InsightCardService {
                         .updatedAt(insightCard.getLastModifiedDate())
                         .build())
                 .toList();
+
+        return GetInsightCardResponse.builder()
+                .totalAmount(totalPersonCardAmount)
+                .cards(personWorkList)
+                .build();
     }
 
-    public List<GetAllInsightCardResponse> getAllInsightWorkCards(Authentication authentication) {
+    public GetInsightCardResponse getAllInsightWorkCards(int page, int size, Authentication authentication) {
         User currentUser = getAuthenticatedUser(authentication);
 
-        List<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards(currentUser);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards(currentUser, pageable);
 
-        return insightCards.stream()
+        long totalWorkCardAmount = insightCardRepository.countByUserAndType(currentUser, CardType.WORK);
+
+        List<GetAllInsightCardResponse> workCardList = insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()
                         .cardId(insightCard.getId())
                         .title(insightCard.getTitle())
@@ -63,6 +78,11 @@ public class InsightCardService {
                         .updatedAt(insightCard.getLastModifiedDate())
                         .build())
                 .toList();
+
+        return GetInsightCardResponse.builder()
+                .totalAmount(totalWorkCardAmount)
+                .cards(workCardList)
+                .build();
     }
 
     public List<GetAllInsightCardResponse> getTop4LastViewedAtInsightCards(CardType cardType, Authentication authentication) {
@@ -121,9 +141,7 @@ public class InsightCardService {
     @Transactional
     public void deleteInsightCard(Long cardId, Authentication authentication) {
         User currentUser = getAuthenticatedUser(authentication);
-
         InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
-
         insightCardRepository.delete(insightCard);
     }
 

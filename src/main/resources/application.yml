@@ -2,11 +2,12 @@ spring:
   profiles:
     active: local
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: smtp.worksmobile.com
+    port: 465
     properties:
       mail.smtp.auth: true
       mail.smtp.timeout: 5000
-      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.ssl.trust: smtp.worksmobile.com
 blocked:
   email-domains: []
