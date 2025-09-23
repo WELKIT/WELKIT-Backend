@@ -10,7 +10,6 @@ import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
 import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
-import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
@@ -124,13 +123,13 @@ public class MyPageService {
         redisTemplate.opsForValue().set(key, "true", Duration.ofHours(3));
     }
 
-    public EmailResponse sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
+    public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
-        if(user.getEmailType() == EmailType.COMPANY_EMAIL){
+        if (user.getEmailType() == EmailType.COMPANY_EMAIL) {
             throw new BadRequestException(ErrorMessage.MYP_ALREADY_COMPANY_EMAIL_USER);
         }
-        return emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
+        emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
     }
 
     @Transactional
