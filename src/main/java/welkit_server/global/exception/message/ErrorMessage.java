@@ -22,7 +22,6 @@ public enum ErrorMessage {
     INVALID_CREDENTIAL(400, "USR1001", "이메일 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(404, "USR1002", "사용자를 찾을 수 없습니다."),
 
-
     // 회원가입 (USR)
     DUPLICATE_EMAIL(400, "USR2001", "이미 사용중인 이메일 주소입니다."),
     INVALID_EMAIL_CODE(400, "USR2002", "이메일 인증 코드가 올바르지 않습니다."),
@@ -32,13 +31,27 @@ public enum ErrorMessage {
 
     // 용어 사전 (TRM)
     TERM_NOT_FOUND(404, "TRM1001", "해당 용어를 찾을 수 없습니다."),
+    TERM_NAME_MIN_LENGTH(400, "TRM1002", "용어 이름은 최소 1자 이상이어야 합니다."),
+    TERM_NAME_MAX_LENGTH(400, "TRM1003", "용어 이름은 최대 50자를 초과할 수 없습니다."),
+    TERM_DEFINITION_MIN_LENGTH(400, "TRM1004", "용어 정의는 최소 1자 이상이어야 합니다."),
+    TERM_DEFINITION_MAX_LENGTH(400, "TRM1005", "용어 정의는 최대 500자를 초과할 수 없습니다."),
+    CATEGORY_NAME_MIN_LENGTH(400, "TRM1006", "카테고리 이름은 최소 1자 이상이어야 합니다."),
+    CATEGORY_NAME_MAX_LENGTH(400, "TRM1007", "카테고리 이름은 최대 20자를 초과할 수 없습니다."),
 
     // 인사이트 카드 (INS)
     INSIGHT_CARD_NOT_FOUND(404, "INS1001", "해당 카드를 찾을 수 없습니다."),
+    INSIGHT_CARD_TITLE_MIN_LENGTH(400, "INS1002", "카드 제목은 최소 1자 이상이어야 합니다."),
+    INSIGHT_CARD_TITLE_MAX_LENGTH(400, "INS1003", "카드 제목은 최대 30자를 초과할 수 없습니다."),
+    INSIGHT_CARD_DESCRIPTION_MIN_LENGTH(400, "INS1004", "카드 설명은 최소 1자 이상이어야 합니다."),
+    INSIGHT_CARD_DESCRIPTION_MAX_LENGTH(400, "INS1005", "카드 설명은 최대 500자를 초과할 수 없습니다."),
+    INSIGHT_CARD_NOTE_MIN_LENGTH(400, "INS1006", "카드 비고는 최소 0자 이상이어야 합니다."),
+    INSIGHT_CARD_NOTE_MAX_LENGTH(400, "INS1007", "카드 비고는 최대 200자를 초과할 수 없습니다."),
 
     // 회고 (RET)
     RETROSPECTIVE_NOT_FOUND(404, "RET1001", "해당 회고를 찾을 수 없습니다."),
-    RETROSPECTIVE_INVALID_DATE_RANGE(400, "RET1002", "회고의 날짜 범위가 올바르지 않습니다."),
+    RETROSPECTIVE_CONTENT_MIN_LENGTH(400, "RET1002", "회고 내용은 최소 1자 이상이어야 합니다."),
+    RETROSPECTIVE_CONTENT_MAX_LENGTH(400, "RET1003", "회고 내용은 최대 2000자를 초과할 수 없습니다."),
+    RETROSPECTIVE_INVALID_DATE_RANGE(400, "RET1004", "회고의 날짜 범위가 올바르지 않습니다."),
 
     // 커뮤니티 (CMN)
     COMMUNITY_POST_NOT_FOUND(404, "CMN1001", "해당 게시글을 찾을 수 없습니다."),
