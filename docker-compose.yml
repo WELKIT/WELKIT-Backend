@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  app:
+    image: kimjinbum/welkit:latest
+    container_name: welkit
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/welkit?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=welkit
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mysql:8
+    container_name: welkit-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: welkit
+      MYSQL_USER: welkit
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: root1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    container_name: welkit-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  db-data:
+  redis-data:

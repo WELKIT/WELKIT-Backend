@@ -64,7 +64,8 @@ public class SecurityConfig {
                 // 로그인/회원가입 API는 누구나 접근 가능
                 .requestMatchers(
                         "/users/signup/**",
-                        "/users/login"
+                        "/users/login",
+                        "/"
                 ).permitAll()
                 // 관리자 권한이 필요한 경로
                 .requestMatchers("/admin/**").hasRole("ADMIN")
