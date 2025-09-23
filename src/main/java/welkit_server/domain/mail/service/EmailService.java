@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import welkit_server.domain.mail.dto.response.EmailMessageResponse;
-import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
@@ -26,7 +25,8 @@ public class EmailService {
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
 
-    public EmailResponse sendVerificationEmail(String email, String type) {
+
+    public void sendVerificationEmail(String email, String type) {
         EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
                 .to(email)
                 .subject("[welkit] " + type + " 이메일 인증을 위한 인증 코드 발송")
@@ -34,10 +34,6 @@ public class EmailService {
 
         String code = sendMail(emailMessageResponse, "email");
         redisUtil.saveEmailCode(email, code);
-
-        return EmailResponse.builder()
-                .code(code)
-                .build();
     }
 
     public String sendMail(EmailMessageResponse emailMessage, String type){

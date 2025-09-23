@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
-import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
 import welkit_server.domain.mypage.dto.request.SolveLockRequest;
@@ -73,16 +72,16 @@ public class MyPageController {
         );
     }
 
-    @Operation( summary = "회사 이메일 인증번호 요청", description = "개인 이메일로 인증한 사용자가 회사 이메일로 재인증을 하기 위해 인증번호를 요청합니다")
+    @Operation(summary = "회사 이메일 인증번호 요청", description = "개인 이메일로 인증한 사용자가 회사 이메일로 재인증을 하기 위해 인증번호를 요청합니다")
     @PostMapping("/email/verify/company")
-    public ResponseEntity<SuccessResponse<EmailResponse>> sendCompanyMail(
+    public ResponseEntity<SuccessResponse<Void>> sendCompanyMail(
             @Valid @RequestBody EmailPostRequest emailPostRequest,
             Authentication authentication
     ) {
-        EmailResponse response = mypageService. sendCompanyVerificationEmail(emailPostRequest, authentication);
+        mypageService.sendCompanyVerificationEmail(emailPostRequest, authentication);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS, response));
+                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS, null));
     }
 
     @Operation(summary = "회사 이메일 인증번호 검증", description = "개인 이메일 인증 사용자가 회사 이메일로 재인증하기 위해 인증번호를 검증합니다")
