@@ -48,6 +48,7 @@ public class EmailService {
                 mimeMessage.setRecipients(Message.RecipientType.TO, emailMessage.getTo());
                 mimeMessage.setSubject(emailMessage.getSubject());
                 mimeMessage.setText("인증번호: " + authNum, "utf-8");
+                mimeMessage.setFrom("no-reply@welkit.kr");
                 mailSender.send(mimeMessage);
                 redisTemplate.opsForValue().set(RedisKey.EMAIL_CODE.getKey(emailMessage.getTo()), authNum, RedisKey.EMAIL_CODE.getTtl() );
             }

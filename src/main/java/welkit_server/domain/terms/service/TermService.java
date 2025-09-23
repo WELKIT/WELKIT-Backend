@@ -1,6 +1,9 @@
 package welkit_server.domain.terms.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +12,7 @@ import welkit_server.domain.terms.dto.request.EditTermRequest;
 import welkit_server.domain.terms.dto.response.EditTermResponse;
 import welkit_server.domain.terms.dto.response.CreateTermResponse;
 import welkit_server.domain.terms.dto.response.GetAllTermResponse;
-import welkit_server.domain.terms.dto.response.GetCategoryTermResponse;
+import welkit_server.domain.terms.dto.response.TermsResponse;
 import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.terms.repository.TermCategoryRepository;
@@ -34,12 +37,15 @@ public class TermService {
     private final TermCategoryRepository termCategoryRepository;
     private final TermCategoryService termCategoryService;
 
-    public List<GetAllTermResponse> getTerms(Authentication authentication) {
+    public TermsResponse getTerms(int page, int size, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+        Pageable pageable = PageRequest.of(page,size);
 
-        List<Term> termList = termRepository.findAllByUser(user);
+        Page<Term> termList = termRepository.findByUserOrderByCreatedDateDesc(user,pageable);
 
-        return termList.stream()
+        long totalCount = termRepository.countByUser(user);
+
+        List<GetAllTermResponse> terms =  termList.getContent().stream()
                 .map(term -> GetAllTermResponse.builder()
                         .termId(term.getId())
                         .name(term.getName())
@@ -48,23 +54,43 @@ public class TermService {
                         .updatedAt(term.getLastModifiedDate())
                         .build())
                 .toList();
+
+        return TermsResponse.builder()
+                .totalAmount(totalCount)
+                .terms(terms)
+                .build();
     }
 
-    public List<GetCategoryTermResponse> getCategoryTerms(Long categoryId, Authentication authentication){
+    public TermsResponse getCategoryTerms( int page, int size, List<Long> categoryIds, Authentication authentication){
         User user = getAuthenticatedUser(authentication);
-        termCategoryRepository.findByIdAndUser(categoryId, user)
-                .orElseThrow(() -> new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST));
 
-        List<Term> sortedCategoryTerms = termRepository. findAllByUserAndCategoryId(user, categoryId);
+        List<Long> validCategoryIds = categoryIds.stream()
+                .filter(id -> termCategoryRepository.findByIdAndUser(id, user).isPresent())
+                .toList();
 
-        return sortedCategoryTerms.stream()
-                .map(term -> GetCategoryTermResponse.builder()
+        if (validCategoryIds.isEmpty()) {
+            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
+        }
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Term> sortedCategoryTerms =
+                termRepository.findAllByUserAndCategoryIds(user, validCategoryIds, pageable);
+
+        long categoryCount = termRepository.countByUserAndCategoryIds(user, validCategoryIds);
+
+        List<GetAllTermResponse> categorySortedTerms = sortedCategoryTerms.stream()
+                .map(term -> GetAllTermResponse.builder()
                         .termId(term.getId())
                         .name(term.getName())
                         .definition(term.getDefinition())
                         .categoryId(term.getCategory().getId())
                         .build())
                 .toList();
+
+        return TermsResponse.builder()
+                .totalAmount(categoryCount)
+                .terms(categorySortedTerms)
+                .build();
+
     }
 
     @Transactional

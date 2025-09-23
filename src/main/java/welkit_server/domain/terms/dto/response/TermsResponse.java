@@ -2,15 +2,13 @@ package welkit_server.domain.terms.dto.response;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class GetCategoryTermResponse {
-
-    private Long termId;
-    private String name;
-    private String definition;
-    private Long categoryId;
-
+public class TermsResponse {
+    private Long totalAmount;
+    private List<GetAllTermResponse> terms;
 }

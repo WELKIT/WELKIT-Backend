@@ -17,12 +17,12 @@ public interface InsightCardRepository extends JpaRepository<InsightCard, Long> 
     @Query("SELECT i FROM InsightCard i " +
             "WHERE i.user = :user AND i.type = 'PERSON' " +
             "ORDER BY i.updatedAt DESC")
-    List<InsightCard> findAllInsightPersonCards(@Param("user") User user);
+    Page<InsightCard> findAllInsightPersonCards(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT i FROM InsightCard i " +
             "WHERE i.user = :user AND i.type = 'WORK' " +
             "ORDER BY i.updatedAt DESC")
-    List<InsightCard> findAllInsightWorkCards(@Param("user") User user);
+    Page<InsightCard> findAllInsightWorkCards(@Param("user") User user,Pageable pageable);
 
     List<InsightCard> findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(Long userId, CardType type);
 
@@ -37,5 +37,5 @@ public interface InsightCardRepository extends JpaRepository<InsightCard, Long> 
     Page<InsightCard> findFavoriteWorkCards(@Param("user") User user, Pageable pageable);
 
     long countByUserAndTypeAndIsFavoriteTrue(User user, CardType type);
-
+    long countByUserAndType(User user, CardType type);
 }
