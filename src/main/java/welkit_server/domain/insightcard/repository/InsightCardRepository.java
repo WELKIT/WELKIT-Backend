@@ -26,6 +26,16 @@ public interface InsightCardRepository extends JpaRepository<InsightCard, Long> 
 
     List<InsightCard> findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(Long userId, CardType type);
 
-    long countByUserAndType(User user, CardType type);
+    @Query("SELECT i FROM InsightCard i " +
+            "WHERE i.user = :user AND i.type ='PERSON' AND i.isFavorite = true " +
+            "ORDER BY i.updatedAt DESC")
+    Page<InsightCard> findFavoritePersonCards(@Param("user") User user, Pageable pageable);
 
+    @Query("SELECT i FROM InsightCard i " +
+            "WHERE i.user = :user AND i.type ='WORK' AND i.isFavorite = true " +
+            "ORDER BY i.updatedAt DESC")
+    Page<InsightCard> findFavoriteWorkCards(@Param("user") User user, Pageable pageable);
+
+    long countByUserAndTypeAndIsFavoriteTrue(User user, CardType type);
+    long countByUserAndType(User user, CardType type);
 }
