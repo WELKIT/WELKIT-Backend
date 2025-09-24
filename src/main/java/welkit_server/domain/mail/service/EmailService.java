@@ -25,8 +25,6 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
-    private final BlockedDomainsConfig blockedDomainsConfig;
-
 
     public void sendVerificationEmail(String email, String type) {
         EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
@@ -81,7 +79,7 @@ public class EmailService {
         log.info("{} 이메일 인증 성공 - email: {}", type, email);
     }
 
-    public EmailResponse resendVerificationEmail(String email) {
+    public void resendVerificationEmail(String email) {
         EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
                 .to(email)
                 .subject("[welkit] 이메일 재인증을 위한 인증 코드 발송")
@@ -89,10 +87,6 @@ public class EmailService {
 
         String code = sendMail(emailMessageResponse, "email");
         redisUtil.saveEmailCode(email, code);
-
-        return EmailResponse.builder()
-                .code(code)
-                .build();
     }
 
     public void resendEmail(EmailPostRequest emailPostRequest){
@@ -112,7 +106,7 @@ public class EmailService {
         String emailCode = redisUtil.getEmailCode(email);
         String inputCode = emailVerifyRequest.getCode();
 
-        if (inputCode == null) {
+        if (emailCode == null) {
             throw new BadRequestException(ErrorMessage.EXPIRED_EMAIL_CODE); // 코드 만료
         }
 
