@@ -17,6 +17,8 @@ public enum SuccessMessage {
     PERSONAL_EMAIL_SEND_SUCCESS(HttpStatus.OK.value(), "개인 메일 인증 코드 전송이 완료되었습니다."),
     COMPANY_EMAIL_VERIFICATION_SUCCESS(HttpStatus.CREATED.value(), "회사 메일 인증이 완료되었습니다."),
     PERSONAL_EMAIL_VERIFICATION_SUCCESS(HttpStatus.CREATED.value(), "개인 메일 인증이 완료되었습니다."),
+    EMAIL_SEND_SUCCESS(HttpStatus.OK.value(), "이메일 인증 코드 재전송이 완료되었습니다."),
+    EMAIL_VERIFICATION_SUCCESS(HttpStatus.OK.value(), "이메일 인증이 완료되었습니다."),
 
     LOAD_SUCCESS(HttpStatus.OK.value(),"조회가 완료되었습니다"),
     UPDATED_SUCCESS(HttpStatus.OK.value(), "수정이 완료되었습니다"),

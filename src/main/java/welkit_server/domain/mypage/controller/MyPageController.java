@@ -77,10 +77,10 @@ public class MyPageController {
             @Valid @RequestBody EmailPostRequest emailPostRequest,
             Authentication authentication
     ) {
-        EmailResponse response = mypageService. sendCompanyVerificationEmail(emailPostRequest, authentication);
+        mypageService. sendCompanyVerificationEmail(emailPostRequest, authentication);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS, response));
+                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS));
     }
 
     @Operation(summary = "회사 이메일 인증번호 검증", description = "개인 이메일 인증 사용자가 회사 이메일로 재인증하기 위해 인증번호를 검증합니다")
