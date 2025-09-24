@@ -10,19 +10,21 @@ import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
 import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
-import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
 import welkit_server.domain.mypage.dto.request.SolveLockRequest;
+import welkit_server.domain.mypage.dto.request.UpdateJobRoleRequest;
 import welkit_server.domain.mypage.dto.response.FeatureLockSettingResponse;
 import welkit_server.domain.mypage.dto.response.MyPageResponse;
+import welkit_server.domain.mypage.dto.response.UpdateJobRoleResponse;
 import welkit_server.domain.mypage.entity.LockSetting;
 import welkit_server.domain.mypage.model.FeatureName;
 import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.user.dto.UserInfoResponse;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
+import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.config.BlockedDomainsConfig;
 import welkit_server.global.exception.message.ErrorMessage;
@@ -124,7 +126,7 @@ public class MyPageService {
     public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
-        if(user.getEmailType() == EmailType.COMPANY_EMAIL){
+        if (user.getEmailType() == EmailType.COMPANY_EMAIL) {
             throw new BadRequestException(ErrorMessage.MYP_ALREADY_COMPANY_EMAIL_USER);
         }
         emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
@@ -152,6 +154,17 @@ public class MyPageService {
             throw new BadRequestException(ErrorMessage.USR_EMAIL_COMPANY_DOMAIN_INVALID);
         }
         user.setEmailType(EmailType.COMPANY_EMAIL);
+    }
+
+    @Transactional
+    public UpdateJobRoleResponse updateJobRole(UpdateJobRoleRequest updateJobRoleRequest, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        JobRole jobRole = updateJobRoleRequest.getJobRole();
+        user.updateJobRole(jobRole);
+
+        return UpdateJobRoleResponse.builder()
+                .jobRole(jobRole)
+                .build();
     }
 
     public Long getAuthenticatedUserId(Authentication authentication) {

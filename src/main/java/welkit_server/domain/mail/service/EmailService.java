@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.dto.response.EmailMessageResponse;
-import welkit_server.domain.mail.dto.response.EmailResponse;
-import welkit_server.global.config.BlockedDomainsConfig;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
@@ -29,7 +27,8 @@ public class EmailService {
     private final RedisUtil redisUtil;
     private final BlockedDomainsConfig blockedDomainsConfig;
 
-    public EmailResponse sendVerificationEmail(String email, String type) {
+
+    public void sendVerificationEmail(String email, String type) {
         EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
                 .to(email)
                 .subject("[welkit] " + type + " 이메일 인증을 위한 인증 코드 발송")
@@ -37,10 +36,6 @@ public class EmailService {
 
         String code = sendMail(emailMessageResponse, "email");
         redisUtil.saveEmailCode(email, code);
-
-        return EmailResponse.builder()
-                .code(code)
-                .build();
     }
 
     public String sendMail(EmailMessageResponse emailMessage, String type){

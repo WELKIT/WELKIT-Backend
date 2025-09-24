@@ -9,12 +9,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
-import welkit_server.domain.mail.dto.response.EmailResponse;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
 import welkit_server.domain.mypage.dto.request.SolveLockRequest;
+import welkit_server.domain.mypage.dto.request.UpdateJobRoleRequest;
 import welkit_server.domain.mypage.dto.response.FeatureLockSettingResponse;
 import welkit_server.domain.mypage.dto.response.MyPageResponse;
+import welkit_server.domain.mypage.dto.response.UpdateJobRoleResponse;
 import welkit_server.domain.mypage.service.MyPageService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
@@ -71,16 +72,16 @@ public class MyPageController {
         );
     }
 
-    @Operation( summary = "회사 이메일 인증번호 요청", description = "개인 이메일로 인증한 사용자가 회사 이메일로 재인증을 하기 위해 인증번호를 요청합니다")
+    @Operation(summary = "회사 이메일 인증번호 요청", description = "개인 이메일로 인증한 사용자가 회사 이메일로 재인증을 하기 위해 인증번호를 요청합니다")
     @PostMapping("/email/verify/company")
-    public ResponseEntity<SuccessResponse<EmailResponse>> sendCompanyMail(
+    public ResponseEntity<SuccessResponse<Void>> sendCompanyMail(
             @Valid @RequestBody EmailPostRequest emailPostRequest,
             Authentication authentication
     ) {
-        mypageService. sendCompanyVerificationEmail(emailPostRequest, authentication);
+        mypageService.sendCompanyVerificationEmail(emailPostRequest, authentication);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS));
+                .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS, null));
     }
 
     @Operation(summary = "회사 이메일 인증번호 검증", description = "개인 이메일 인증 사용자가 회사 이메일로 재인증하기 위해 인증번호를 검증합니다")
@@ -93,6 +94,18 @@ public class MyPageController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_VERIFICATION_SUCCESS, null));
+    }
+
+    @Operation(summary = "사용자 직무 변경", description = "사용자가 마이페이지에서 자신의 직무(Job Role)를 변경합니다")
+    @PatchMapping("/job")
+    public ResponseEntity<SuccessResponse<UpdateJobRoleResponse>> updateJobRole(
+            @Valid @RequestBody UpdateJobRoleRequest updateJobRoleRequest,
+            Authentication authentication
+    ) {
+        UpdateJobRoleResponse response = mypageService.updateJobRole(updateJobRoleRequest, authentication);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(SuccessMessage.UPDATED_SUCCESS, response));
     }
 
 }

@@ -65,7 +65,8 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/users/signup/**",
                         "/resend/**",
-                        "/users/login"
+                        "/users/login",
+                        "/"
                 ).permitAll()
                 // 관리자 권한이 필요한 경로
                 .requestMatchers("/admin/**").hasRole("ADMIN")

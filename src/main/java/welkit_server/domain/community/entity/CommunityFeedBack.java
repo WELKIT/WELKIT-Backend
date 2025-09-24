@@ -9,6 +9,7 @@ import welkit_server.global.domain.BaseEntity;
 @Entity
 @Getter
 @Builder
+@Table(name="community_feedbacks")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class CommunityFeedBack extends BaseEntity {

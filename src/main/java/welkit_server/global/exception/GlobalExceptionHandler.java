@@ -49,27 +49,65 @@ public class GlobalExceptionHandler {
             final MethodArgumentNotValidException e) {
 
         FieldError fieldError = e.getBindingResult().getFieldError();
-
         ErrorMessage errorMessage;
+
         if (fieldError == null) {
             errorMessage = ErrorMessage.WK_VALIDATION_MISSING;
         } else if ("password".equals(fieldError.getField())) {
-            // password 필드 validation
             String rejectedValue = String.valueOf(fieldError.getRejectedValue());
 
             if (rejectedValue.length() < 8) {
-                errorMessage = ErrorMessage.INVALID_PASSWORD_LENGTH; // 공통 validation 에러
-            } else if (!rejectedValue.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
-                errorMessage = ErrorMessage.INVALID_PASSWORD_SPECIAL_CHAR; // 공통 validation 에러
+                errorMessage = ErrorMessage.INVALID_PASSWORD_MIN_LENGTH;
+            } else if (rejectedValue.length() > 64) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_MAX_LENGTH;
+            } else if (!rejectedValue.matches(".*[0-9].*")) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_NUMBER;
+            } else if (!rejectedValue.matches(".*[!@#$%^&*(),.?\":{}|<>\\-_=+\\[\\]{};:'\",.<>/?].*")) {
+                errorMessage = ErrorMessage.INVALID_PASSWORD_SPECIAL_CHAR;
             } else {
                 errorMessage = ErrorMessage.WK_VALIDATION_MISSING;
             }
+        } else if ("Size".equals(fieldError.getCode())) {
+            String field = fieldError.getField();
+            String rejectedValue = fieldError.getRejectedValue() != null
+                    ? fieldError.getRejectedValue().toString() : "";
+
+            errorMessage = switch (field) {
+                // 용어 이름 / 정의
+                case "name" -> rejectedValue.length() > 50
+                        ? ErrorMessage.TERM_NAME_MAX_LENGTH
+                        : ErrorMessage.TERM_NAME_MIN_LENGTH;
+                case "definition" -> rejectedValue.length() > 500
+                        ? ErrorMessage.TERM_DEFINITION_MAX_LENGTH
+                        : ErrorMessage.TERM_DEFINITION_MIN_LENGTH;
+
+                // 인사이트 카드
+                case "title" -> rejectedValue.length() > 30
+                        ? ErrorMessage.INSIGHT_CARD_TITLE_MAX_LENGTH
+                        : ErrorMessage.INSIGHT_CARD_TITLE_MIN_LENGTH;
+                case "description" -> rejectedValue.length() > 500
+                        ? ErrorMessage.INSIGHT_CARD_DESCRIPTION_MAX_LENGTH
+                        : ErrorMessage.INSIGHT_CARD_DESCRIPTION_MIN_LENGTH;
+                case "note" -> rejectedValue.length() > 200
+                        ? ErrorMessage.INSIGHT_CARD_NOTE_MAX_LENGTH
+                        : ErrorMessage.INSIGHT_CARD_NOTE_MIN_LENGTH;
+
+                // 회고
+                case "content" -> rejectedValue.length() > 2000
+                        ? ErrorMessage.RETROSPECTIVE_CONTENT_MAX_LENGTH
+                        : ErrorMessage.RETROSPECTIVE_CONTENT_MIN_LENGTH;
+
+                // 카테고리 이름
+                case "categoryName" -> rejectedValue.length() > 20
+                        ? ErrorMessage.CATEGORY_NAME_MAX_LENGTH
+                        : ErrorMessage.CATEGORY_NAME_MIN_LENGTH;
+
+                default -> ErrorMessage.WK_VALIDATION_LENGTH_EXCEEDED;
+            };
         } else {
-            // 기존 필드별 에러 처리
             errorMessage = switch (fieldError.getCode()) {
                 case "NotNull", "NotBlank" -> ErrorMessage.WK_VALIDATION_NULL_OR_BLANK;
                 case "Email" -> ErrorMessage.WK_VALIDATION_EMAIL;
-                case "Size" -> ErrorMessage.WK_VALIDATION_LENGTH_EXCEEDED;
                 default -> ErrorMessage.WK_VALIDATION_MISSING;
             };
         }
@@ -77,8 +115,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorMessage.getStatus())
                 .body(ErrorResponse.of(errorMessage));
     }
-
-
+    
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

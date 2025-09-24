@@ -12,9 +12,11 @@ import welkit_server.domain.admin.model.NoticePriority;
 public class NoticeAdminRequest {
 
     @NotBlank
+    @Size(min = 1, max = 30)
     private String title;
 
     @NotBlank
+    @Size(min = 1, max = 2000)
     private String content;
 
     @NotNull

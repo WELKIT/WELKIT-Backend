@@ -12,7 +12,7 @@ import welkit_server.domain.terms.dto.request.EditTermRequest;
 import welkit_server.domain.terms.dto.response.EditTermResponse;
 import welkit_server.domain.terms.dto.response.CreateTermResponse;
 import welkit_server.domain.terms.dto.response.GetAllTermResponse;
-import welkit_server.domain.terms.dto.response.GetCategoryTermResponse;
+import welkit_server.domain.terms.dto.response.TermsResponse;
 import welkit_server.domain.terms.service.TermService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
@@ -27,15 +27,17 @@ public class TermController {
 
     @Operation(summary = "용어 조회", description = "등록된 용어를 조회합니다")
     @GetMapping
-    public ResponseEntity<SuccessResponse<?>> getTerms(
-            @RequestParam(value = "categoryId", required = false) Long categoryId,
+    public ResponseEntity<SuccessResponse<TermsResponse>> getTerms(
+            @RequestParam(value = "categoryIds", required = false) List<Long> categoryIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Authentication authentication
     ) {
-        if(categoryId != null){
-            List<GetCategoryTermResponse> terms = termService.getCategoryTerms(categoryId,authentication);
-            return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, terms));
+        if(categoryIds != null){
+            TermsResponse termFindByCategory = termService.getCategoryTerms(page,size,categoryIds, authentication);
+            return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, termFindByCategory));
         } else {
-            List<GetAllTermResponse> terms = termService.getTerms(authentication);
+            TermsResponse terms = termService.getTerms(page,size,authentication);
             return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, terms));
         }
     }
