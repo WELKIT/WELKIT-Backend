@@ -17,7 +17,6 @@ import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
 import welkit_server.global.redis.RedisUtil;
-import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -34,20 +33,6 @@ public class EmailService {
         EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
                 .to(email)
                 .subject("[welkit] " + type + " 이메일 인증을 위한 인증 코드 발송")
-                .build();
-
-        String code = sendMail(emailMessageResponse, "email");
-        redisUtil.saveEmailCode(email, code);
-
-        return EmailResponse.builder()
-                .code(code)
-                .build();
-    }
-
-    public EmailResponse resendVerificationEmail(String email) {
-        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
-                .to(email)
-                .subject("[welkit] 이메일 재인증을 위한 인증 코드 발송")
                 .build();
 
         String code = sendMail(emailMessageResponse, "email");
@@ -101,6 +86,20 @@ public class EmailService {
         log.info("{} 이메일 인증 성공 - email: {}", type, email);
     }
 
+    public EmailResponse resendVerificationEmail(String email) {
+        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
+                .to(email)
+                .subject("[welkit] 이메일 재인증을 위한 인증 코드 발송")
+                .build();
+
+        String code = sendMail(emailMessageResponse, "email");
+        redisUtil.saveEmailCode(email, code);
+
+        return EmailResponse.builder()
+                .code(code)
+                .build();
+    }
+
     public void resendEmail(EmailPostRequest emailPostRequest){
 
         String email = emailPostRequest.getEmail();
@@ -125,7 +124,6 @@ public class EmailService {
         if (!emailCode.equals(inputCode.trim())) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_CODE); // 코드 불일치
         }
-
         try {
             redisUtil.saveVerifiedEmail(email);
             redisUtil.deleteEmailCode(email);
@@ -142,17 +140,6 @@ public class EmailService {
             key.append(random.nextInt(10)); // 0 - 9
         }
         return key.toString();
-    }
-
-    private boolean isBlockedDomain(String email) {
-        if (email == null || !email.contains("@")) {
-            return false;
-        }
-        String domain = email.substring(email.indexOf("@") + 1).toLowerCase().trim();
-        List<String> blockedDomains = blockedDomainsConfig.getEmailDomains();
-        return blockedDomains.stream()
-                .map(d -> d.toLowerCase().trim())
-                .anyMatch(domain::endsWith);
     }
 
 }
