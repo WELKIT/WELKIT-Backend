@@ -21,7 +21,7 @@ import welkit_server.domain.mypage.dto.response.UpdateJobRoleResponse;
 import welkit_server.domain.mypage.entity.LockSetting;
 import welkit_server.domain.mypage.model.FeatureName;
 import welkit_server.domain.mypage.repository.LockSettingRepository;
-import welkit_server.domain.user.dto.UserInfoResponse;
+import welkit_server.domain.user.dto.response.UserInfoResponse;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.model.JobRole;

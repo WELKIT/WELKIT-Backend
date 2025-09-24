@@ -23,6 +23,8 @@ public enum SuccessMessage {
     LOAD_SUCCESS(HttpStatus.OK.value(),"조회가 완료되었습니다"),
     UPDATED_SUCCESS(HttpStatus.OK.value(), "수정이 완료되었습니다"),
 
+    RESET_PASSWORD_SUCCESS(HttpStatus.OK.value(), "비밀번호 재설정이 완료되었습니다"),
+
     LOCK_FEATURE_UPDATED(HttpStatus.OK.value(), "%s 기능의 잠금 상태가 변경되었습니다"),
     LOCK_SOLVE_SUCCESS(HttpStatus.OK.value(), "%s 기능 잠금 해제되었습니다"),
 

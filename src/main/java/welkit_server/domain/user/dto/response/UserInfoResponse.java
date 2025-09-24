@@ -1,4 +1,4 @@
-package welkit_server.domain.user.dto;
+package welkit_server.domain.user.dto.response;
 
 import lombok.*;
 import welkit_server.domain.user.entity.User;

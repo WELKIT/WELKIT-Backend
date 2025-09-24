@@ -66,6 +66,7 @@ public class SecurityConfig {
                         "/users/signup/**",
                         "/resend/**",
                         "/users/login",
+                        "/auth/**",
                         "/"
                 ).permitAll()
                 // 관리자 권한이 필요한 경로
