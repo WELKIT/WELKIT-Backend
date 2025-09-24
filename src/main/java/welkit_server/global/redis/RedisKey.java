@@ -6,7 +6,7 @@ import java.time.Duration;
 @Getter
 public enum RedisKey {
 
-    EMAIL_CODE("emailCode:", Duration.ofMinutes(5)),
+    EMAIL_CODE("emailCode:", Duration.ofMinutes(3)),
     VERIFIED_EMAIL("verified:", Duration.ofMinutes(10));
 
     private final String prefix;

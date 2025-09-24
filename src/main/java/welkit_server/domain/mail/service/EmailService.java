@@ -8,12 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import welkit_server.domain.mail.dto.request.EmailPostRequest;
+import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.dto.response.EmailMessageResponse;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
 import welkit_server.global.redis.RedisUtil;
-
 import java.util.Random;
 
 @Slf4j
@@ -24,6 +25,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
+    private final BlockedDomainsConfig blockedDomainsConfig;
 
 
     public void sendVerificationEmail(String email, String type) {
@@ -77,6 +79,52 @@ public class EmailService {
         }
 
         log.info("{} 이메일 인증 성공 - email: {}", type, email);
+    }
+
+    public EmailResponse resendVerificationEmail(String email) {
+        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
+                .to(email)
+                .subject("[welkit] 이메일 재인증을 위한 인증 코드 발송")
+                .build();
+
+        String code = sendMail(emailMessageResponse, "email");
+        redisUtil.saveEmailCode(email, code);
+
+        return EmailResponse.builder()
+                .code(code)
+                .build();
+    }
+
+    public void resendEmail(EmailPostRequest emailPostRequest){
+
+        String email = emailPostRequest.getEmail();
+        String key = RedisKey.EMAIL_CODE.getKey(email);
+
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+            redisTemplate.delete(key);
+        }
+
+        resendVerificationEmail(email);
+    }
+
+    public void verifyResendVerificationEmail(EmailVerifyRequest emailVerifyRequest) {
+        String email = emailVerifyRequest.getEmail();
+        String emailCode = redisUtil.getEmailCode(email);
+        String inputCode = emailVerifyRequest.getCode();
+
+        if (inputCode == null) {
+            throw new BadRequestException(ErrorMessage.EXPIRED_EMAIL_CODE); // 코드 만료
+        }
+
+        if (!emailCode.equals(inputCode.trim())) {
+            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_CODE); // 코드 불일치
+        }
+        try {
+            redisUtil.saveVerifiedEmail(email);
+            redisUtil.deleteEmailCode(email);
+        } catch (Exception e) {
+            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION); // 시스템 오류
+        }
     }
 
     public String createCode() {
