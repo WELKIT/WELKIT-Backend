@@ -70,4 +70,8 @@ public class User extends BaseEntity {
         this.jobRole = newRole;
     }
 
+    public void resetPassword(String password) {
+        this.password = password;
+    }
+
 }

@@ -21,14 +21,14 @@ public class EmailResendController {
 
     @Operation(summary = "이메일 인증 코드 재전송", description = "5분간 유효한 이메일 인증 코드를 재전송합니다")
     @PostMapping("/email")
-    public ResponseEntity sendResendEmail(@Valid @RequestBody EmailPostRequest emailPostRequest) {
+    public ResponseEntity resendEmail(@Valid @RequestBody EmailPostRequest emailPostRequest) {
         emailService.resendEmail(emailPostRequest);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of(SuccessMessage.EMAIL_SEND_SUCCESS));
     }
 
     @Operation(summary = "이메일 인증 재전송 코드 검증", description = "재전송된 인증 코드와 입력값을 비교하여 인증합니다")
     @PutMapping("/email")
-    public ResponseEntity sendResendVerifyEmail(@Valid @RequestBody EmailVerifyRequest emailVerifyRequest) {
+    public ResponseEntity resendVerifyEmail(@Valid @RequestBody EmailVerifyRequest emailVerifyRequest) {
         emailService.verifyResendVerificationEmail(emailVerifyRequest);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of(SuccessMessage.EMAIL_VERIFICATION_SUCCESS));
     }
