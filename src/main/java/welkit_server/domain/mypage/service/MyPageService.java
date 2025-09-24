@@ -121,13 +121,13 @@ public class MyPageService {
         redisTemplate.opsForValue().set(key, "true", Duration.ofHours(3));
     }
 
-    public EmailResponse sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
+    public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
         if(user.getEmailType() == EmailType.COMPANY_EMAIL){
             throw new BadRequestException(ErrorMessage.MYP_ALREADY_COMPANY_EMAIL_USER);
         }
-        return emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
+        emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
     }
 
     @Transactional
