@@ -1,6 +1,5 @@
 package welkit_server.domain.terms.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -16,7 +15,6 @@ public class EditTermRequest {
     @Size(min = 1, max = 500)
     private String definition;
 
-    @NotNull
     private Long categoryId;
 
     @Size(min = 1, max = 20)

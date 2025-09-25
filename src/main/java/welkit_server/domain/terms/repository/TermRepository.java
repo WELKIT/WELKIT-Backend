@@ -16,23 +16,23 @@ public interface TermRepository extends JpaRepository<Term, Long> {
 
     @Query("SELECT t FROM Term t " +
             "WHERE t.user = :user " +
-            "ORDER BY t.createdDate DESC")
+            "ORDER BY t.lastModifiedDate DESC")
     Page<Term> findByUserOrderByCreatedDateDesc(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT t FROM Term t " +
             "WHERE t.user = :user " +
-            "AND t.category.id IN :categoryIds  " +
-            "ORDER BY t.createdDate DESC")
-    Page<Term> findAllByUserAndCategoryIds(
+            "AND t.category.id IN :categoryId  " +
+            "ORDER BY t.lastModifiedDate DESC")
+    Page<Term> findAllByUserAndCategoryId(
             @Param("user") User user,
-            @Param("categoryIds") List<Long>categoryIds,
+            @Param("categoryId") List<Long>categoryId,
             Pageable pageable);
 
     long countByUser(User user);
 
     @Query("SELECT COUNT(t) FROM Term t " +
             "WHERE t.user = :user " +
-            "AND t.category.id IN :categoryIds")
-    long countByUserAndCategoryIds(@Param("user") User user, @Param("categoryIds") List<Long> categoryIds);
+            "AND t.category.id IN :categoryId")
+    long countByUserAndCategoryId(@Param("user") User user, @Param("categoryId") List<Long> categoryId);
 
 }

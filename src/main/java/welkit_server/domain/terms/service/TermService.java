@@ -20,7 +20,6 @@ import welkit_server.domain.terms.repository.TermRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
-import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
@@ -61,21 +60,27 @@ public class TermService {
                 .build();
     }
 
-    public TermsResponse getCategoryTerms( int page, int size, List<Long> categoryIds, Authentication authentication){
+    public TermsResponse getTermsByCategory( int page, int size, List<Long> categoryId, Authentication authentication){
         User user = getAuthenticatedUser(authentication);
 
-        List<Long> validCategoryIds = categoryIds.stream()
+
+        System.out.println("categoryId param: " + categoryId);
+        categoryId.forEach(id -> {
+                    boolean exists = termCategoryRepository.findByIdAndUser(id, user).isPresent();
+                    System.out.println("Checking ID=" + id + ", exists=" + exists);});
+
+        List<Long> validCategoryId = categoryId.stream()
                 .filter(id -> termCategoryRepository.findByIdAndUser(id, user).isPresent())
                 .toList();
 
-        if (validCategoryIds.isEmpty()) {
-            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
+        if (validCategoryId.isEmpty()) {
+            throw new NotFoundException(ErrorMessage.CATEGORY_NOT_FOUND);
         }
         Pageable pageable = PageRequest.of(page,size);
         Page<Term> sortedCategoryTerms =
-                termRepository.findAllByUserAndCategoryIds(user, validCategoryIds, pageable);
+                termRepository.findAllByUserAndCategoryId(user, validCategoryId, pageable);
 
-        long categoryCount = termRepository.countByUserAndCategoryIds(user, validCategoryIds);
+        long categoryCount = termRepository.countByUserAndCategoryId(user, validCategoryId);
 
         List<GetAllTermResponse> categorySortedTerms = sortedCategoryTerms.stream()
                 .map(term -> GetAllTermResponse.builder()
@@ -83,6 +88,7 @@ public class TermService {
                         .name(term.getName())
                         .definition(term.getDefinition())
                         .categoryId(term.getCategory().getId())
+                        .updatedAt(term.getLastModifiedDate())
                         .build())
                 .toList();
 
@@ -124,7 +130,7 @@ public class TermService {
 
         term.editTerm(editTermRequest, category);
 
-        return EditTermResponse.    fromEntity(term);
+        return EditTermResponse.fromEntity(term);
     }
 
     @Transactional
