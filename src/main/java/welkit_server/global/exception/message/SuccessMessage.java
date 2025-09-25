@@ -40,7 +40,8 @@ public enum SuccessMessage {
     /*
     204 No Content
      */
-    DELETED_SUCCESS(HttpStatus.NO_CONTENT.value(), "삭제가 완료되었습니다");
+    DELETED_SUCCESS(HttpStatus.NO_CONTENT.value(), "삭제가 완료되었습니다"),
+    DELETE_USER_SUCCESS(HttpStatus.NO_CONTENT.value(), "회원 탈퇴가 완료되었습니다");
     ;
 
     private final int status;
