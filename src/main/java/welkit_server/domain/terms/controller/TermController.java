@@ -28,18 +28,24 @@ public class TermController {
     @Operation(summary = "용어 조회", description = "등록된 용어를 조회합니다")
     @GetMapping
     public ResponseEntity<SuccessResponse<TermsResponse>> getTerms(
-            @RequestParam(value = "categoryIds", required = false) List<Long> categoryIds,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication
     ) {
-        if(categoryIds != null){
-            TermsResponse termFindByCategory = termService.getCategoryTerms(page,size,categoryIds, authentication);
-            return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, termFindByCategory));
-        } else {
-            TermsResponse terms = termService.getTerms(page,size,authentication);
-            return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, terms));
-        }
+        TermsResponse termsFindAll = termService.getTerms(page,size,authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, termsFindAll));
+    }
+
+    @Operation(summary = "카테고리별 용어 조회", description = "사용자가 선택한 카테고리에 맞게 용어를 조회합니다")
+    @GetMapping("/category")
+    public ResponseEntity<SuccessResponse<TermsResponse>> getCategoryTerms(
+            @RequestParam(value = "categoryId", required = false) List<Long> categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
+    ) {
+        TermsResponse termsFindByCategory = termService.getTermsByCategory(page,size,categoryId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, termsFindByCategory));
     }
 
     @Operation(summary = "용어 등록", description = "새로운 용어를 등록합니다")

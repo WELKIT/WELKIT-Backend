@@ -61,21 +61,27 @@ public class TermService {
                 .build();
     }
 
-    public TermsResponse getCategoryTerms( int page, int size, List<Long> categoryIds, Authentication authentication){
+    public TermsResponse getTermsByCategory( int page, int size, List<Long> categoryId, Authentication authentication){
         User user = getAuthenticatedUser(authentication);
 
-        List<Long> validCategoryIds = categoryIds.stream()
+
+        System.out.println("categoryId param: " + categoryId);
+        categoryId.forEach(id -> {
+                    boolean exists = termCategoryRepository.findByIdAndUser(id, user).isPresent();
+                    System.out.println("Checking ID=" + id + ", exists=" + exists);});
+
+        List<Long> validCategoryId = categoryId.stream()
                 .filter(id -> termCategoryRepository.findByIdAndUser(id, user).isPresent())
                 .toList();
 
-        if (validCategoryIds.isEmpty()) {
+        if (validCategoryId.isEmpty()) {
             throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
         }
         Pageable pageable = PageRequest.of(page,size);
         Page<Term> sortedCategoryTerms =
-                termRepository.findAllByUserAndCategoryIds(user, validCategoryIds, pageable);
+                termRepository.findAllByUserAndCategoryId(user, validCategoryId, pageable);
 
-        long categoryCount = termRepository.countByUserAndCategoryIds(user, validCategoryIds);
+        long categoryCount = termRepository.countByUserAndCategoryId(user, validCategoryId);
 
         List<GetAllTermResponse> categorySortedTerms = sortedCategoryTerms.stream()
                 .map(term -> GetAllTermResponse.builder()
@@ -83,6 +89,7 @@ public class TermService {
                         .name(term.getName())
                         .definition(term.getDefinition())
                         .categoryId(term.getCategory().getId())
+                        .updatedAt(term.getLastModifiedDate())
                         .build())
                 .toList();
 
@@ -124,7 +131,7 @@ public class TermService {
 
         term.editTerm(editTermRequest, category);
 
-        return EditTermResponse.    fromEntity(term);
+        return EditTermResponse.fromEntity(term);
     }
 
     @Transactional
