@@ -37,6 +37,7 @@ public enum ErrorMessage {
     TERM_DEFINITION_MAX_LENGTH(400, "TRM1005", "용어 정의는 최대 500자를 초과할 수 없습니다."),
     CATEGORY_NAME_MIN_LENGTH(400, "TRM1006", "카테고리 이름은 최소 1자 이상이어야 합니다."),
     CATEGORY_NAME_MAX_LENGTH(400, "TRM1007", "카테고리 이름은 최대 20자를 초과할 수 없습니다."),
+    CATEGORY_NOT_FOUND(404,"TRM1008","존재하지 않는 카테고리 입니다"),
 
     // 인사이트 카드 (INS)
     INSIGHT_CARD_NOT_FOUND(404, "INS1001", "해당 카드를 찾을 수 없습니다."),

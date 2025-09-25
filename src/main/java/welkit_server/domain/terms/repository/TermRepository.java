@@ -33,6 +33,6 @@ public interface TermRepository extends JpaRepository<Term, Long> {
     @Query("SELECT COUNT(t) FROM Term t " +
             "WHERE t.user = :user " +
             "AND t.category.id IN :categoryId")
-    long countByUserAndCategoryId(@Param("user") User user, @Param("categoryId") List<Long> categoryIds);
+    long countByUserAndCategoryId(@Param("user") User user, @Param("categoryId") List<Long> categoryId);
 
 }

@@ -20,7 +20,6 @@ import welkit_server.domain.terms.repository.TermRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
-import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
@@ -75,7 +74,7 @@ public class TermService {
                 .toList();
 
         if (validCategoryId.isEmpty()) {
-            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
+            throw new NotFoundException(ErrorMessage.CATEGORY_NOT_FOUND);
         }
         Pageable pageable = PageRequest.of(page,size);
         Page<Term> sortedCategoryTerms =
