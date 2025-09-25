@@ -5,8 +5,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import welkit_server.domain.mypage.entity.LockSetting;
 import welkit_server.domain.user.model.*;
 import welkit_server.global.domain.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -53,6 +57,9 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 25)
     private UserType userType = UserType.USER;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LockSetting> lockSettings = new ArrayList<>();
 
     public String getLoginEmail() {
         return this.email != null ? this.email : this.googleEmail;

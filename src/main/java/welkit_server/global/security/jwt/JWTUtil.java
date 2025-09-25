@@ -60,6 +60,24 @@ public class JWTUtil {
                 .before(new Date());
     }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+            return !isExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public long getExpiration(String token) {
+        Date expiration = Jwts.parser().verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
+    }
+
     // JWT 생성
     public String createJwt(String loginEmail, Long userId, String userType, String jobRole, Long expiredMs) {
         return Jwts.builder()
