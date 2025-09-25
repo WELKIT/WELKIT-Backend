@@ -5,8 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import welkit_server.domain.user.entity.User;
@@ -22,6 +22,7 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final StringRedisTemplate redisTemplate; // Redis 주입
 
     /**
      * permitAll 경로는 JWT 체크하지 않도록 필터 제외
@@ -29,7 +30,9 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        return path.startsWith("/users/signup") || path.startsWith("/resend") || path.startsWith("/auth") ||  path.equals("/users/login") || path.equals("/");
+        return path.startsWith("/users/signup") || path.startsWith("/resend") ||
+                path.startsWith("/auth") || path.equals("/users/login") ||
+                path.equals("/") || path.equals("/users/logout");
     }
 
     @Override
@@ -39,7 +42,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 1. 헤더 없음 → 로그인 필요
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            setErrorResponse(response, ErrorMessage.LOGIN_REQUIRED); // AUTH1002
+            setErrorResponse(response, ErrorMessage.LOGIN_REQUIRED);
             return;
         }
 
@@ -48,17 +51,23 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             // 2. 토큰이 잘못된 경우
             if (token.isBlank()) {
-                setErrorResponse(response, ErrorMessage.INVALID_TOKEN); // AUTH1004
+                setErrorResponse(response, ErrorMessage.INVALID_TOKEN);
                 return;
             }
 
-            // 3. 토큰 만료 확인
+            // 3. 블랙리스트 확인 (로그아웃된 토큰이면 차단)
+            if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token))) {
+                setErrorResponse(response, ErrorMessage.LOGIN_REQUIRED);
+                return;
+            }
+
+            // 4. 토큰 만료 확인
             if (jwtUtil.isExpired(token)) {
-                setErrorResponse(response, ErrorMessage.SESSION_EXPIRED); // AUTH1001
+                setErrorResponse(response, ErrorMessage.SESSION_EXPIRED);
                 return;
             }
 
-            // 4. 정상 토큰 → claim 가져오기
+            // 5. 정상 토큰 → claim 가져오기
             Long userId = jwtUtil.getUserId(token);
             String email = jwtUtil.getEmail(token);
             String userType = jwtUtil.getUserType(token);
@@ -82,8 +91,8 @@ public class JWTFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (Exception e) {
-            // 2. JWT 파싱 오류, 잘못된 토큰 등
-            setErrorResponse(response, ErrorMessage.INVALID_TOKEN); // AUTH1004
+            // JWT 파싱 오류, 잘못된 토큰 등
+            setErrorResponse(response, ErrorMessage.INVALID_TOKEN);
             return;
         }
 
@@ -100,5 +109,4 @@ public class JWTFilter extends OncePerRequestFilter {
                         "\",\"message\":\"" + errorResponse.message() + "\"}"
         );
     }
-
 }
