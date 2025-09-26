@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
@@ -24,7 +25,7 @@ public class EmailController {
     @Operation(summary = "회사 이메일 인증 코드 전송", description = "5분간 유효한 이메일 인증 코드를 전송합니다. ")
     @PostMapping("/company/email")
     public ResponseEntity sendCompanyMail(@Valid @RequestBody EmailPostRequest emailPostRequest) {
-        emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
+        emailService.sendVerificationEmail(emailPostRequest.getEmail(),  EmailCodePurpose.SIGN_UP);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_SEND_SUCCESS, null));
@@ -42,7 +43,7 @@ public class EmailController {
     @Operation(summary = "개인 이메일 인증 코드 전송", description = "5분간 유효한 이메일 인증 코드를 전송합니다.")
     @PostMapping("/personal/email")
     public ResponseEntity sendPersonalMail(@Valid @RequestBody EmailPostRequest emailPostRequest) {
-        emailService.sendVerificationEmail(emailPostRequest.getEmail(), "개인");
+        emailService.sendVerificationEmail(emailPostRequest.getEmail(),EmailCodePurpose.SIGN_UP);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.PERSONAL_EMAIL_SEND_SUCCESS, null));

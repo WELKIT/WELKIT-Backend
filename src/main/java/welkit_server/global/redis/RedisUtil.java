@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 
 @Component
 @Slf4j
@@ -18,9 +19,10 @@ public class RedisUtil {
         log.info("RedisUtil 초기화 : RedisTemplate = {}", redisTemplate);
     }
 
-    public void saveEmailCode(String email, String code) {
+    public void saveEmailCode(String email, String code, EmailCodePurpose purpose) {
         log.info("Redis 저장 시도: email = {}, code = {}", email, code);
-        redisTemplate.opsForValue().set(RedisKey.EMAIL_CODE.getKey(email), code, RedisKey.EMAIL_CODE.getTtl());
+        String key = email + ":"  + purpose.name();
+        redisTemplate.opsForValue().set(key, code, RedisKey.EMAIL_CODE.getTtl());
     }
 
     public String getEmailCode(String email) {

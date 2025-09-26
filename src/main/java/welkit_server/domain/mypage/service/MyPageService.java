@@ -10,6 +10,7 @@ import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
 import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
@@ -129,7 +130,7 @@ public class MyPageService {
         if (user.getEmailType() == EmailType.COMPANY_EMAIL) {
             throw new BadRequestException(ErrorMessage.MYP_ALREADY_COMPANY_EMAIL_USER);
         }
-        emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
+        emailService.sendVerificationEmail(emailPostRequest.getEmail(), EmailCodePurpose.CHANGE_EMAIL);
     }
 
     @Transactional

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.dto.response.EmailMessageResponse;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
@@ -26,33 +27,35 @@ public class EmailService {
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
 
-    public void sendVerificationEmail(String email, String type) {
-        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
-                .to(email)
-                .subject("[welkit] " + type + " 이메일 인증을 위한 인증 코드 발송")
-                .build();
-
-        String code = sendMail(emailMessageResponse, "email");
-        redisUtil.saveEmailCode(email, code);
+    public void sendVerificationEmail(String email, EmailCodePurpose purpose) {
+        String code = createCode();
+        sendMail(email, code, purpose);
+        redisUtil.saveEmailCode(email,code,purpose);
     }
 
-    public String sendMail(EmailMessageResponse emailMessage, String type){
-        String authNum = createCode();
+    private void sendMail(String email, String code, EmailCodePurpose purpose) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        try{
-            if (type.equals("email")) {
-                mimeMessage.setRecipients(Message.RecipientType.TO, emailMessage.getTo());
-                mimeMessage.setSubject(emailMessage.getSubject());
-                mimeMessage.setText("인증번호: " + authNum, "utf-8");
-                mimeMessage.setFrom("no-reply@welkit.kr");
-                mailSender.send(mimeMessage);
-                redisTemplate.opsForValue().set(RedisKey.EMAIL_CODE.getKey(emailMessage.getTo()), authNum, RedisKey.EMAIL_CODE.getTtl() );
-            }
-        }catch (MessagingException e){
-            log.error("메일 전송 실패", e);
+        try {
+            mimeMessage.setRecipients(Message.RecipientType.TO, email);
+            mimeMessage.setSubject("[welkit] " + getSubjectByPurpose(purpose));
+            mimeMessage.setText("인증번호: " + code, "utf-8");
+            mimeMessage.setFrom("no-reply@welkit.kr");
+
+            mailSender.send(mimeMessage);
+            log.info("메일 전송 완료 - email: {}, purpose: {}, code: {}", email, purpose, code);
+
+        } catch (MessagingException e) {
+            log.error("메일 전송 실패 - email: {}", email, e);
             throw new RuntimeException("메일 전송 실패");
         }
-        return authNum;
+    }
+
+    private String getSubjectByPurpose(EmailCodePurpose purpose) {
+        return switch (purpose) {
+            case PASSWORD_RESET -> "비밀번호 재설정을 위한 인증 코드 발송";
+            case SIGN_UP -> "회원가입 이메일 인증 코드 발송";
+            case CHANGE_EMAIL -> "이메일 변경 인증 코드 발송";
+        };
     }
 
     public void verifyEmail(String email, String inputCode, String type) {
@@ -79,17 +82,17 @@ public class EmailService {
         log.info("{} 이메일 인증 성공 - email: {}", type, email);
     }
 
-    public void resendVerificationEmail(String email) {
+    public void resendVerificationEmail(String email,EmailCodePurpose purpose) {
         EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
                 .to(email)
                 .subject("[welkit] 이메일 재인증을 위한 인증 코드 발송")
                 .build();
 
-        String code = sendMail(emailMessageResponse, "email");
-        redisUtil.saveEmailCode(email, code);
+        //String code = sendMail(emailMessageResponse, "email",purpose);
+        //redisUtil.saveEmailCode(email, code, purpose);
     }
 
-    public void resendEmail(EmailPostRequest emailPostRequest){
+    public void resendEmail(EmailPostRequest emailPostRequest,EmailCodePurpose purpose) {
 
         String email = emailPostRequest.getEmail();
         String key = RedisKey.EMAIL_CODE.getKey(email);
@@ -98,7 +101,7 @@ public class EmailService {
             redisTemplate.delete(key);
         }
 
-        resendVerificationEmail(email);
+        resendVerificationEmail(email,purpose);
     }
 
     public void verifyResendVerificationEmail(EmailVerifyRequest emailVerifyRequest) {

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.user.dto.request.ResetPasswordRequest;
 import welkit_server.domain.user.entity.User;
@@ -26,7 +27,8 @@ public class ResetPasswordService {
     private final EmailService emailService;
 
     public void sendEmail(EmailPostRequest emailPostRequest) {
-        emailService.resendEmail(emailPostRequest);
+       String email = emailPostRequest.getEmail();
+       emailService.sendVerificationEmail(email, EmailCodePurpose.PASSWORD_RESET);
     }
 
     public void verifyEmail(EmailVerifyRequest emailVerifyRequest) {
