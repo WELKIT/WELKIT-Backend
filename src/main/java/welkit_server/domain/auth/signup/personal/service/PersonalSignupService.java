@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.auth.signup.personal.dto.SignupRequest;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mypage.entity.LockSetting;
 import welkit_server.domain.mypage.model.FeatureName;
 import welkit_server.domain.mypage.repository.LockSettingRepository;
@@ -30,7 +31,7 @@ public class PersonalSignupService {
     public void signup(SignupRequest request) {
         String email = request.getEmail();
 
-        if (!redisUtil.isVerifiedEmail(email)) {
+        if (!redisUtil.isVerifiedEmail(email,EmailCodePurpose.SIGN_UP)) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
@@ -60,6 +61,6 @@ public class PersonalSignupService {
 
         lockSettingRepository.saveAll(lockSettings);
 
-        redisUtil.deleteEmailCode(email);
+        redisUtil.deleteEmailCode(email, EmailCodePurpose.SIGN_UP);
     }
 }

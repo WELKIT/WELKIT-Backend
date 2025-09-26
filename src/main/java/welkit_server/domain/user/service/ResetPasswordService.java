@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.user.dto.request.ResetPasswordRequest;
 import welkit_server.domain.user.entity.User;
@@ -26,18 +27,21 @@ public class ResetPasswordService {
     private final EmailService emailService;
 
     public void sendEmail(EmailPostRequest emailPostRequest) {
-        emailService.resendEmail(emailPostRequest);
+        String email = emailPostRequest.getEmail();
+       emailService.sendVerificationEmail(email, EmailCodePurpose.PASSWORD_RESET);
     }
 
     public void verifyEmail(EmailVerifyRequest emailVerifyRequest) {
-        emailService.verifyResendVerificationEmail(emailVerifyRequest);
+        String email = emailVerifyRequest.getEmail();
+        String inputCode = emailVerifyRequest.getCode();
+        emailService.verifyEmail(email,inputCode,EmailCodePurpose.PASSWORD_RESET);
     }
 
     @Transactional
     public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
         String email = resetPasswordRequest.getEmail();
 
-        if(!redisUtil.isVerifiedEmail(email)) {
+        if(!redisUtil.isVerifiedEmail(email,EmailCodePurpose.PASSWORD_RESET)) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 

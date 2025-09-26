@@ -10,6 +10,7 @@ import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
 import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mail.service.EmailService;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
@@ -125,11 +126,21 @@ public class MyPageService {
 
     public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+        String email = emailPostRequest.getEmail();
 
         if (user.getEmailType() == EmailType.COMPANY_EMAIL) {
             throw new BadRequestException(ErrorMessage.MYP_ALREADY_COMPANY_EMAIL_USER);
         }
-        emailService.sendVerificationEmail(emailPostRequest.getEmail(), "회사");
+
+        if (isBlockedDomain(email)) {
+            throw new BadRequestException(ErrorMessage.MYP_EMAIL_COMPANY_DOMAIN_INVALID);
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
+        }
+
+        emailService.sendVerificationEmail(email, EmailCodePurpose.CHANGE_EMAIL);
     }
 
     @Transactional
@@ -140,19 +151,12 @@ public class MyPageService {
         String email = emailVerifyRequest.getEmail();
         String code = emailVerifyRequest.getCode();
 
-        emailService.verifyEmail(email, code, "회사" );
+        emailService.verifyEmail(email, code, EmailCodePurpose.CHANGE_EMAIL );
 
-        if (!redisUtil.isVerifiedEmail(email)) {
+        if (!redisUtil.isVerifiedEmail(email,EmailCodePurpose.CHANGE_EMAIL)) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
-        if (userRepository.existsByEmail(email)) {
-            throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
-        }
-
-        if (isBlockedDomain(email)) {
-            throw new BadRequestException(ErrorMessage.USR_EMAIL_COMPANY_DOMAIN_INVALID);
-        }
         user.setEmailType(EmailType.COMPANY_EMAIL);
     }
 

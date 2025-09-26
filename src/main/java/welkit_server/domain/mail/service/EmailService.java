@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.dto.response.EmailMessageResponse;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisKey;
@@ -26,99 +27,75 @@ public class EmailService {
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisUtil redisUtil;
 
-    public void sendVerificationEmail(String email, String type) {
-        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
-                .to(email)
-                .subject("[welkit] " + type + " 이메일 인증을 위한 인증 코드 발송")
-                .build();
-
-        String code = sendMail(emailMessageResponse, "email");
-        redisUtil.saveEmailCode(email, code);
+    public void sendVerificationEmail(String email, EmailCodePurpose purpose) {
+        String code = createCode();
+        sendMail(email, code, purpose);
+        redisUtil.saveEmailCode(email,code,purpose);
     }
 
-    public String sendMail(EmailMessageResponse emailMessage, String type){
-        String authNum = createCode();
+    private void sendMail(String email, String code, EmailCodePurpose purpose) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        try{
-            if (type.equals("email")) {
-                mimeMessage.setRecipients(Message.RecipientType.TO, emailMessage.getTo());
-                mimeMessage.setSubject(emailMessage.getSubject());
-                mimeMessage.setText("인증번호: " + authNum, "utf-8");
-                mimeMessage.setFrom("no-reply@welkit.kr");
-                mailSender.send(mimeMessage);
-                redisTemplate.opsForValue().set(RedisKey.EMAIL_CODE.getKey(emailMessage.getTo()), authNum, RedisKey.EMAIL_CODE.getTtl() );
-            }
-        }catch (MessagingException e){
-            log.error("메일 전송 실패", e);
+        try {
+            mimeMessage.setRecipients(Message.RecipientType.TO, email);
+            mimeMessage.setSubject("[welkit] " + getSubjectByPurpose(purpose));
+            mimeMessage.setText("인증번호: " + code, "utf-8");
+            mimeMessage.setFrom("no-reply@welkit.kr");
+
+            mailSender.send(mimeMessage);
+            log.info("메일 전송 완료 - email: {}, purpose: {}, code: {}", email, purpose, code);
+
+        } catch (MessagingException e) {
+            log.error("메일 전송 실패 - email: {}", email, e);
             throw new RuntimeException("메일 전송 실패");
         }
-        return authNum;
     }
 
-    public void verifyEmail(String email, String inputCode, String type) {
-        String emailCode = redisUtil.getEmailCode(email);
+    private String getSubjectByPurpose(EmailCodePurpose purpose) {
+        return switch (purpose) {
+            case PASSWORD_RESET -> "비밀번호 재설정을 위한 인증 코드 발송";
+            case SIGN_UP -> "회원가입 이메일 인증 코드 발송";
+            case CHANGE_EMAIL -> "이메일 변경 인증 코드 발송";
+        };
+    }
 
-        if (emailCode == null) {
-            log.warn("{} 이메일 인증 코드 없음 또는 만료됨 - email: {}", type, email);
+    public void verifyEmail(String email, String inputCode,EmailCodePurpose purpose) {
+
+        String key = email + ":" + purpose.name();
+        String savedCode = redisTemplate.opsForValue().get(key);
+
+        if (savedCode== null) {
+            log.warn("{} 이메일 인증 코드 없음 또는 만료됨 - email: {}", purpose, email);
             throw new BadRequestException(ErrorMessage.EXPIRED_EMAIL_CODE); // 코드 만료
         }
 
-        if (!emailCode.equals(inputCode.trim())) {
-            log.warn("{} 이메일 인증 코드 불일치 - email: {}, 입력된 코드: {}", type, email, inputCode);
+        if (!savedCode.equals(inputCode.trim())) {
+            log.warn("{} 이메일 인증 코드 불일치 - email: {}, 입력된 코드: {}", purpose, email, inputCode);
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_CODE); // 코드 불일치
         }
 
         try {
-            redisUtil.saveVerifiedEmail(email);
-            redisUtil.deleteEmailCode(email);
+            redisUtil.saveVerifiedEmail(email,purpose);
+            redisUtil.deleteEmailCode(email,purpose);
         } catch (Exception e) {
             log.error("이메일 인증 실패 - email: {}", email, e);
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION); // 시스템 오류
         }
 
-        log.info("{} 이메일 인증 성공 - email: {}", type, email);
+        log.info("{} 이메일 인증 성공 - email: {}", savedCode, email);
     }
 
-    public void resendVerificationEmail(String email) {
-        EmailMessageResponse emailMessageResponse = EmailMessageResponse.builder()
-                .to(email)
-                .subject("[welkit] 이메일 재인증을 위한 인증 코드 발송")
-                .build();
-
-        String code = sendMail(emailMessageResponse, "email");
-        redisUtil.saveEmailCode(email, code);
-    }
-
-    public void resendEmail(EmailPostRequest emailPostRequest){
+    public void resendEmail(EmailPostRequest emailPostRequest,EmailCodePurpose purpose) {
 
         String email = emailPostRequest.getEmail();
-        String key = RedisKey.EMAIL_CODE.getKey(email);
+        String key = email + ":" + purpose.name();
 
         if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             redisTemplate.delete(key);
+            log.info("기존 인증 코드 삭제 완료 - email: {}, purpose: {}", email, purpose);
         }
-
-        resendVerificationEmail(email);
-    }
-
-    public void verifyResendVerificationEmail(EmailVerifyRequest emailVerifyRequest) {
-        String email = emailVerifyRequest.getEmail();
-        String emailCode = redisUtil.getEmailCode(email);
-        String inputCode = emailVerifyRequest.getCode();
-
-        if (emailCode == null) {
-            throw new BadRequestException(ErrorMessage.EXPIRED_EMAIL_CODE); // 코드 만료
-        }
-
-        if (!emailCode.equals(inputCode.trim())) {
-            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_CODE); // 코드 불일치
-        }
-        try {
-            redisUtil.saveVerifiedEmail(email);
-            redisUtil.deleteEmailCode(email);
-        } catch (Exception e) {
-            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION); // 시스템 오류
-        }
+        String code = createCode();
+        sendMail(email, code, purpose);
+        redisUtil.saveEmailCode(email,code,purpose);
     }
 
     public String createCode() {
