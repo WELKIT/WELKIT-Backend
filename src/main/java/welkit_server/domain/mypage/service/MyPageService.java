@@ -126,11 +126,21 @@ public class MyPageService {
 
     public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+        String email = emailPostRequest.getEmail();
 
         if (user.getEmailType() == EmailType.COMPANY_EMAIL) {
             throw new BadRequestException(ErrorMessage.MYP_ALREADY_COMPANY_EMAIL_USER);
         }
-        emailService.sendVerificationEmail(emailPostRequest.getEmail(), EmailCodePurpose.CHANGE_EMAIL);
+
+        if (isBlockedDomain(email)) {
+            throw new BadRequestException(ErrorMessage.MYP_EMAIL_COMPANY_DOMAIN_INVALID);
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
+        }
+
+        emailService.sendVerificationEmail(email, EmailCodePurpose.CHANGE_EMAIL);
     }
 
     @Transactional
@@ -147,13 +157,6 @@ public class MyPageService {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
-        if (userRepository.existsByEmail(email)) {
-            throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
-        }
-
-        if (isBlockedDomain(email)) {
-            throw new BadRequestException(ErrorMessage.USR_EMAIL_COMPANY_DOMAIN_INVALID);
-        }
         user.setEmailType(EmailType.COMPANY_EMAIL);
     }
 

@@ -65,6 +65,7 @@ public enum ErrorMessage {
     MYP_LOCK_PIN_NOT_FOUND(400, "MYP1004", "PIN이 설정되어 있지 않아 잠금 기능을 사용할 수 없습니다"),
     MYP_INVALID_LOCK_PIN(400, "MYP1005","PIN이 올바르지 않습니다."),
     MYP_ALREADY_COMPANY_EMAIL_USER(400, "MYP1006","이미 회사 이메일로 인증된 사용자입니다."),
+    MYP_EMAIL_COMPANY_DOMAIN_INVALID(400,"MYP1007","해당 이메일은 회사 인증이 불가능합니다"),
 
     // 인증/인가 (AUTH)
     SESSION_EXPIRED(401, "AUTH1001", "세션이 만료되었습니다. 다시 로그인해주세요."),
