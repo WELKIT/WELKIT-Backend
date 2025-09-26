@@ -141,7 +141,7 @@ public class MyPageService {
         String email = emailVerifyRequest.getEmail();
         String code = emailVerifyRequest.getCode();
 
-        emailService.verifyEmail(email, code, "회사" );
+        emailService.verifyEmail(email, code, EmailCodePurpose.CHANGE_EMAIL );
 
         if (!redisUtil.isVerifiedEmail(email)) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);

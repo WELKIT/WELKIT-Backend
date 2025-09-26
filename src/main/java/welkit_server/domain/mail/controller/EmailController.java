@@ -34,7 +34,7 @@ public class EmailController {
     @Operation(summary = "회사 이메일 인증 코드 검증", description = "전송된 인증 코드와 입력값을 비교하여 인증합니다")
     @PutMapping("/company/email")
     public ResponseEntity verifyCompanyEmail(@Valid @RequestBody EmailVerifyRequest emailVerifyRequest) {
-        emailService.verifyEmail(emailVerifyRequest.getEmail(), emailVerifyRequest.getCode(), "회사");
+        emailService.verifyEmail(emailVerifyRequest.getEmail(), emailVerifyRequest.getCode(), EmailCodePurpose.SIGN_UP);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.COMPANY_EMAIL_VERIFICATION_SUCCESS));
@@ -52,7 +52,7 @@ public class EmailController {
     @Operation(summary = "개인 이메일 인증 코드 검증", description = "전송된 인증 코드와 입력값을 비교하여 인증합니다")
     @PutMapping("/personal/email")
     public ResponseEntity verifyPersonalEmail(@Valid @RequestBody EmailVerifyRequest emailVerifyRequest) {
-        emailService.verifyEmail(emailVerifyRequest.getEmail(), emailVerifyRequest.getCode(), "개인");
+        emailService.verifyEmail(emailVerifyRequest.getEmail(), emailVerifyRequest.getCode(), EmailCodePurpose.SIGN_UP);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.PERSONAL_EMAIL_VERIFICATION_SUCCESS));

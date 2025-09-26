@@ -58,16 +58,18 @@ public class EmailService {
         };
     }
 
-    public void verifyEmail(String email, String inputCode, String type) {
-        String emailCode = redisUtil.getEmailCode(email);
+    public void verifyEmail(String email, String inputCode,EmailCodePurpose purpose) {
 
-        if (emailCode == null) {
-            log.warn("{} 이메일 인증 코드 없음 또는 만료됨 - email: {}", type, email);
+        String key = email + ":" + purpose.name();
+        String savedCode = redisTemplate.opsForValue().get(key);
+
+        if (savedCode== null) {
+            log.warn("{} 이메일 인증 코드 없음 또는 만료됨 - email: {}", purpose, email);
             throw new BadRequestException(ErrorMessage.EXPIRED_EMAIL_CODE); // 코드 만료
         }
 
-        if (!emailCode.equals(inputCode.trim())) {
-            log.warn("{} 이메일 인증 코드 불일치 - email: {}, 입력된 코드: {}", type, email, inputCode);
+        if (!savedCode.equals(inputCode.trim())) {
+            log.warn("{} 이메일 인증 코드 불일치 - email: {}, 입력된 코드: {}", purpose, email, inputCode);
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_CODE); // 코드 불일치
         }
 
@@ -79,7 +81,7 @@ public class EmailService {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION); // 시스템 오류
         }
 
-        log.info("{} 이메일 인증 성공 - email: {}", type, email);
+        log.info("{} 이메일 인증 성공 - email: {}", savedCode, email);
     }
 
     public void resendVerificationEmail(String email,EmailCodePurpose purpose) {
