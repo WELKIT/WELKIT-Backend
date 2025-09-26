@@ -25,20 +25,19 @@ public class RedisUtil {
         redisTemplate.opsForValue().set(key, code, RedisKey.EMAIL_CODE.getTtl());
     }
 
-    public String getEmailCode(String email) {
-        return redisTemplate.opsForValue().get(RedisKey.EMAIL_CODE.getKey(email));
+    public void deleteEmailCode(String email,EmailCodePurpose purpose) {
+        String key = email + ":"  + purpose.name();
+        redisTemplate.delete(key);
+        log.info("인증 코드 삭제 완료 - email: {}, purpose: {}", email, purpose);    }
+
+    public void saveVerifiedEmail(String email, EmailCodePurpose purpose) {
+        String key = email + ":" + purpose.name() + ":verified";
+        redisTemplate.opsForValue().set(key, "true", RedisKey.VERIFIED_EMAIL.getTtl());
     }
 
-    public void deleteEmailCode(String email) {
-        redisTemplate.delete(RedisKey.EMAIL_CODE.getKey(email));
-    }
-
-    public void saveVerifiedEmail(String email) {
-        redisTemplate.opsForValue().set(RedisKey.VERIFIED_EMAIL.getKey(email), "true" , RedisKey.VERIFIED_EMAIL.getTtl());
-    }
-
-    public boolean isVerifiedEmail(String email) {
-        String result = redisTemplate.opsForValue().get(RedisKey.VERIFIED_EMAIL.getKey(email));
+    public boolean isVerifiedEmail(String email, EmailCodePurpose purpose) {
+        String key = email + ":" + purpose.name() + ":verified";
+        String result = redisTemplate.opsForValue().get(key);
         return "true".equals(result);
     }
 

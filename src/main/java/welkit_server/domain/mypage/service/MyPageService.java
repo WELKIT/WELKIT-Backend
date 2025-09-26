@@ -153,7 +153,7 @@ public class MyPageService {
 
         emailService.verifyEmail(email, code, EmailCodePurpose.CHANGE_EMAIL );
 
-        if (!redisUtil.isVerifiedEmail(email)) {
+        if (!redisUtil.isVerifiedEmail(email,EmailCodePurpose.CHANGE_EMAIL)) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 

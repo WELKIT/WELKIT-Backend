@@ -25,8 +25,8 @@ public class EmailResendController {
             @RequestParam EmailCodePurpose purpose,
             @Valid @RequestBody EmailPostRequest emailPostRequest
     ) {
-        String email = emailPostRequest.getEmail();
-        //emailService.resendEmail(email, purpose);
+        emailService.resendEmail(emailPostRequest, purpose);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.EMAIL_SEND_SUCCESS));
     }
@@ -39,7 +39,8 @@ public class EmailResendController {
     ) {
         String email = emailVerifyRequest.getEmail();
         String inputCode = emailVerifyRequest.getCode();
-       // emailService.verifyEmail(email, inputCode, purpose);
+        emailService.verifyEmail(email, inputCode, purpose);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SuccessResponse.of(SuccessMessage.EMAIL_VERIFICATION_SUCCESS));
     }

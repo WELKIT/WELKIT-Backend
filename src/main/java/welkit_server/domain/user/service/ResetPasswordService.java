@@ -27,19 +27,21 @@ public class ResetPasswordService {
     private final EmailService emailService;
 
     public void sendEmail(EmailPostRequest emailPostRequest) {
-       String email = emailPostRequest.getEmail();
+        String email = emailPostRequest.getEmail();
        emailService.sendVerificationEmail(email, EmailCodePurpose.PASSWORD_RESET);
     }
 
     public void verifyEmail(EmailVerifyRequest emailVerifyRequest) {
-        emailService.verifyResendVerificationEmail(emailVerifyRequest);
+        String email = emailVerifyRequest.getEmail();
+        String inputCode = emailVerifyRequest.getCode();
+        emailService.verifyEmail(email,inputCode,EmailCodePurpose.PASSWORD_RESET);
     }
 
     @Transactional
     public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
         String email = resetPasswordRequest.getEmail();
 
-        if(!redisUtil.isVerifiedEmail(email)) {
+        if(!redisUtil.isVerifiedEmail(email,EmailCodePurpose.PASSWORD_RESET)) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
