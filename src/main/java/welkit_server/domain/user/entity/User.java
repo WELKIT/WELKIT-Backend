@@ -5,7 +5,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import welkit_server.domain.community.entity.CommunityComments;
+import welkit_server.domain.community.entity.CommunityFeedBack;
+import welkit_server.domain.community.entity.CommunityPosts;
+import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.mypage.entity.LockSetting;
+import welkit_server.domain.retrospectives.entity.Retrospective;
+import welkit_server.domain.terms.entity.Term;
+import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.user.model.*;
 import welkit_server.global.domain.BaseEntity;
 
@@ -57,6 +64,34 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 25)
     private UserType userType = UserType.USER;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TermCategory> termCategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Term> terms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<InsightCard> insightCards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Retrospective> retrospectives = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommunityPosts> communityPosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommunityComments> communityComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommunityFeedBack> communityFeedbacks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LockSetting> lockSettings = new ArrayList<>();
