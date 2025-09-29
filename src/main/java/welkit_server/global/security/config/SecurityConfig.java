@@ -19,7 +19,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import welkit_server.global.security.jwt.JWTFilter;
 import welkit_server.global.security.jwt.JWTUtil;
 import welkit_server.global.security.jwt.LoginFilter;
-
 import java.util.Collections;
 
 @Configuration
@@ -66,9 +65,10 @@ public class SecurityConfig {
                 // 로그인/회원가입 API는 누구나 접근 가능
                 .requestMatchers(
                         "/users/signup/**",
-                        "/resend/**",
                         "/users/login","/users/logout",
                         "/auth/**",
+                        "/privacy/**",
+                        "/agreement/**",
                         "/"
                 ).permitAll()
                 // 관리자 권한이 필요한 경로
