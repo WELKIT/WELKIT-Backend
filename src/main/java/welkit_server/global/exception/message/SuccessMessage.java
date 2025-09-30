@@ -36,6 +36,7 @@ public enum SuccessMessage {
     COMPANY_EMAIL_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "회사 메일 회원가입이 완료되었습니다."),
     PERSONAL_EMAIL_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "개인 메일 회원가입이 완료되었습니다."),
     GOOGLE_COMPANY_REGISTER_SUCCESS(HttpStatus.CREATED.value(), "구글 로그인을 통한 회사 인증 회원가입이 완료되었습니다."),
+    ACCESS_TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED.value(), "액세스 토큰 재발급이 완료되었습니다."),
 
     /*
     204 No Content

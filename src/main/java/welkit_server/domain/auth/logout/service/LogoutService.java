@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import welkit_server.domain.auth.logout.dto.LogoutRequest;
+import welkit_server.domain.auth.refresh.service.RefreshTokenService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.security.jwt.JWTUtil;
@@ -16,6 +17,7 @@ public class LogoutService {
 
     private final JWTUtil jwtUtil;
     private final StringRedisTemplate redisTemplate;
+    private final RefreshTokenService refreshTokenService;
 
     public void logout(LogoutRequest request) {
         String token = request.getToken();
@@ -34,5 +36,9 @@ public class LogoutService {
                 expiration,
                 TimeUnit.MILLISECONDS
         );
+
+        // 리프레시 토큰 삭제
+        Long userId = jwtUtil.getUserId(token);
+        refreshTokenService.deleteRefreshToken(userId);
     }
 }
