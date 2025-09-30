@@ -12,6 +12,7 @@ public class GetAllRetrospectiveResponse {
 
     private Long retrospectiveId;
     private String title;
+    private String content;
     private Type type;
     private LocalDate startDate;
     private LocalDate endDate;
