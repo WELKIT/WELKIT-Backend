@@ -1,5 +1,6 @@
 package welkit_server.domain.auth.login.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,8 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping
-    public ResponseEntity<SuccessResponse> login(@Valid @RequestBody LoginRequest request) {
-        String token = loginService.login(request);
+    public ResponseEntity<SuccessResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+        String token = loginService.login(request, response);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOGIN_SUCCESS, token));
     }
-
 }
