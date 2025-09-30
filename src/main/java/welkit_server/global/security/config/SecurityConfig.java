@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -62,18 +63,10 @@ public class SecurityConfig {
         http.httpBasic(basic -> basic.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                // 로그인/회원가입 API는 누구나 접근 가능
-                .requestMatchers(
-                        "/users/signup/**",
-                        "/users/login","/users/logout",
-                        "/auth/**",
-                        "/privacy/**",
-                        "/agreement/**",
-                        "/"
-                ).permitAll()
-                // 관리자 권한이 필요한 경로
+                .requestMatchers(HttpMethod.GET, "/community/posts", "/community/posts/search").permitAll()
+                .requestMatchers("/users/signup/**", "/users/login", "/users/logout", "/auth/**",
+                        "/privacy/**", "/agreement/**", "/").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                // 그 외 모든 요청은 로그인 필요
                 .anyRequest().authenticated()
         );
 

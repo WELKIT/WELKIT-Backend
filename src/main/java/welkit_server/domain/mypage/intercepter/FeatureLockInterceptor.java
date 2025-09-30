@@ -27,13 +27,19 @@ public class FeatureLockInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String path = request.getRequestURI();
+        if (path.equals("/community/posts") || path.equals("/community/posts/search")) {
+            return true; // 인터셉터 제외
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                !(authentication.getPrincipal() instanceof CustomUserDetails)) {
             throw new UnauthorizedException(ErrorMessage.SESSION_EXPIRED);
         }
 
         Long userId = ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-        FeatureName feature = FeatureName.fromUrl(request.getRequestURI());
+        FeatureName feature = FeatureName.fromUrl(path);
 
         if (feature == null) {
             return true;
