@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import welkit_server.domain.admin.dto.response.NoticeResponse;
+import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
@@ -26,12 +28,23 @@ import welkit_server.global.exception.message.SuccessMessage;
 public class MyPageController {
 
     private final MyPageService mypageService;
+    private final NoticeService noticeService;
 
     @Operation(summary = "전체 마이페이지 조회", description = "사용자의 정보, 공지사항, 기능별 암호 설정 상태를 포함한 마이페이지 전체 데이터를 조회합니다 ")
     @GetMapping
     public ResponseEntity<SuccessResponse<MyPageResponse>> getAllMyPages(Authentication authentication) {
         MyPageResponse mypage = mypageService.getMyPage(authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS,mypage));
+    }
+
+    @Operation(summary = "마이페이지 공지사항 조회",description = "등록된 공지사항을 마이페이지에서 조회합니다")
+    @GetMapping("/notices")
+    public ResponseEntity<SuccessResponse<NoticeResponse>> getAllNotices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            Authentication authentication) {
+        NoticeResponse getAllNotices = noticeService.getAllNotices(page,size,authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, getAllNotices));
     }
 
     @Operation(summary = "암호 생성", description = "기능별 암호 설정을 위한 암호를 생성합니다")
