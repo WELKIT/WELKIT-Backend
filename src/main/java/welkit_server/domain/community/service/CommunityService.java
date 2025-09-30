@@ -137,6 +137,8 @@ public class CommunityService {
     public PostResponse createPost(PostCreateRequest request, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
+        checkIsCompanyVerified(user);
+
         CommunityPosts post = CommunityPosts.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
@@ -183,6 +185,9 @@ public class CommunityService {
     @Transactional
     public CommentResponse createComment(CommentCreateRequest request, Long postId, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+
+        checkIsCompanyVerified(user);
+
         CommunityPosts post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
 
@@ -238,6 +243,8 @@ public class CommunityService {
     public FeedbackResponse toggleHelpful(FeedbackRequest request, Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
+        checkIsCompanyVerified(user);
+
         Long targetId = request.getTargetId();
         TargetType targetType = request.getTargetType();
         Boolean isHelpful = request.getIsHelpful();
@@ -279,6 +286,12 @@ public class CommunityService {
     public User getAuthenticatedUser(Authentication authentication) {
         return userRepository.findById(getAuthenticatedUserId(authentication))
                 .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
+    }
+
+    private static void checkIsCompanyVerified(User user) {
+        if (!user.isCompanyVerified()) {
+            throw new UnauthorizedException(ErrorMessage.COMMUNITY_COMPANY_NOT_VERIFIED);
+        }
     }
 
 }
