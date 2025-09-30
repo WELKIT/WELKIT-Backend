@@ -9,12 +9,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
-import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
-import welkit_server.domain.mail.dto.response.EmailMessageResponse;
 import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
-import welkit_server.global.redis.RedisKey;
 import welkit_server.global.redis.RedisUtil;
 import java.util.Random;
 

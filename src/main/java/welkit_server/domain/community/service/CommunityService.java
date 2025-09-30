@@ -38,20 +38,26 @@ public class CommunityService {
     private final CommunityCommentRepository commentRepository;
     private final UserRepository userRepository;
 
-    public List<PostSummaryResponse> getAllCommunityPosts(JobRole jobRole, int page, int size) {
+    public PostPageResponse getAllCommunityPosts(JobRole jobRole, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-
         Page<CommunityPosts> posts;
 
         if (jobRole != null) {
-            posts = postRepository.findAllByJobRole(jobRole, pageable); // 게시글의 jobRole 기준
+            posts = postRepository.findAllByJobRole(jobRole, pageable);
         } else {
             posts = postRepository.findAll(pageable);
         }
 
-        return posts.getContent().stream()
+        List<PostSummaryResponse> postSummaries = posts.getContent().stream()
                 .map(PostSummaryResponse::fromEntity)
                 .toList();
+
+        PostPageInfoResponse pageInfo = getPostsInfo(posts);
+
+        return PostPageResponse.builder()
+                .postInfo(pageInfo)
+                .posts(postSummaries)
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -67,34 +73,44 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostSummaryResponse> getMyPosts(int page, int size, JobRole jobRole, Authentication authentication) {
+    public PostPageResponse getMyPosts(int page, int size, JobRole jobRole, Authentication authentication) {
         User currentUser = getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        List<CommunityPosts> posts = postRepository.findByUserAndOptionalJobRole(currentUser, jobRole, pageable);
+        Page<CommunityPosts> posts = postRepository.findByUserAndOptionalJobRole(currentUser, jobRole, pageable);
 
-        if (jobRole != null && posts.isEmpty()) {
-            return List.of();
-        }
-
-        return posts.stream()
+        List<PostSummaryResponse> myPostSummaries = posts.stream()
                 .map(PostSummaryResponse::fromEntity)
                 .toList();
+
+        PostPageInfoResponse pageInfo = getPostsInfo(posts);
+
+        return PostPageResponse.builder()
+                .postInfo(pageInfo)
+                .posts(myPostSummaries)
+                .build();
     }
 
     @Transactional(readOnly = true)
-    public List<PostSummaryResponse> getMyCommentedPosts(int page, int size, JobRole jobRole, Authentication authentication) {
+    public PostPageResponse getMyCommentedPosts(int page, int size, JobRole jobRole, Authentication authentication) {
         User currentUser = getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        List<CommunityPosts> posts = postRepository.findDistinctByComments_UserAndOptionalJobRole(currentUser, jobRole, pageable);
+        Page<CommunityPosts> posts = postRepository.findDistinctByComments_UserAndOptionalJobRole(currentUser, jobRole, pageable);
 
-        return posts.stream()
+        List<PostSummaryResponse> myCommentedPosts = posts.stream()
                 .map(PostSummaryResponse::fromEntity)
                 .toList();
+
+        PostPageInfoResponse pageInfo = getPostsInfo(posts);
+
+        return PostPageResponse.builder()
+                .postInfo(pageInfo)
+                .posts(myCommentedPosts)
+                .build();
     }
 
-    public List<PostSummaryResponse> searchPosts(int page, int size, String keyword) {
+    public PostPageResponse searchPosts(int page, int size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
 
         Page<CommunityPosts> posts;
@@ -105,9 +121,16 @@ public class CommunityService {
             posts = postRepository.searchPostsOptionalKeyword(keyword, pageable);
         }
 
-        return posts.stream()
+        List<PostSummaryResponse> searchPosts = posts.stream()
                 .map(PostSummaryResponse::fromEntity)
                 .toList();
+
+        PostPageInfoResponse pageInfo = getPostsInfo(posts);
+
+        return  PostPageResponse.builder()
+                .postInfo(pageInfo)
+                .posts(searchPosts)
+                .build();
     }
 
     @Transactional
@@ -236,6 +259,16 @@ public class CommunityService {
         int notHelpfulCount = feedbackRepository.countByTargetTypeAndTargetIdAndIsHelpful(targetType, targetId, false);
 
         return FeedbackResponse.fromEntity(targetType, targetId, helpfulCount, notHelpfulCount);
+    }
+
+    public PostPageInfoResponse getPostsInfo(Page<CommunityPosts> posts){
+
+        PostPageInfoResponse pageInfo = PostPageInfoResponse.builder()
+                .totalPages(posts.getTotalPages())
+                .totalElements(posts.getTotalElements())
+                .build();
+
+        return pageInfo;
     }
 
     public Long getAuthenticatedUserId(Authentication authentication) {

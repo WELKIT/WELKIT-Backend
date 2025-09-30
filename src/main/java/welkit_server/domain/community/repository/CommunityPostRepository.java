@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
-import java.util.List;
 import java.util.Optional;
 
 public interface CommunityPostRepository extends JpaRepository<CommunityPosts, Long> {
@@ -20,7 +19,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPosts, L
     WHERE p.user = :user
       AND (:jobRole IS NULL OR p.jobRole = :jobRole)
 """)
-    List<CommunityPosts> findByUserAndOptionalJobRole(
+    Page<CommunityPosts> findByUserAndOptionalJobRole(
             @Param("user") User user,
             @Param("jobRole") JobRole jobRole,
             Pageable pageable
@@ -30,7 +29,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPosts, L
             "JOIN p.comments c " +
             "WHERE c.user = :user " +
             "AND (:jobRole IS NULL OR p.jobRole = :jobRole)")
-    List<CommunityPosts> findDistinctByComments_UserAndOptionalJobRole(
+    Page<CommunityPosts> findDistinctByComments_UserAndOptionalJobRole(
             @Param("user") User user,
             @Param("jobRole") JobRole jobRole,
             Pageable pageable

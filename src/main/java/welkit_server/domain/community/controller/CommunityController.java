@@ -14,8 +14,6 @@ import welkit_server.domain.user.model.JobRole;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
 
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/community")
@@ -26,20 +24,18 @@ public class CommunityController {
 
     @Operation(summary = "커뮤니티 글 전체 조회", description = "커뮤니티 글을 전체 조회합니다. 카테고리(직무)별로 필터링할 수 있습니다.")
     @GetMapping("/posts")
-    public ResponseEntity<SuccessResponse<Map<String, List<PostSummaryResponse>>>> getAllPosts(
+    public ResponseEntity<SuccessResponse<PostPageResponse>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) JobRole category
     ) {
-        List<PostSummaryResponse> posts = communityService.getAllCommunityPosts(category, page, size);
+        PostPageResponse postsPageResponse = communityService.getAllCommunityPosts(category, page, size);
 
-        Map<String, List<PostSummaryResponse>> response = Map.of("posts", posts);
-
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, postsPageResponse));
     }
 
     @Operation(summary = "커뮤니티 글 상세 조회", description = "커뮤니티 글의 상세 내용을 조회합니다. 글과 함께 해당 글의 댓글도 함께 조회합니다.")
-    @GetMapping("posts/{postId}")
+    @GetMapping("/posts/{postId}")
     public ResponseEntity<SuccessResponse<PostDetailResponse>> getPostDetail(
             @PathVariable Long postId,
             Authentication authentication
@@ -50,37 +46,37 @@ public class CommunityController {
 
     @Operation(summary = "내가 작성한 글 조회", description = "내가 작성한 커뮤니티 글을 조회합니다.")
     @GetMapping("/myposts")
-    public ResponseEntity<SuccessResponse<Page<PostSummaryResponse>>> getMyPosts(
-            @RequestParam int page,
-            @RequestParam int size,
+    public ResponseEntity<SuccessResponse<PostPageResponse>> getMyPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) JobRole category,
             Authentication authentication
     ) {
-        List<PostSummaryResponse> response = communityService.getMyPosts(page, size, category, authentication);
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+         PostPageResponse myPosts  = communityService.getMyPosts(page, size, category, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, myPosts));
     }
 
     @Operation(summary = "내가 댓글 단 글 조회", description = "내가 댓글을 단 커뮤니티 글을 조회합니다.")
     @GetMapping("/mycomments")
-    public ResponseEntity<SuccessResponse<Page<PostSummaryResponse>>> getMyCommentedPosts(
-            @RequestParam int page,
-            @RequestParam int size,
+    public ResponseEntity<SuccessResponse<PostPageResponse>> getMyCommentedPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) JobRole category,
             Authentication authentication
     ) {
-        List<PostSummaryResponse> response = communityService.getMyCommentedPosts(page, size, category, authentication);
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+        PostPageResponse myCommentedPosts = communityService.getMyCommentedPosts(page, size, category, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, myCommentedPosts));
     }
 
     @Operation(summary = "게시글 검색", description = "키워드로 게시글을 검색합니다.")
     @GetMapping("/posts/search")
-    public ResponseEntity<SuccessResponse<Page<PostSummaryResponse>>> searchPosts(
-            @RequestParam int page,
-            @RequestParam int size,
+    public ResponseEntity<SuccessResponse<PostPageResponse>> searchPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword
     ) {
-        List<PostSummaryResponse> response = communityService.searchPosts(page, size, keyword);
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+        PostPageResponse searchPosts = communityService.searchPosts(page, size, keyword);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, searchPosts));
     }
 
     @Operation(summary = "커뮤니티 글 작성", description = "새로운 커뮤니티 글을 작성합니다.")
@@ -95,7 +91,7 @@ public class CommunityController {
     }
 
     @Operation(summary = "커뮤니티 글 수정", description = "기존 커뮤니티 글을 수정합니다.")
-    @PatchMapping("posts/{postId}")
+    @PatchMapping("/posts/{postId}")
     public ResponseEntity<SuccessResponse<PostUpdateResponse>> updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequest request,
@@ -107,7 +103,7 @@ public class CommunityController {
     }
 
     @Operation(summary = "커뮤니티 글 삭제", description = "기존 커뮤니티 글을 삭제합니다.")
-    @DeleteMapping("posts/{postId}")
+    @DeleteMapping("/posts/{postId}")
     public ResponseEntity<SuccessResponse<Void>> deletePost(
             @PathVariable Long postId,
             Authentication authentication

@@ -15,7 +15,6 @@ import welkit_server.domain.user.model.UserType;
 import welkit_server.global.dto.ErrorResponse;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.security.dto.CustomUserDetails;
-
 import java.io.IOException;
 
 @RequiredArgsConstructor
@@ -30,9 +29,8 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        return path.startsWith("/users/signup") || path.startsWith("/resend") ||
-                path.startsWith("/auth") || path.equals("/users/login") ||
-                path.equals("/") || path.equals("/users/logout");
+        return path.startsWith("/users/signup") || path.startsWith("/auth") || path.equals("/users/login") ||
+               path.startsWith("/privacy") || path.startsWith("/agreement") ||  path.equals("/") || path.equals("/users/logout");
     }
 
     @Override

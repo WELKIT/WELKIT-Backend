@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.terms.dto.request.CreateTermRequest;
 import welkit_server.domain.terms.dto.request.EditTermRequest;
-import welkit_server.domain.terms.dto.response.EditTermResponse;
-import welkit_server.domain.terms.dto.response.CreateTermResponse;
-import welkit_server.domain.terms.dto.response.GetAllTermResponse;
-import welkit_server.domain.terms.dto.response.TermsResponse;
+import welkit_server.domain.terms.dto.response.*;
 import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.terms.repository.TermCategoryRepository;
@@ -44,6 +41,13 @@ public class TermService {
 
         long totalCount = termRepository.countByUser(user);
 
+        List<GetAllCategoryName> getAllCategoryNames = termCategoryRepository.findAlLCategory(user).stream()
+                .map(termCategory -> GetAllCategoryName.builder()
+                        .categoryId(termCategory.getId())
+                        .categoryName(termCategory.getName())
+                        .build())
+                .toList();
+
         List<GetAllTermResponse> terms =  termList.getContent().stream()
                 .map(term -> GetAllTermResponse.builder()
                         .termId(term.getId())
@@ -56,6 +60,7 @@ public class TermService {
 
         return TermsResponse.builder()
                 .totalAmount(totalCount)
+                .categoryNames(getAllCategoryNames)
                 .terms(terms)
                 .build();
     }
