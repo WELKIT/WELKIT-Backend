@@ -67,6 +67,8 @@ public class SecurityConfig {
                         "/users/signup/**",
                         "/users/login","/users/logout",
                         "/auth/**",
+                        "/community/posts",
+                        "/community/posts/search",
                         "/privacy/**",
                         "/agreement/**",
                         "/"
