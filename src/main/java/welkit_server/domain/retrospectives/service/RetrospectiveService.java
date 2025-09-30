@@ -41,6 +41,7 @@ public class RetrospectiveService {
                 .map(retrospective -> GetAllRetrospectiveResponse.builder()
                         .retrospectiveId(retrospective.getId())
                         .title(retrospective.getTitle())
+                        .content(retrospective.getContent())
                         .type(retrospective.getType())
                         .startDate(retrospective.getStartDate())
                         .endDate(retrospective.getEndDate())
