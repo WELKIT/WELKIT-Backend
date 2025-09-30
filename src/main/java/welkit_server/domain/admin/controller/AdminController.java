@@ -8,10 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.admin.dto.request.NoticeAdminRequest;
-import welkit_server.domain.admin.dto.response.AdminMainPageResponse;
-import welkit_server.domain.admin.dto.response.CommunityManagementPostDetailResponse;
-import welkit_server.domain.admin.dto.response.NoticeAdminResponse;
-import welkit_server.domain.admin.service.AdminService;
+import welkit_server.domain.admin.dto.response.*;
 import welkit_server.domain.admin.service.CommunityManagementService;
 import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.global.dto.SuccessResponse;
@@ -23,18 +20,16 @@ import welkit_server.global.exception.message.SuccessMessage;
 public class AdminController {
 
     private final NoticeService noticeService;
-    private final AdminService adminService;
     private final CommunityManagementService communityManagementService;
 
-    @Operation(summary = "어드민 페이지 전체 조회", description = "어드민 페이지에 있는 공지사항과 제재 글 리스트를 모두 조회합니다")
-    @GetMapping
-    public ResponseEntity<SuccessResponse<AdminMainPageResponse>> getAdminMainPage(
+    @Operation(summary = "공지사항 전체 조회", description = "등록되어 있는 공지사항을 전체 조회합니다")
+    @GetMapping("/notices")
+    public ResponseEntity<SuccessResponse<NoticeResponse>> getAllNotices(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Authentication authentication
-    ) {
-        AdminMainPageResponse adminMainPageResponse = adminService.getAdminMainPage(page, size, authentication);
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, adminMainPageResponse));
+            @RequestParam(defaultValue = "4") int size,
+            Authentication authentication) {
+        NoticeResponse getAllNotices = noticeService.getAllNotices(page,size,authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, getAllNotices));
     }
 
     @Operation(summary = "공지사항 상세 조회", description = "등록되어 있는 공지사항을 상세 조회합니다")
@@ -73,6 +68,18 @@ public class AdminController {
         noticeService.deleteNotice(noticeId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.DELETED_SUCCESS));
     }
+
+    @Operation(summary = "제재 커뮤니티 글 전체 조회", description = "제재할 커뮤니티 글을 전체 조회합니다")
+    @GetMapping("/sanction-posts")
+    public ResponseEntity<SuccessResponse<CommunityManagementPostResponse>> getAllSanctionPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
+    ){
+        CommunityManagementPostResponse communityManagementPostResponse = communityManagementService.getAllSanctionPosts(page,size,authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, communityManagementPostResponse));
+    }
+
 
     @Operation(summary = "제재 커뮤니티 글 상세 조회", description = "제재할 커뮤니티 글을 상세 조회합니다")
     @GetMapping("/sanction-posts/{id}")

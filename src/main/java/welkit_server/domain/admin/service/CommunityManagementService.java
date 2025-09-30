@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import welkit_server.domain.admin.dto.response.CommunityManagementPostDetailResponse;
-import welkit_server.domain.admin.dto.response.CommunityManagementPostResponse;
+import welkit_server.domain.admin.dto.response.*;
 import welkit_server.domain.community.entity.CommunityPosts;
 import welkit_server.domain.community.repository.CommunityPostRepository;
 import welkit_server.domain.user.entity.User;
@@ -27,16 +26,27 @@ public class CommunityManagementService {
     private final CommunityPostRepository communityPostRepository;
     private final UserRepository userRepository;
 
-    public List<CommunityManagementPostResponse> getAllSanctionPosts(int page, int size, Authentication authentication) {
+    public CommunityManagementPostResponse getAllSanctionPosts(int page, int size, Authentication authentication) {
         getAuthenticatedUser(authentication);
-
         Pageable pageable = PageRequest.of(page,size);
-
         Page<CommunityPosts> communityPosts = communityPostRepository.findSanctionPosts(pageable);
 
-        return communityPosts.getContent().stream()
-                .map(CommunityManagementPostResponse::fromEntity)
+        List<GetAllCommunityManagementPostResponse> getAllCommunityManagementPosts = communityPosts.getContent()
+                .stream()
+                .map(communityPost -> GetAllCommunityManagementPostResponse.fromEntity(communityPost))
                 .toList();
+
+        AdminPageInfoResponse communityManagementPostPageInfo = AdminPageInfoResponse.builder()
+                .totalPages(communityPosts.getTotalPages())
+                .totalElements(communityPosts.getTotalElements())
+                .build();
+
+        return CommunityManagementPostResponse.builder()
+                .communityManagementPostInfo(communityManagementPostPageInfo)
+                .communityManagementPostResponses(getAllCommunityManagementPosts)
+                .build();
+
+
     }
 
     public CommunityManagementPostDetailResponse getSanctionPostById(Long postId,Authentication authentication) {
