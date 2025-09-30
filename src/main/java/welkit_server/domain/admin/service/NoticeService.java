@@ -1,12 +1,17 @@
 package welkit_server.domain.admin.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.admin.dto.request.NoticeAdminRequest;
 import welkit_server.domain.admin.dto.response.NoticeAdminResponse;
 import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
+import welkit_server.domain.admin.dto.response.AdminPageInfoResponse;
+import welkit_server.domain.admin.dto.response.NoticeResponse;
 import welkit_server.domain.admin.entity.Notice;
 import welkit_server.domain.admin.repository.NoticeRepository;
 import welkit_server.domain.user.entity.User;
@@ -25,13 +30,25 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final UserRepository userRepository;
 
-    public List<GetAllNoticeResponse> getAllNotices(Authentication authentication) {
+    public NoticeResponse getAllNotices(int page, int size, Authentication authentication) {
         getAuthenticatedUser(authentication);
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Notice> notices = noticeRepository.findAllByOrderByLastModifiedDateDesc(pageable);
 
-        return noticeRepository.findAllByOrderByLastModifiedDateDesc()
+        List<GetAllNoticeResponse> getAllNotices =  notices.getContent()
                 .stream()
                 .map(notice -> GetAllNoticeResponse.fromEntity(notice))
                 .toList();
+
+        AdminPageInfoResponse noticePageInfo = AdminPageInfoResponse.builder()
+                .totalPages(notices.getTotalPages())
+                .totalElements(notices.getTotalElements())
+                .build();
+
+        return NoticeResponse.builder()
+                .noticePageInfo(noticePageInfo)
+                .notices(getAllNotices)
+                .build();
     }
 
     public NoticeAdminResponse getNotice(Long noticeId, Authentication authentication) {

@@ -7,9 +7,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class CommunityManagementPostResponse {
+public class NoticeResponse {
 
-    private AdminPageInfoResponse communityManagementPostInfo;
-    private List<GetAllCommunityManagementPostResponse> communityManagementPostResponses; // 수정됨
+    private AdminPageInfoResponse noticePageInfo;
+    private List<GetAllNoticeResponse> notices;
 
 }
