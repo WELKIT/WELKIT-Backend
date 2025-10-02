@@ -13,14 +13,17 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import welkit_server.domain.auth.signup.personal.dto.SignupRequest;
 import welkit_server.domain.auth.signup.personal.service.PersonalSignupService;
+import welkit_server.domain.mail.model.EmailCodePurpose;
 import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.fixture.UserFixture;
+import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisUtil;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @Profile("test")
@@ -82,4 +85,36 @@ public class UserServiceTest {
 
     }
 
+    @DisplayName("이메일 인증이 되지 않는 이메일로 회원가입 시 예외 처리")
+    @Test
+    void signUpFailsIfNotVerifiedEmail() {
+        //given
+        SignupRequest request = new SignupRequest(
+                "abc1@test.com",
+                "qwer1234!",
+                JobRole.AI_DEVELOP_DATA
+        );
+        when(redisUtil.isVerifiedEmail(request.getEmail(), EmailCodePurpose.SIGN_UP)).thenReturn(false); //이메일 인증 미처리
+        //when + then
+        assertThatThrownBy(() -> personalSignupService.signup(request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining(ErrorMessage.INVALID_EMAIL_VERIFICATION.getMessage());
+    }
+
+    @DisplayName("이미 회원가입한 이메일로 회원가입 시 예외 처리")
+    @Test
+    void signUpFailsIfEmailAlreadyExists() {
+        //given
+        SignupRequest request = new SignupRequest(
+                "abc@test.com",
+                "qwer1234!",
+                JobRole.AI_DEVELOP_DATA
+        );
+        when(redisUtil.isVerifiedEmail((request.getEmail()) , EmailCodePurpose.SIGN_UP)).thenReturn(true); //이메일 인증 처리
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(true); //이메일 중복 처리
+        //when + then
+        assertThatThrownBy(() -> personalSignupService.signup(request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining(ErrorMessage.DUPLICATE_EMAIL.getMessage());
+    }
 }
