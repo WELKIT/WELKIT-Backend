@@ -41,6 +41,7 @@ public class CommentResponse {
                 comment.getFeedbacks().stream()
                         .filter(f -> f.getUser() != null && f.getUser().equals(currentUser))
                         .map(CommunityFeedBack::getIsHelpful)
+                        .filter(java.util.Objects::nonNull) // null 제거
                         .findFirst()
                         .orElse(null));
 

@@ -25,6 +25,7 @@ public class UserServiceTest {
     private final PasswordEncoder passwordEncoder;
     private final LockSettingRepository lockSettingRepository;
 
+    //회원 가입
     public void signupDirectly(String email, String password, JobRole jobRole) {
         User user = userRepository.save(User.builder()
                 .email(email)
@@ -44,5 +45,7 @@ public class UserServiceTest {
 
         lockSettingRepository.saveAll(lockSettings);
     }
+
+    //
 
 }
