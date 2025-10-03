@@ -1,5 +1,4 @@
-package welkit_server.service;
-
+package welkit_server.service.user;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,7 @@ import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
-import welkit_server.fixture.UserFixture;
+import welkit_server.common.fixture.user.UserFixture;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisUtil;
