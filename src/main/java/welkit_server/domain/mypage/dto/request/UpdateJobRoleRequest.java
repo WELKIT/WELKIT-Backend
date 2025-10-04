@@ -5,7 +5,7 @@ import welkit_server.domain.user.model.JobRole;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @Builder
 public class UpdateJobRoleRequest {
 

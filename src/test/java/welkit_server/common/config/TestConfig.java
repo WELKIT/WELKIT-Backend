@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @AutoConfigureMockMvc
 @Import({TestConfig.Sample.class})
-
 public @interface TestConfig {
     class Sample {
         @Bean
