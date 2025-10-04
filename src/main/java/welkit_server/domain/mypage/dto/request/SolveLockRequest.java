@@ -5,8 +5,8 @@ import lombok.*;
 import welkit_server.domain.mypage.model.FeatureName;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class SolveLockRequest {
 

@@ -94,6 +94,7 @@ public class User extends BaseEntity {
     private List<CommunityFeedBack> communityFeedbacks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<LockSetting> lockSettings = new ArrayList<>();
 
     public String getLoginEmail() {

@@ -11,8 +11,8 @@ import welkit_server.global.domain.BaseEntity;
 @Getter
 @Builder
 @Table(name="lock_settings")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class LockSetting extends BaseEntity {
 
     @Id
@@ -27,6 +27,7 @@ public class LockSetting extends BaseEntity {
     @Column(nullable = false, length = 25)
     private FeatureName featureName;
 
+    @Builder.Default
     @Column(name = "is_locked", nullable = false)
     private boolean isLocked = false;
 
