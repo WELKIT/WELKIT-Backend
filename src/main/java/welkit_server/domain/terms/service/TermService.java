@@ -15,12 +15,10 @@ import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.terms.repository.TermCategoryRepository;
 import welkit_server.domain.terms.repository.TermRepository;
 import welkit_server.domain.user.entity.User;
-import welkit_server.domain.user.repository.UserRepository;
+import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
-import welkit_server.global.exception.model.UnauthorizedException;
-import welkit_server.global.security.dto.CustomUserDetails;
 import java.util.List;
 
 @Service
@@ -28,13 +26,13 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class TermService {
 
-    private final UserRepository userRepository;
     private final TermRepository termRepository;
     private final TermCategoryRepository termCategoryRepository;
     private final TermCategoryService termCategoryService;
+    private final UserService userService;
 
     public TermsResponse getTerms(int page, int size, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         Pageable pageable = PageRequest.of(page,size);
 
         Page<Term> termList = termRepository.findByUserOrderByCreatedDateDesc(user,pageable);
@@ -66,7 +64,7 @@ public class TermService {
     }
 
     public TermsResponse getTermsByCategory( int page, int size, List<Long> categoryId, Authentication authentication){
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
 
         System.out.println("categoryId param: " + categoryId);
@@ -106,7 +104,7 @@ public class TermService {
 
     @Transactional
     public CreateTermResponse createTerm(CreateTermRequest createTermRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         TermCategory category = termCategoryService.findOrCreate(
                 createTermRequest.getCategoryId(),
@@ -124,7 +122,7 @@ public class TermService {
 
     @Transactional
     public EditTermResponse editTerm(Long termId, EditTermRequest editTermRequest, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Term term = findOwnedTerm(currentUser.getId(), termId);
         TermCategory category = termCategoryService.findOrCreate(
@@ -140,20 +138,11 @@ public class TermService {
 
     @Transactional
     public void deleteTerm(Long termId, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Term term = findOwnedTerm(currentUser.getId(), termId);
 
         termRepository.delete(term);
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     public Term getTermById(Long termId) {

@@ -6,9 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import welkit_server.domain.admin.dto.response.GetAllNoticeResponse;
-import welkit_server.domain.admin.repository.NoticeRepository;
-import welkit_server.domain.admin.service.NoticeService;
 import welkit_server.domain.mail.dto.request.EmailPostRequest;
 import welkit_server.domain.mail.dto.request.EmailVerifyRequest;
 import welkit_server.domain.mail.model.EmailCodePurpose;
@@ -28,12 +25,11 @@ import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
+import welkit_server.domain.user.service.UserService;
 import welkit_server.global.config.BlockedDomainsConfig;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
-import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.redis.RedisUtil;
-import welkit_server.global.security.dto.CustomUserDetails;
 import java.time.Duration;
 import java.util.List;
 
@@ -49,6 +45,7 @@ public class MyPageService {
     private final RedisUtil redisUtil;
     private final EmailService emailService;
     private final BlockedDomainsConfig blockedDomainsConfig;
+    private final UserService userService;
 
     public MyPageResponse getMyPage(Authentication authentication) {
 
@@ -65,13 +62,13 @@ public class MyPageService {
     }
 
     public UserInfoResponse getUserInfo(Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         return UserInfoResponse.fromEntity(user);
     }
 
     @Transactional
     public void setLock(LockSettingRequest lockSettingRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         String lockPin = lockSettingRequest.getLockPin();
 
         if (lockPin == null || lockPin.isEmpty()) {
@@ -79,14 +76,14 @@ public class MyPageService {
         }
 
         if (lockPin.length() != 4) {
-            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
+            throw new BadRequestException(ErrorMessage.MYP_LOCK_PIN_INVALID);
         }
         user.settingLockPin(encoder.encode(lockPin));
     }
 
     @Transactional
     public FeatureLockSettingResponse setFeatureLock(FeatureLockSettingRequest featureLockSettingRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         Long userId = user.getId();
         FeatureName feature = featureLockSettingRequest.getFeatureName();
 
@@ -110,7 +107,7 @@ public class MyPageService {
     }
 
     public void solveFeatureLock(SolveLockRequest solveLockRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         Long userId = user.getId();
         FeatureName feature = solveLockRequest.getFeatureName();
 
@@ -123,7 +120,7 @@ public class MyPageService {
     }
 
     public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         String email = emailPostRequest.getEmail();
 
         if (user.getEmailType() == EmailType.COMPANY_EMAIL) {
@@ -144,7 +141,7 @@ public class MyPageService {
     @Transactional
     public void verifyEmail(EmailVerifyRequest emailVerifyRequest, Authentication authentication) {
 
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         String email = emailVerifyRequest.getEmail();
         String code = emailVerifyRequest.getCode();
@@ -160,22 +157,13 @@ public class MyPageService {
 
     @Transactional
     public UpdateJobRoleResponse updateJobRole(UpdateJobRoleRequest updateJobRoleRequest, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         JobRole jobRole = updateJobRoleRequest.getJobRole();
         user.updateJobRole(jobRole);
 
         return UpdateJobRoleResponse.builder()
                 .jobRole(jobRole)
                 .build();
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     private boolean isBlockedDomain(String email) {

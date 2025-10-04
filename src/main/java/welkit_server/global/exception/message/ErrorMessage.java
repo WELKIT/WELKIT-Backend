@@ -65,6 +65,7 @@ public enum ErrorMessage {
     MYP_INVALID_DATE_RANGE(400, "MYP1003", "공지 사항의 날짜 범위가 올바르지 않습니다."),
     MYP_LOCK_PIN_NOT_FOUND(400, "MYP1004", "PIN이 설정되어 있지 않아 잠금 기능을 사용할 수 없습니다"),
     MYP_INVALID_LOCK_PIN(400, "MYP1005","PIN이 올바르지 않습니다."),
+    MYP_LOCK_PIN_INVALID(400,"MYP1006", "잠금 비밀번호는 4자리 숫자로 설정해야 합니다."),
     MYP_ALREADY_COMPANY_EMAIL_USER(400, "MYP1006","이미 회사 이메일로 인증된 사용자입니다."),
     MYP_EMAIL_COMPANY_DOMAIN_INVALID(400,"MYP1007","해당 이메일은 회사 인증이 불가능합니다"),
 

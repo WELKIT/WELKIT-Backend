@@ -14,12 +14,9 @@ import welkit_server.domain.admin.dto.response.AdminPageInfoResponse;
 import welkit_server.domain.admin.dto.response.NoticeResponse;
 import welkit_server.domain.admin.entity.Notice;
 import welkit_server.domain.admin.repository.NoticeRepository;
-import welkit_server.domain.user.entity.User;
-import welkit_server.domain.user.repository.UserRepository;
+import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
-import welkit_server.global.exception.model.UnauthorizedException;
-import welkit_server.global.security.dto.CustomUserDetails;
 import java.util.List;
 
 @Service
@@ -28,10 +25,10 @@ import java.util.List;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public NoticeResponse getAllNotices(int page, int size, Authentication authentication) {
-        getAuthenticatedUser(authentication);
+        userService.getAuthenticatedUser(authentication);
         Pageable pageable = PageRequest.of(page,size);
         Page<Notice> notices = noticeRepository.findAllByOrderByLastModifiedDateDesc(pageable);
 
@@ -52,7 +49,7 @@ public class NoticeService {
     }
 
     public NoticeAdminResponse getNotice(Long noticeId, Authentication authentication) {
-        getAuthenticatedUser(authentication);
+        userService.getAuthenticatedUser(authentication);
 
         Notice notice = findNoticeById(noticeId);
 
@@ -61,7 +58,7 @@ public class NoticeService {
 
     @Transactional
     public NoticeAdminResponse createNotice(NoticeAdminRequest createNoticeRequest, Authentication authentication) {
-        getAuthenticatedUser(authentication);
+        userService.getAuthenticatedUser(authentication);
 
         Notice notice = createNoticeRequest.toEntity();
         noticeRepository.save(notice);
@@ -71,7 +68,7 @@ public class NoticeService {
 
     @Transactional
     public NoticeAdminResponse updateNotice(Long noticeId, NoticeAdminRequest updateNoticeRequest, Authentication authentication) {
-        getAuthenticatedUser(authentication);
+        userService.getAuthenticatedUser(authentication);
 
         Notice notice = findNoticeById(noticeId);
         notice.editNotice(updateNoticeRequest);
@@ -81,19 +78,10 @@ public class NoticeService {
 
     @Transactional
     public void deleteNotice(Long noticeId, Authentication authentication) {
-        getAuthenticatedUser(authentication);
+        userService.getAuthenticatedUser(authentication);
 
         Notice notice = findNoticeById(noticeId);
         noticeRepository.delete(notice);
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     public Notice findNoticeById(Long noticeId) {

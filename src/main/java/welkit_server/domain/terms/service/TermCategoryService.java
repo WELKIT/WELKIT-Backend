@@ -7,10 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import welkit_server.domain.terms.entity.TermCategory;
 import welkit_server.domain.terms.repository.TermCategoryRepository;
 import welkit_server.domain.user.entity.User;
-import welkit_server.domain.user.repository.UserRepository;
-import welkit_server.global.exception.message.ErrorMessage;
-import welkit_server.global.exception.model.UnauthorizedException;
-import welkit_server.global.security.dto.CustomUserDetails;
+import welkit_server.domain.user.service.UserService;
 
 @Service
 @RequiredArgsConstructor
@@ -18,11 +15,11 @@ import welkit_server.global.security.dto.CustomUserDetails;
 public class TermCategoryService {
 
     private final TermCategoryRepository termCategoryRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional
     public TermCategory findOrCreate(Long categoryId, String categoryName, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         return termCategoryRepository.findByIdAndUser(categoryId,user)
                 .orElseGet(() -> termCategoryRepository.save(
@@ -31,15 +28,6 @@ public class TermCategoryService {
                                 .user(user)
                                 .build()
                 ));
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
 }

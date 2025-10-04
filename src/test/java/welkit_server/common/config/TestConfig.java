@@ -1,4 +1,4 @@
-package welkit_server.config;
+package welkit_server.common.config;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcBuilderCustomizer;
@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @AutoConfigureMockMvc
 @Import({TestConfig.Sample.class})
-
 public @interface TestConfig {
     class Sample {
         @Bean
