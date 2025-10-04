@@ -76,7 +76,7 @@ public class MyPageService {
         }
 
         if (lockPin.length() != 4) {
-            throw new BadRequestException(ErrorMessage.WK_ENUM_VALUE_BAD_REQUEST);
+            throw new BadRequestException(ErrorMessage.MYP_LOCK_PIN_INVALID);
         }
         user.settingLockPin(encoder.encode(lockPin));
     }
