@@ -16,12 +16,10 @@ import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.model.CardType;
 import welkit_server.domain.insightcard.repository.InsightCardRepository;
 import welkit_server.domain.user.entity.User;
-import welkit_server.domain.user.repository.UserRepository;
+import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
-import welkit_server.global.exception.model.UnauthorizedException;
-import welkit_server.global.security.dto.CustomUserDetails;
 import java.util.List;
 
 @Service
@@ -30,10 +28,10 @@ import java.util.List;
 public class InsightCardService {
 
     private final InsightCardRepository insightCardRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public GetInsightCardResponse getAllInsightPersonCards(int page, int size, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<InsightCard> insightCards = insightCardRepository.findAllInsightPersonCards(currentUser,pageable);
@@ -60,7 +58,7 @@ public class InsightCardService {
     }
 
     public GetInsightCardResponse getAllInsightWorkCards(int page, int size, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<InsightCard> insightCards = insightCardRepository.findAllInsightWorkCards(currentUser, pageable);
@@ -87,7 +85,7 @@ public class InsightCardService {
     }
 
     public List<GetAllInsightCardResponse> getTop4LastViewedAtInsightCards(CardType cardType, Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        Long userId = userService.getAuthenticatedUserId(authentication);
 
         List<InsightCard> insightCards = insightCardRepository.findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(userId,cardType);
 
@@ -107,7 +105,7 @@ public class InsightCardService {
 
     @Transactional
     public InsightCardResponse getInsightCardById(Long cardId,Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
         insightCard.updateLastViewedAt();
@@ -116,7 +114,7 @@ public class InsightCardService {
     }
 
     public GetFavoriteInsightCardResponse getFavoritePersonInsightCards(int page, int size, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<InsightCard> favoritePersonInsightCard = insightCardRepository.findFavoritePersonCards(currentUser, pageable);
@@ -143,7 +141,7 @@ public class InsightCardService {
     }
 
     public GetFavoriteInsightCardResponse getFavoriteWorkInsightCards(int page, int size, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<InsightCard> favoriteWorkInsightCard = insightCardRepository.findFavoriteWorkCards(currentUser, pageable);
@@ -171,7 +169,7 @@ public class InsightCardService {
 
     @Transactional
     public InsightCardResponse createInsightCard(InsightCardRequest createInsightCardRequest,Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         InsightCard insightCard = createInsightCardRequest.toEntity();
         insightCard.setUser(currentUser);
@@ -184,7 +182,7 @@ public class InsightCardService {
 
     @Transactional
     public InsightCardResponse editInsightCard(Long cardId, InsightCardRequest editInsightCardRequest, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
         insightCard.editInsightCard(editInsightCardRequest);
@@ -195,18 +193,9 @@ public class InsightCardService {
 
     @Transactional
     public void deleteInsightCard(Long cardId, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
         InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
         insightCardRepository.delete(insightCard);
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     public InsightCard findInsightCardById(Long cardId) {

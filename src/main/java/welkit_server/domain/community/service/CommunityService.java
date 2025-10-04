@@ -20,12 +20,10 @@ import welkit_server.domain.community.repository.CommunityFeedBackRepository;
 import welkit_server.domain.community.repository.CommunityPostRepository;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
-import welkit_server.domain.user.repository.UserRepository;
+import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
-import welkit_server.global.security.dto.CustomUserDetails;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +34,7 @@ public class CommunityService {
     private final CommunityPostRepository postRepository;
     private final CommunityFeedBackRepository feedbackRepository;
     private final CommunityCommentRepository commentRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public PostPageResponse getAllCommunityPosts(JobRole jobRole, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -62,7 +60,7 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public PostDetailResponse getPostDetail(Long postId, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
         CommunityPosts post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
 
@@ -74,7 +72,7 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public PostPageResponse getMyPosts(int page, int size, JobRole jobRole, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
         Page<CommunityPosts> posts = postRepository.findByUserAndOptionalJobRole(currentUser, jobRole, pageable);
@@ -93,7 +91,7 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public PostPageResponse getMyCommentedPosts(int page, int size, JobRole jobRole, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
         Page<CommunityPosts> posts = postRepository.findDistinctByComments_UserAndOptionalJobRole(currentUser, jobRole, pageable);
@@ -135,7 +133,7 @@ public class CommunityService {
 
     @Transactional
     public PostResponse createPost(PostCreateRequest request, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         checkIsCompanyVerified(user);
 
@@ -154,7 +152,7 @@ public class CommunityService {
 
     @Transactional
     public PostUpdateResponse updatePost(Long postId, PostUpdateRequest request, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         CommunityPosts post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
@@ -170,7 +168,7 @@ public class CommunityService {
 
     @Transactional
     public void deletePost(Long postId, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         CommunityPosts post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
@@ -184,7 +182,7 @@ public class CommunityService {
 
     @Transactional
     public CommentResponse createComment(CommentCreateRequest request, Long postId, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         checkIsCompanyVerified(user);
 
@@ -211,7 +209,7 @@ public class CommunityService {
 
     @Transactional
     public CommentUpdateResponse updateComment(Long commentId, CommentUpdateRequest request, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         CommunityComments comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
@@ -227,7 +225,7 @@ public class CommunityService {
 
     @Transactional
     public void deleteComment(Long commentId, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         CommunityComments comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_COMMENT_NOT_FOUND));
@@ -241,7 +239,7 @@ public class CommunityService {
 
     @Transactional
     public FeedbackResponse toggleHelpful(FeedbackRequest request, Authentication authentication) {
-        User user = getAuthenticatedUser(authentication);
+        User user = userService.getAuthenticatedUser(authentication);
 
         checkIsCompanyVerified(user);
 
@@ -276,16 +274,6 @@ public class CommunityService {
                 .build();
 
         return pageInfo;
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        // 토큰 검증 + payload에서 userId 추출
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     private static void checkIsCompanyVerified(User user) {

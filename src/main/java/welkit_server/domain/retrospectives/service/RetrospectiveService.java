@@ -14,12 +14,10 @@ import welkit_server.domain.retrospectives.entity.Retrospective;
 import welkit_server.domain.retrospectives.model.Type;
 import welkit_server.domain.retrospectives.repository.RetrospectiveRepository;
 import welkit_server.domain.user.entity.User;
-import welkit_server.domain.user.repository.UserRepository;
+import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.ForbiddenException;
 import welkit_server.global.exception.model.NotFoundException;
-import welkit_server.global.exception.model.UnauthorizedException;
-import welkit_server.global.security.dto.CustomUserDetails;
 import java.util.List;
 
 @Service
@@ -28,10 +26,10 @@ import java.util.List;
 public class RetrospectiveService {
 
     private final RetrospectiveRepository retrospectiveRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public List<GetAllRetrospectiveResponse> getAllRetrospectives(Type type, int page, int size, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Retrospective> retrospectives =
@@ -51,13 +49,13 @@ public class RetrospectiveService {
     }
 
     public RetrospectiveResponse getRetrospectiveById(Long retrospectiveId, Authentication authentication) {
-        Long userId = getAuthenticatedUserId(authentication);
+        Long userId = userService.getAuthenticatedUserId(authentication);
         return RetrospectiveResponse.fromEntity(findOwnedRetrospective(userId, retrospectiveId));
     }
 
     @Transactional
     public RetrospectiveResponse createRetrospective(RetrospectiveRequest createRetrospectiveRequest, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Retrospective retrospective = createRetrospectiveRequest.toEntity();
         retrospective.setUser(currentUser);
@@ -69,7 +67,7 @@ public class RetrospectiveService {
 
     @Transactional
     public RetrospectiveResponse editRetrospective(Long retrospectiveId, RetrospectiveRequest editRetrospectiveRequest, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Retrospective retrospective  = findOwnedRetrospective(currentUser.getId(), retrospectiveId);
         retrospective.editRetrospective(editRetrospectiveRequest);
@@ -79,20 +77,11 @@ public class RetrospectiveService {
 
     @Transactional
     public void deleteRetrospective(Long retrospectiveId, Authentication authentication) {
-        User currentUser = getAuthenticatedUser(authentication);
+        User currentUser = userService.getAuthenticatedUser(authentication);
 
         Retrospective retrospective = findOwnedRetrospective(currentUser.getId(),retrospectiveId);
 
         retrospectiveRepository.delete(retrospective);
-    }
-
-    public Long getAuthenticatedUserId(Authentication authentication) {
-        return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-    }
-
-    public User getAuthenticatedUser(Authentication authentication) {
-        return userRepository.findById(getAuthenticatedUserId(authentication))
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.SESSION_EXPIRED));
     }
 
     public Retrospective findRetrospectiveById(Long retrospectiveId) {
