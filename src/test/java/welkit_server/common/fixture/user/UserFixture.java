@@ -10,7 +10,7 @@ import welkit_server.domain.user.model.UserType;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserFixture {
 
-    public static User user(Long id, String email, String password, JobRole jobRole) {
+    public static User user(Long id, String email, String password, JobRole jobRole,UserType userType) {
         return User.builder()
                 .id(id)
                 .email(email)
@@ -18,11 +18,9 @@ public class UserFixture {
                 .password(password)
                 .jobRole(jobRole)
                 .isCompanyVerified(true)
-                .userType(UserType.USER)
+                .userType(userType)
                 .build();
     }
-
-
 
     public static User createUser(String email, String password, JobRole jobRole) {
         return User.builder()
