@@ -1,12 +1,14 @@
 package welkit_server.domain.auth.signup.company.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import welkit_server.domain.user.model.JobRole;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class SignupRequest {
     @Email
     @NotBlank
