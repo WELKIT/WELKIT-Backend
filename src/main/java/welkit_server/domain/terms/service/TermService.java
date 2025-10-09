@@ -112,9 +112,7 @@ public class TermService {
                 authentication
         );
 
-        Term term = createTermRequest.toEntity(category);
-        term.setUser(user);
-
+        Term term = createTermRequest.toEntity(category,user);
         termRepository.save(term);
 
         return CreateTermResponse.fromEntity(term);

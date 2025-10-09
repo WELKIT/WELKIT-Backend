@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import welkit_server.domain.terms.entity.*;
+import welkit_server.domain.user.entity.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,11 +25,14 @@ public class CreateTermRequest {
     @Size(min = 1, max = 20)
     private String categoryName;
 
-    public Term toEntity(TermCategory category) {
+    private User user;
+
+    public Term toEntity(TermCategory category ,User user) {
         return Term.builder()
                 .name(name.trim())
                 .definition(definition.trim())
                 .category(category)
+                .user(user)
                 .build();
     }
 

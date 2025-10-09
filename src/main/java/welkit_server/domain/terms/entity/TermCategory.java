@@ -24,4 +24,8 @@ public class TermCategory extends BaseEntity {
     @JoinColumn(name="user_id") //nullable = false
     private User user;
 
+    public TermCategory(String categoryName, User user) {
+        this.name = categoryName;
+        this.user = user;
+    }
 }

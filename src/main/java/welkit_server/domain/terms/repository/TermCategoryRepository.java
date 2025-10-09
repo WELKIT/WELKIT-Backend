@@ -16,4 +16,6 @@ public interface TermCategoryRepository extends JpaRepository<TermCategory, Long
 
     @Query("SELECT c FROM TermCategory c WHERE c.user = :user")
     List<TermCategory> findAlLCategory(User user);
+
+    Optional<TermCategory> findByNameAndUser(String name, User user);
 }
