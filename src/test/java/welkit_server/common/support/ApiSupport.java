@@ -2,6 +2,7 @@ package welkit_server.common.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,6 +36,11 @@ public class ApiSuport {
     protected PasswordEncoder passwordEncoder;
     @Mock
     private JWTUtil jwtUtil;
+
+    public static final String AUTH_HEADER = "Authorization";
+    public static final String BEARER_PREFIX = "Bearer ";
+    public static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+    public static final String REFRESH_TOKEN_PREFIX = "refresh:";
 
     protected String toJson(Object object) throws JsonProcessingException {
         return objectMapper.writeValueAsString(object);
