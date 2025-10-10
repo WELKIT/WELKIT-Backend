@@ -1,5 +1,6 @@
 package welkit_server.controller.user;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -11,6 +12,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 import welkit_server.controller.BaseControllerTest;
 import welkit_server.domain.auth.login.controller.LoginController;
+import welkit_server.domain.auth.login.dto.LoginRequest;
+import welkit_server.domain.auth.login.service.LoginService;
 import welkit_server.domain.auth.logout.controller.LogoutController;
 import welkit_server.domain.auth.signup.company.controller.CompanySignupController;
 import welkit_server.domain.auth.signup.company.dto.SignupRequest;
@@ -22,22 +25,25 @@ import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.message.SuccessMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.security.dto.CustomUserDetails;
-import static org.mockito.Mockito.doThrow;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("회원가입 컨트롤러 테스트")
 @WebMvcTest(controllers = { CompanySignupController.class, UserController.class,
-        LoginController.class, LogoutController.class })
+        LoginController.class })
 public class AuthControllerTest extends BaseControllerTest {
 
     private static final String SIGNUP_URL = "/users/signup/company";
     private static final String DELETE_USER_URL = "/users/delete";
+    private static final String LOGIN_URL = "/users/login";
+
     private final String TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNjIyMjU0NjY4LCJleHAiO";
 
     @MockitoBean
@@ -45,6 +51,9 @@ public class AuthControllerTest extends BaseControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private LoginService loginService;
 
     @MockitoBean
     private RedisTemplate<String, String> redisTemplate;
@@ -143,6 +152,27 @@ public class AuthControllerTest extends BaseControllerTest {
         //then
         resultActions.andExpect(status().isOk());
 
+    }
+
+    @Test
+    @DisplayName("회원 로그인 테스트 ")
+    void login_success() throws Exception {
+        //given
+        LoginRequest loginRequest = new LoginRequest().builder()
+                .email("test@test.com")
+                .password("qwer1234!")
+                .build();
+
+        when(loginService.login(any(LoginRequest.class), any(HttpServletResponse.class)))
+                .thenReturn(TOKEN);
+
+        ResultActions resultActions = mockMvc.perform(post(LOGIN_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)));
+
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.message").value(SuccessMessage.LOGIN_SUCCESS.getMessage()));
+        resultActions.andExpect(jsonPath("$.data").value(TOKEN));
     }
 
 }
