@@ -28,7 +28,7 @@ public class Term extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private TermCategory category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -42,10 +42,6 @@ public class Term extends BaseEntity {
         if (newCategory != null) {
             this.category = newCategory;
         }
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
 }

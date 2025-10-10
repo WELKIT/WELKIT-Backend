@@ -23,6 +23,7 @@ import welkit_server.domain.mypage.repository.LockSettingRepository;
 import welkit_server.domain.mypage.service.MyPageService;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.JobRole;
+import welkit_server.domain.user.model.UserType;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
@@ -61,7 +62,8 @@ class MyPageServiceTest {
                 1L,
                 "user@test.com",
                 "qwer1234!",
-                JobRole.AI_DEVELOP_DATA
+                JobRole.AI_DEVELOP_DATA,
+                UserType.USER
         );
     }
     @Test

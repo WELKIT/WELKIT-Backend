@@ -24,7 +24,7 @@ import java.util.List;
 @Builder
 @Table(name="users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class User extends BaseEntity {
 
     @Id
