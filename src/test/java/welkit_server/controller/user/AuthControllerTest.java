@@ -15,6 +15,8 @@ import welkit_server.domain.auth.login.controller.LoginController;
 import welkit_server.domain.auth.login.dto.LoginRequest;
 import welkit_server.domain.auth.login.service.LoginService;
 import welkit_server.domain.auth.logout.controller.LogoutController;
+import welkit_server.domain.auth.logout.dto.LogoutRequest;
+import welkit_server.domain.auth.logout.service.LogoutService;
 import welkit_server.domain.auth.signup.company.controller.CompanySignupController;
 import welkit_server.domain.auth.signup.company.dto.SignupRequest;
 import welkit_server.domain.auth.signup.company.service.CompanySignupService;
@@ -37,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("회원가입 컨트롤러 테스트")
 @WebMvcTest(controllers = { CompanySignupController.class, UserController.class,
-        LoginController.class })
+        LoginController.class, LogoutController.class })
 public class AuthControllerTest extends BaseControllerTest {
 
     private static final String SIGNUP_URL = "/users/signup/company";
@@ -54,6 +56,9 @@ public class AuthControllerTest extends BaseControllerTest {
 
     @MockitoBean
     private LoginService loginService;
+
+    @MockitoBean
+    private LogoutService logoutService;
 
     @MockitoBean
     private RedisTemplate<String, String> redisTemplate;
@@ -175,4 +180,21 @@ public class AuthControllerTest extends BaseControllerTest {
         resultActions.andExpect(jsonPath("$.data").value(TOKEN));
     }
 
+    @Test
+    @DisplayName("회원 로그아웃 테스트")
+    void logout_success() throws Exception {
+        //given
+        LogoutRequest logoutRequest = new LogoutRequest(TOKEN);
+
+        doNothing().when(logoutService).logout(any());
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post("/users/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(logoutRequest)));
+        //then
+        resultActions.andExpect(status().isOk());
+    }
 }
+
+
