@@ -30,14 +30,13 @@ import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.message.SuccessMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.security.dto.CustomUserDetails;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("회원가입 컨트롤러 테스트")
+@DisplayName("사용자 회원가입 / 로그인 / 로그아웃  컨트롤러 테스트")
 @WebMvcTest(controllers = { CompanySignupController.class, UserController.class,
         LoginController.class, LogoutController.class })
 public class AuthControllerTest extends BaseControllerTest {
@@ -110,6 +109,7 @@ public class AuthControllerTest extends BaseControllerTest {
         // then
         resultActions.andExpect(jsonPath("$.message")
                 .value(ErrorMessage.INVALID_EMAIL_VERIFICATION.getMessage()));
+
     }
 
     @Test
@@ -178,6 +178,7 @@ public class AuthControllerTest extends BaseControllerTest {
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.message").value(SuccessMessage.LOGIN_SUCCESS.getMessage()));
         resultActions.andExpect(jsonPath("$.data").value(TOKEN));
+
     }
 
     @Test
@@ -194,7 +195,9 @@ public class AuthControllerTest extends BaseControllerTest {
                         .content(objectMapper.writeValueAsString(logoutRequest)));
         //then
         resultActions.andExpect(status().isOk());
+
     }
+
 }
 
 
