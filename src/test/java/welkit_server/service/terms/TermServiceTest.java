@@ -1,6 +1,5 @@
 package welkit_server.service.terms;
 
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,11 +32,12 @@ import welkit_server.domain.user.model.UserType;
 import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -182,7 +181,32 @@ class TermServiceTest {
                 .hasMessageContaining(ErrorMessage.TERM_NOT_FOUND.getMessage());
     }
 
+    @Test
+    @DisplayName("용어 삭제 성공 테스트")
+    void deleteTermSuccess() {
+        //given
+        given(userService.getAuthenticatedUser(authentication)).willReturn(user);
+        given(termRepository.findById(1L)).willReturn(Optional.of(term));
 
+        //when
+        termService.deleteTerm(1L, authentication);
 
+        //then
+        verify(termRepository).delete(term);
+
+    }
+
+    @Test
+    @DisplayName("용어 삭제 실패 테스트 - 존재하지 않는 용어를 삭제시 예외발생")
+    void deleteTermFail() {
+        //given
+        given(userService.getAuthenticatedUser(authentication)).willReturn(user);
+        given(termRepository.findById(2L)).willReturn(Optional.empty());
+
+        //when / then
+        assertThatThrownBy(() -> termService.deleteTerm(2L, authentication))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining(ErrorMessage.TERM_NOT_FOUND.getMessage());
+    }
 
 }
