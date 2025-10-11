@@ -1,4 +1,4 @@
-package welkit_server.common.fixture.user;
+package welkit_server.common.fixture;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
