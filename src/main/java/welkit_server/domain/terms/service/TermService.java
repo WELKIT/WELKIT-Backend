@@ -123,14 +123,18 @@ public class TermService {
         User currentUser = userService.getAuthenticatedUser(authentication);
 
         Term term = findOwnedTerm(currentUser.getId(), termId);
-        TermCategory category = termCategoryService.findOrCreate(
-                editTermRequest.getCategoryId(),
-                editTermRequest.getCategoryName(),
-                authentication
-        );
+        TermCategory category;
 
+        if(editTermRequest.getCategoryId() == null && editTermRequest.getCategoryName() == null) {
+            category = term.getCategory();
+        }else{
+            category = termCategoryService.findOrCreate(
+                    editTermRequest.getCategoryId(),
+                    editTermRequest.getCategoryName(),
+                    authentication
+            );
+        }
         term.editTerm(editTermRequest, category);
-
         return EditTermResponse.fromEntity(term);
     }
 

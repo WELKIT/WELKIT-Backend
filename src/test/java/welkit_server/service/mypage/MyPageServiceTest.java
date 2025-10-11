@@ -10,10 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import welkit_server.common.fixture.user.UserFixture;
+import welkit_server.common.fixture.UserFixture;
 import welkit_server.domain.mypage.dto.request.FeatureLockSettingRequest;
 import welkit_server.domain.mypage.dto.request.LockSettingRequest;
-import welkit_server.domain.mypage.dto.request.SolveLockRequest;
 import welkit_server.domain.mypage.dto.request.UpdateJobRoleRequest;
 import welkit_server.domain.mypage.dto.response.FeatureLockSettingResponse;
 import welkit_server.domain.mypage.dto.response.UpdateJobRoleResponse;
@@ -32,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@Profile("test")
 @ExtendWith(MockitoExtension.class)
 class MyPageServiceTest {
 
