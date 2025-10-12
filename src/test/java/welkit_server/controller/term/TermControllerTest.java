@@ -26,12 +26,16 @@ import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
 import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.model.UserType;
+import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.model.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +45,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TermControllerTest extends BaseControllerTest {
 
     private static final String DEFAULT_URL = "/terms";
-    private static final String CATEGORY_SEARCH_URL = DEFAULT_URL + "/category";
     private static final String EDIT_DELETE_URL = DEFAULT_URL + "/{id}";
 
     @MockitoBean
@@ -91,8 +94,6 @@ public class TermControllerTest extends BaseControllerTest {
         );
     }
 
-
-
     Authentication authentication = new UsernamePasswordAuthenticationToken(testUser,null,new ArrayList<>());
 
     @Test
@@ -138,7 +139,7 @@ public class TermControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("용어 사전 용어 등록 성공 테스트")
-    void createTerm() throws Exception {
+    void createTermSuccess() throws Exception {
         //given
         TermCategory category = termCategory;
 
@@ -168,7 +169,7 @@ public class TermControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("용어 사전 용어 수정 성공 테스트")
-    void updateTerm() throws Exception {
+    void updateTermSuccess() throws Exception {
         //given
         EditTermRequest editTermRequest = EditTermRequest.builder()
                 .name("용어2")
@@ -197,6 +198,55 @@ public class TermControllerTest extends BaseControllerTest {
 
     }
 
+    @Test
+    @DisplayName("용어 사전 용어 수정 실패 테스트- 등록되어 있지않는 용어 수정시 예외발생 ")
+    void updateTermFail() throws Exception {
+        //given
+        EditTermRequest editTermRequest = EditTermRequest.builder()
+                .name("용어2")
+                .definition("용어테스트")
+                .categoryId(1L)
+                .build();
+        given(termService.editTerm(eq(2L),any(EditTermRequest.class),any(Authentication.class)))
+                .willThrow(new NotFoundException(ErrorMessage.TERM_NOT_FOUND));
 
+
+        //when
+        ResultActions resultActions = mockMvc.perform(patch(EDIT_DELETE_URL,2L)
+                .principal(authentication)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(editTermRequest)));
+
+        //then
+        resultActions.andExpect(status().isNotFound());
+        resultActions.andExpect(jsonPath("$.message").value(ErrorMessage.TERM_NOT_FOUND.getMessage()));
+
+    }
+
+    @Test
+    @DisplayName("용어 사전 용어 삭제 성공 테스트")
+    void deleteTermSuccess() throws Exception {
+        //given
+        doNothing().when(termService).deleteTerm(eq(1L),any(Authentication.class));
+        //when / then
+        mockMvc.perform(delete(EDIT_DELETE_URL,1L))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    @DisplayName("용어 사전 용어 삭제 실패 테스트 - 존재하지 않는 용어를 삭제할 경우 예외 발생")
+    void deleteTermFail() throws Exception {
+        //given
+        doThrow(new NotFoundException(ErrorMessage.TERM_NOT_FOUND))
+                .when(termService).deleteTerm(eq(2L),any(Authentication.class));
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(EDIT_DELETE_URL, 2L)
+                .principal(authentication)) ;
+        //then
+        resultActions.andExpect(status().isNotFound());
+        resultActions.andExpect(jsonPath("$.message").value(ErrorMessage.TERM_NOT_FOUND.getMessage()));
+
+    }
 
 }
