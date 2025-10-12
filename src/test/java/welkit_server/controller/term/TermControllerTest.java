@@ -3,7 +3,9 @@ package welkit_server.controller.term;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -13,11 +15,12 @@ import welkit_server.common.fixture.TermFixture;
 import welkit_server.controller.BaseControllerTest;
 import welkit_server.domain.mypage.intercepter.FeatureLockInterceptor;
 import welkit_server.domain.terms.controller.TermController;
-import welkit_server.domain.terms.dto.response.GetAllCategoryName;
-import welkit_server.domain.terms.dto.response.GetAllTermResponse;
-import welkit_server.domain.terms.dto.response.TermsResponse;
+import welkit_server.domain.terms.dto.request.CreateTermRequest;
+import welkit_server.domain.terms.dto.request.EditTermRequest;
+import welkit_server.domain.terms.dto.response.*;
 import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.terms.entity.TermCategory;
+import welkit_server.domain.terms.service.TermCategoryService;
 import welkit_server.domain.terms.service.TermService;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.model.EmailType;
@@ -27,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,7 +48,12 @@ public class TermControllerTest extends BaseControllerTest {
     private TermService termService;
 
     @MockitoBean
+    private TermCategoryService categoryService;
+
+    @MockitoBean
     private FeatureLockInterceptor featureLockInterceptor;
+    @Autowired
+    private TermCategoryService termCategoryService;
 
     @BeforeEach
     void setupInterceptor() {
@@ -124,8 +133,69 @@ public class TermControllerTest extends BaseControllerTest {
         resultActions.andExpect(jsonPath("$.data.totalAmount").value(terms.size()));
         resultActions.andExpect(jsonPath("$.data.terms[0].name").value("용어사전테스트"));
         resultActions.andExpect(jsonPath("$.data.categoryNames[0].categoryName").value("카테고리"));
+
     }
 
+    @Test
+    @DisplayName("용어 사전 용어 등록 성공 테스트")
+    void createTerm() throws Exception {
+        //given
+        TermCategory category = termCategory;
+
+        CreateTermRequest createTermRequest = CreateTermRequest.builder()
+                .name("용어사전테스트")
+                .definition("용어사전테스트용단어")
+                .categoryId(termCategory.getId())
+                .user(testUser)
+                .build();
+
+        Term term = createTermRequest.toEntity(category,testUser);
+        CreateTermResponse createTermResponse = CreateTermResponse.fromEntity(term);
+
+        given(termService.createTerm(any(CreateTermRequest.class), any(Authentication.class))).willReturn(createTermResponse);
+
+        //when
+        ResultActions resultActions  = mockMvc.perform(post(DEFAULT_URL)
+                .principal(authentication)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createTermRequest)));
+        //then
+        resultActions.andExpect(status().isCreated());
+        resultActions.andExpect(jsonPath("$.data.termId").value(createTermResponse.getTermId()));
+        resultActions.andExpect(jsonPath("$.data.name").value("용어사전테스트"));
+
+    }
+
+    @Test
+    @DisplayName("용어 사전 용어 수정 성공 테스트")
+    void updateTerm() throws Exception {
+        //given
+        EditTermRequest editTermRequest = EditTermRequest.builder()
+                .name("용어2")
+                .definition("용어테스트")
+                .categoryId(1L)
+                .build();
+        EditTermResponse editTermResponse = EditTermResponse.builder()
+                .termId(term.getId())
+                .name(editTermRequest.getName())
+                .definition(editTermRequest.getDefinition())
+                .categoryId(editTermRequest.getCategoryId())
+                .build();
+        given(termService.editTerm(eq(1L),any(EditTermRequest.class),any(Authentication.class))).willReturn(editTermResponse);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(patch(EDIT_DELETE_URL,1L)
+            .principal(authentication)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(editTermRequest)));
+
+        //then
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.termId").value(editTermResponse.getTermId()));
+        resultActions.andExpect(jsonPath("$.data.name").value("용어2"));
+        resultActions.andExpect(jsonPath("$.data.definition").value("용어테스트"));
+
+    }
 
 
 
