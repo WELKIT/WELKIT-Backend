@@ -5,7 +5,6 @@ import lombok.Getter;
 public enum FeatureName {
     INSIGHT_CARDS("/cards"),
     TERMS("/terms"),
-    COMMUNITY("/community"),
     RETROSPECTIVES("/retrospectives");
 
     private final String pathPrefix;
