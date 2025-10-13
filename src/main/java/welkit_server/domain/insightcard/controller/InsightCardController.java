@@ -64,6 +64,19 @@ public class InsightCardController {
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, favoritePersonInsightCards));
     }
 
+    @Operation(summary = "인사이트 카드 검색", description = "사용자가 입력한 키워드와 타입에 맞게 인사이트 카드를 검색합니다")
+    @GetMapping("/search")
+    public ResponseEntity<SuccessResponse<GetInsightCardResponse>> searchCards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) CardType type,
+            Authentication authentication
+    ) {
+        GetInsightCardResponse response = insightCardService.searchCards(page, size, keyword, type, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
+
 
     @Operation(summary = "인물 카드 생성", description = "새로운 인물 카드를 생성합니다")
     @PostMapping("/person")

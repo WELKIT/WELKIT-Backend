@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +52,31 @@ public class RetrospectiveService {
     public RetrospectiveResponse getRetrospectiveById(Long retrospectiveId, Authentication authentication) {
         Long userId = userService.getAuthenticatedUserId(authentication);
         return RetrospectiveResponse.fromEntity(findOwnedRetrospective(userId, retrospectiveId));
+    }
+
+    public List<GetAllRetrospectiveResponse> searchRetrospectives(
+            int page,
+            int size,
+            String keyword,
+            Type type,
+            Authentication authentication
+    ) {
+        User user = userService.getAuthenticatedUser(authentication);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+        Page<Retrospective> searchResult = retrospectiveRepository.searchRetrospectives(user, type, keyword, pageable);
+
+        return searchResult.getContent().stream()
+                .map(retrospective -> GetAllRetrospectiveResponse.builder()
+                        .retrospectiveId(retrospective.getId())
+                        .title(retrospective.getTitle())
+                        .content(retrospective.getContent())
+                        .type(retrospective.getType())
+                        .startDate(retrospective.getStartDate())
+                        .endDate(retrospective.getEndDate())
+                        .createdAt(retrospective.getCreatedDate())
+                        .build())
+                .toList();
     }
 
     @Transactional

@@ -102,7 +102,6 @@ public class TermService {
 
     }
 
-    @Transactional
     public TermSearchResponse searchTerms(
             int page,
             int size,

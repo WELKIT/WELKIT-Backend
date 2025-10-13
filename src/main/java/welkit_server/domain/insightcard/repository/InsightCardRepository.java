@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.model.CardType;
+import welkit_server.domain.terms.entity.Term;
 import welkit_server.domain.user.entity.User;
 import java.util.List;
 
@@ -36,6 +37,21 @@ public interface InsightCardRepository extends JpaRepository<InsightCard, Long> 
             "ORDER BY i.updatedAt DESC")
     Page<InsightCard> findFavoriteWorkCards(@Param("user") User user, Pageable pageable);
 
+    @Query("""
+           SELECT i FROM InsightCard i
+           WHERE i.user = :user
+           AND (:type IS NULL OR i.type = :type)
+           AND (:keyword IS NULL OR i.title LIKE %:keyword% OR i.description LIKE %:keyword%)
+           ORDER BY i.updatedAt DESC
+    """)
+    Page<InsightCard> searchCards(
+            @Param("user") User user,
+            @Param("type") CardType type,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
     long countByUserAndTypeAndIsFavoriteTrue(User user, CardType type);
     long countByUserAndType(User user, CardType type);
 }
+
