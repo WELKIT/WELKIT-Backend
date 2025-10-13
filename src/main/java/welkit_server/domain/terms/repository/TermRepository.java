@@ -28,11 +28,25 @@ public interface TermRepository extends JpaRepository<Term, Long> {
             @Param("categoryId") List<Long>categoryId,
             Pageable pageable);
 
+    @Query("""
+           SELECT t FROM Term t
+           WHERE t.user = :user
+           AND (:keyword IS NULL OR t.name LIKE %:keyword% OR t.definition LIKE %:keyword%)
+           AND(:categoryId IS NULL OR t.category.id IN :categoryId)
+           ORDER BY t.lastModifiedDate DESC
+    """)
+    Page<Term> searchTerms(
+            @Param("user") User user,
+            @Param("keyword") String keyword,
+            @Param("categoryId") List<Long>categoryId,
+            Pageable pageable);
+
     long countByUser(User user);
 
     @Query("SELECT COUNT(t) FROM Term t " +
             "WHERE t.user = :user " +
             "AND t.category.id IN :categoryId")
     long countByUserAndCategoryId(@Param("user") User user, @Param("categoryId") List<Long> categoryId);
+
 
 }

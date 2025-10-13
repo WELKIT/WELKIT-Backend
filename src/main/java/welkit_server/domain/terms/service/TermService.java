@@ -102,6 +102,45 @@ public class TermService {
 
     }
 
+    public TermSearchResponse searchTerms(
+            int page,
+            int size,
+            String keyword,
+            List<Long> categoryId,
+            Authentication authentication
+    ) {
+        User user = userService.getAuthenticatedUser(authentication);
+
+        List<Long> validCategoryId = null;
+        if (categoryId != null && !categoryId.isEmpty()) {
+            validCategoryId = categoryId.stream()
+                    .filter(id -> termCategoryRepository.findByIdAndUser(id, user).isPresent())
+                    .toList();
+            if (validCategoryId.isEmpty()) {
+                throw new NotFoundException(ErrorMessage.CATEGORY_NOT_FOUND);
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Term> searchTermPage = termRepository.searchTerms(user, keyword, validCategoryId, pageable);
+
+        List<GetAllTermResponse> searchTerms = searchTermPage.stream()
+                .map(term -> GetAllTermResponse.builder()
+                        .termId(term.getId())
+                        .name(term.getName())
+                        .definition(term.getDefinition())
+                        .categoryId(term.getCategory().getId())
+                        .updatedAt(term.getLastModifiedDate())
+                        .build())
+                .toList();
+
+        return TermSearchResponse.builder()
+                .totalAmount(searchTermPage.getTotalElements()) // 전체 검색 결과 수
+                .terms(searchTerms)
+                .build();
+    }
+
     @Transactional
     public CreateTermResponse createTerm(CreateTermRequest createTermRequest, Authentication authentication) {
         User user = userService.getAuthenticatedUser(authentication);

@@ -18,5 +18,18 @@ public interface RetrospectiveRepository extends JpaRepository<Retrospective, Lo
             "ORDER BY r.createdDate DESC")
     Page<Retrospective> findAllRetrospectives(@Param("user") User user, @Param("type") Type type, Pageable pageable);
 
+    @Query("""
+           SELECT r FROM Retrospective r
+           WHERE r.user = :user
+           AND (:type IS NULL OR r.type = :type)
+           AND (:keyword IS NULL OR r.title LIKE %:keyword% OR r.content LIKE %:keyword%)
+           ORDER BY r.createdDate DESC
+    """)
+    Page<Retrospective> searchRetrospectives(
+            @Param("user") User user,
+            @Param("type") Type type,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
 }
 

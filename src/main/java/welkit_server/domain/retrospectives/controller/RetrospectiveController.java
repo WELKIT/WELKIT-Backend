@@ -48,6 +48,19 @@ public class RetrospectiveController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, createRetrospectiveResponse));
     }
+
+    @Operation(summary = "회고 검색", description = "사용자가 입력한 키워드와 타입에 맞게 회고를 검색합니다")
+    @GetMapping("/search")
+    public ResponseEntity<SuccessResponse<GetAllRetrospectiveResponse>> searchRetrospectives(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Type type,
+            Authentication authentication
+    ) {
+        List<GetAllRetrospectiveResponse> response = retrospectiveService.searchRetrospectives(page, size, keyword, type, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
+    }
     
     @Operation(summary = "회고 수정", description = "등록되어 있는 회고를 수정합니다")
     @PatchMapping("/{id}")

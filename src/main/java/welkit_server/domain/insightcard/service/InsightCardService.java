@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,7 +88,7 @@ public class InsightCardService {
     public List<GetAllInsightCardResponse> getTop4LastViewedAtInsightCards(CardType cardType, Authentication authentication) {
         Long userId = userService.getAuthenticatedUserId(authentication);
 
-        List<InsightCard> insightCards = insightCardRepository.findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(userId,cardType);
+        List<InsightCard> insightCards = insightCardRepository.findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(userId, cardType);
 
         return insightCards.stream()
                 .map(insightCard -> GetAllInsightCardResponse.builder()
@@ -101,6 +102,38 @@ public class InsightCardService {
                         .updatedAt(insightCard.getLastModifiedDate())
                         .build())
                 .toList();
+    }
+
+    public GetInsightCardResponse searchCards(
+            int page,
+            int size,
+            String keyword,
+            CardType type,
+            Authentication authentication
+    ) {
+        User user = userService.getAuthenticatedUser(authentication);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
+
+        Page<InsightCard> searchResult = insightCardRepository.searchCards(user, type, keyword, pageable);
+
+        List<GetAllInsightCardResponse> cards = searchResult.stream()
+                .map(card -> GetAllInsightCardResponse.builder()
+                        .cardId(card.getId())
+                        .title(card.getTitle())
+                        .description(card.getDescription())
+                        .note(card.getNote())
+                        .type(card.getType())
+                        .favorite(card.isFavorite())
+                        .lastViewedAt(card.getLastViewedAt())
+                        .updatedAt(card.getLastModifiedDate())
+                        .build())
+                .toList();
+
+        return GetInsightCardResponse.builder()
+                .totalAmount(searchResult.getTotalElements())
+                .cards(cards)
+                .build();
     }
 
     @Transactional
