@@ -9,10 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.terms.dto.request.CreateTermRequest;
 import welkit_server.domain.terms.dto.request.EditTermRequest;
-import welkit_server.domain.terms.dto.response.EditTermResponse;
-import welkit_server.domain.terms.dto.response.CreateTermResponse;
-import welkit_server.domain.terms.dto.response.GetAllTermResponse;
-import welkit_server.domain.terms.dto.response.TermsResponse;
+import welkit_server.domain.terms.dto.response.*;
 import welkit_server.domain.terms.service.TermService;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
@@ -46,6 +43,19 @@ public class TermController {
     ) {
         TermsResponse termsFindByCategory = termService.getTermsByCategory(page,size,categoryId, authentication);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, termsFindByCategory));
+    }
+
+    @Operation(summary = "용어 검색", description = "사용자가 입력한 키워드 에 맞게 또는 선택한 카테고리 안에서 입력한 키워드에 맞게 용어를 검색합니다")
+    @GetMapping("/search")
+    public ResponseEntity<SuccessResponse<TermSearchResponse>> searchTerms(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<Long> categoryId,
+            Authentication authentication
+     ){
+        TermSearchResponse termSearchResponse = termService.searchTerms(page,size,keyword,categoryId, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, termSearchResponse));
     }
 
     @Operation(summary = "용어 등록", description = "새로운 용어를 등록합니다")
