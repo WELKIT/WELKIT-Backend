@@ -15,6 +15,7 @@ public class UserInfoResponse {
     private String email;
     private EmailType emailType;
     private boolean isCompanyVerified;
+    private boolean isLockPinSet;
     private JobRole jobRole;
     private UserType userType;
 
@@ -24,6 +25,7 @@ public class UserInfoResponse {
                 .email(user.getEmail() != null ? user.getEmail() : user.getGoogleEmail())
                 .emailType(user.getEmailType())
                 .isCompanyVerified(user.isCompanyVerified())
+                .isLockPinSet(user.getLockPin() != null)
                 .jobRole(user.getJobRole())
                 .userType(user.getUserType())
                 .build();

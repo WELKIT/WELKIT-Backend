@@ -415,49 +415,39 @@ INSERT INTO retrospectives (title, content, type, start_date, end_date, user_id)
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (1, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (1, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (1, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (1, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (2, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (2, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (2, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (2, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (3, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (3, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (3, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (3, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (4, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (4, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (4, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (4, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (5, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (5, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (5, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (5, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (6, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (6, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (6, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (6, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (7, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (7, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (7, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (7, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (8, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (8, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (8, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (8, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (9, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (9, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (9, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (9, 'COMMUNITY', false);
 
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'RETROSPECTIVES', false);
-INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'COMMUNITY', false);
