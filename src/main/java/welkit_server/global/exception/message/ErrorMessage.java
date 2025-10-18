@@ -58,6 +58,7 @@ public enum ErrorMessage {
     COMMUNITY_POST_NOT_FOUND(404, "CMN1001", "해당 게시글을 찾을 수 없습니다."),
     COMMUNITY_COMMENT_NOT_FOUND(404, "CMN1002", "해당 댓글을 찾을 수 없습니다."),
     COMMUNITY_COMPANY_NOT_VERIFIED(403, "CMN1003", "회사 인증 후 이용 가능합니다."),
+    COMMUNITY_SEARCH_KEYWORD_SIZE(400, "CMN1004", "검색 키워드는 2자 이상 20자 이하이어야 합니다."),
 
     // 마이페이지 (MYP)
     MYP_NOTICE_NOT_FOUND(404, "MYP1001", "해당 공지를 찾을 수 없습니다."),
