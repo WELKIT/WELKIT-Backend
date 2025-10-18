@@ -2,10 +2,11 @@ package welkit_server.domain.community.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.community.dto.request.*;
 import welkit_server.domain.community.dto.response.*;
@@ -14,8 +15,11 @@ import welkit_server.domain.user.model.JobRole;
 import welkit_server.global.dto.SuccessResponse;
 import welkit_server.global.exception.message.SuccessMessage;
 
+import java.util.List;
+
 
 @RestController
+@Validated
 @RequestMapping("/community")
 @RequiredArgsConstructor
 public class CommunityController {
@@ -68,14 +72,20 @@ public class CommunityController {
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, myCommentedPosts));
     }
 
-    @Operation(summary = "게시글 검색", description = "키워드로 게시글을 검색합니다.")
     @GetMapping("/posts/search")
     public ResponseEntity<SuccessResponse<PostPageResponse>> searchPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String keyword
+            @Size(min = 2, max = 20) @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<JobRole> category
     ) {
-        PostPageResponse searchPosts = communityService.searchPosts(page, size, keyword);
+        // 단일 카테고리 -> List로 변환
+        List<JobRole> categories = category;
+        if (category != null && category.size() == 1) {
+            categories = List.of(category.get(0));
+        }
+
+        PostPageResponse searchPosts = communityService.searchPosts(page, size, keyword, categories);
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, searchPosts));
     }
 
