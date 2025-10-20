@@ -91,4 +91,17 @@ public class JWTUtil {
                 .compact();
     }
 
+    //잠금설정 JWT 생성
+    public String createUnLockJwtString (String loginEmail, Long userId, String userType, String jobRole, String unLockTime, Long expiredMs) {
+        return Jwts.builder()
+            .claim("email", loginEmail)
+            .claim("userId", userId)
+            .claim("userType", userType)
+            .claim("jobRole", jobRole)
+            .claim("unLockTime", unLockTime)
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
+            .signWith(secretKey, SignatureAlgorithm.HS256)
+            .compact();
+    }
 }
