@@ -72,16 +72,16 @@ public class MyPageController {
 
     @Operation(summary = "기능별 암호 검증", description = "사용자가 해당 기능을 이용하기위해 입력한 암호를 검증합니다")
     @PostMapping("/lock/verify")
-    public ResponseEntity<SuccessResponse<Void>> verifyFeatureLock(
+    public ResponseEntity<SuccessResponse<String>> verifyFeatureLock(
             @Valid @RequestBody SolveLockRequest solveLockRequest,
             Authentication authentication
     ) {
-        mypageService.solveFeatureLock(solveLockRequest, authentication);
 
         String formattedMsg = SuccessMessage.LOCK_SOLVE_SUCCESS.formatMessage(solveLockRequest.getFeatureName());
+        String accessToken =  mypageService.solveFeatureLock(solveLockRequest, authentication);
 
         return ResponseEntity.ok(
-                SuccessResponse.of(SuccessMessage.LOCK_SOLVE_SUCCESS.getStatus(), formattedMsg, null)
+                SuccessResponse.of(SuccessMessage.LOCK_SOLVE_SUCCESS.getStatus(), formattedMsg, accessToken)
         );
     }
 
