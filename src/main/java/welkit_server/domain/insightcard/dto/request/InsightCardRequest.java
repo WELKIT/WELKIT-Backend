@@ -7,7 +7,7 @@ import welkit_server.domain.insightcard.model.CardType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class InsightCardRequest {
 
     @NotBlank
