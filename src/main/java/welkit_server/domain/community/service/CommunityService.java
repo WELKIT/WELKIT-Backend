@@ -24,6 +24,7 @@ import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class CommunityService {
     private final UserService userService;
 
     public PostPageResponse getAllCommunityPosts(JobRole jobRole, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<CommunityPosts> posts;
 
         if (jobRole != null) {
@@ -60,9 +61,19 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public PostDetailResponse getPostDetail(Long postId, Authentication authentication) {
-        User user = userService.getAuthenticatedUser(authentication);
         CommunityPosts post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.COMMUNITY_POST_NOT_FOUND));
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return PostDetailResponse.fromEntity(post, null);
+        }
+
+        User user = userService.getAuthenticatedUser(authentication);
+
+        if (!user.isCompanyVerified()) {
+            return PostDetailResponse.fromEntity(post, user);
+        }
 
         if (post.getFeedbacks() == null) post.setFeedbacks(new ArrayList<>());
         if (post.getComments() == null) post.setComments(new ArrayList<>());
@@ -108,15 +119,19 @@ public class CommunityService {
                 .build();
     }
 
-    public PostPageResponse searchPosts(int page, int size, String keyword) {
+    public PostPageResponse searchPosts(int page, int size, String keyword, List<JobRole> categories) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-
         Page<CommunityPosts> posts;
 
-        if (keyword == null || keyword.isBlank()) {
+        if ((keyword == null || keyword.isBlank()) && (categories == null || categories.isEmpty())) {
+            // 1. 전체 조회
             posts = postRepository.findAll(pageable);
+        } else if (categories != null && categories.size() == 1) {
+            // 2. 단일 카테고리 + 키워드
+            posts = postRepository.searchPostsByKeywordAndCategory(keyword, categories.get(0), pageable);
         } else {
-            posts = postRepository.searchPostsOptionalKeyword(keyword, pageable);
+            // 3. 다중 카테고리 + 키워드
+            posts = postRepository.searchPostsByKeywordAndCategories(keyword, categories, pageable);
         }
 
         List<PostSummaryResponse> searchPosts = posts.stream()
@@ -125,7 +140,7 @@ public class CommunityService {
 
         PostPageInfoResponse pageInfo = getPostsInfo(posts);
 
-        return  PostPageResponse.builder()
+        return PostPageResponse.builder()
                 .postInfo(pageInfo)
                 .posts(searchPosts)
                 .build();
