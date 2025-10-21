@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 
 import welkit_server.common.fixture.InsightCardFixture;
@@ -124,4 +127,28 @@ class InsightCardServiceTest {
 		assertThat(response.getCards().get(0).getDescription()).isEqualTo("앱 로딩 속도 최적화 및 메모리 사용량 감소");
 		assertThat(response.getCards().get(0).getType()).isEqualTo(CardType.WORK);
 	}
+
+	@DisplayName("인사이트 카드에서 사용자가 입력한 키워드 검색")
+	@ParameterizedTest
+	@ValueSource(strings = {"이수민","대규모","파이프라인"})
+	void searchInsightCard(String input) {
+		Pageable pageable = PageRequest.of(0, 10, Sort.by("updatedAt").descending());
+		Page<InsightCard> person_search_insightCards = new PageImpl<>(List.of(person_insightCard), pageable, 1);
+
+		given(userService.getAuthenticatedUser(authentication)).willReturn(user);
+		given(insightCardRepository.searchCards(user,CardType.PERSON,input,pageable)).willReturn(person_search_insightCards);
+
+		GetInsightCardResponse response = insightCardService.searchCards(0,10,input,CardType.PERSON,authentication);
+
+		assertThat(response).isNotNull();
+		assertThat(response.getTotalAmount()).isEqualTo(1);
+		assertThat(response.getCards()).hasSize(1);
+		assertThat(response.getCards().get(0).getTitle()).isEqualTo("이수민 데이터 엔지니어");
+		assertThat(response.getCards().get(0).getDescription()).isEqualTo("대규모 데이터 파이프라인 설계 및 운영");
+		assertThat(response.getCards().get(0).getType()).isEqualTo(CardType.PERSON);
+	}
+
+
+
+
 }
