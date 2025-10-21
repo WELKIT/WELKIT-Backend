@@ -5,6 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,6 +20,7 @@ import org.springframework.security.core.Authentication;
 
 import welkit_server.common.fixture.InsightCardFixture;
 import welkit_server.common.fixture.UserFixture;
+import welkit_server.domain.insightcard.dto.request.InsightCardRequest;
 import welkit_server.domain.insightcard.dto.response.GetInsightCardResponse;
 import welkit_server.domain.insightcard.entity.InsightCard;
 import welkit_server.domain.insightcard.model.CardType;
@@ -29,8 +32,11 @@ import welkit_server.domain.user.model.UserType;
 import welkit_server.domain.user.service.UserService;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class InsightCardServiceTest {
@@ -128,8 +134,8 @@ class InsightCardServiceTest {
 		assertThat(response.getCards().get(0).getType()).isEqualTo(CardType.WORK);
 	}
 
-	@DisplayName("인사이트 카드에서 사용자가 입력한 키워드 검색")
 	@ParameterizedTest
+	@DisplayName("인사이트 카드에서 사용자가 입력한 키워드 검색")
 	@ValueSource(strings = {"이수민","대규모","파이프라인"})
 	void searchInsightCard(String input) {
 		Pageable pageable = PageRequest.of(0, 10, Sort.by("updatedAt").descending());
@@ -148,7 +154,62 @@ class InsightCardServiceTest {
 		assertThat(response.getCards().get(0).getType()).isEqualTo(CardType.PERSON);
 	}
 
+	@ParameterizedTest
+	@DisplayName("인사이트 카드를 생성한다")
+	@MethodSource("provideInsightCardRequests")
+	void createInsightCard(InsightCardRequest insightCardRequest) {
+		//given
 
+		//when
+		var response = insightCardService.createInsightCard(insightCardRequest, authentication);
+		//then
+		assertThat(response).isNotNull();
+		assertThat(response.getTitle()).isEqualTo(insightCardRequest.getTitle());
+		assertThat(response.getDescription()).isEqualTo(insightCardRequest.getDescription());
+	}
 
+	private static Stream<InsightCardRequest> provideInsightCardRequests() {
+		return Stream.of(
+			new InsightCardRequest("김민지","백엔드개발자","SpringBoot 기반 백엔드개발자",CardType.PERSON,true),
+			new InsightCardRequest("고객 설문 분석 보고서","지난 3개월간 설문 결과 정리 및 개선점 도출","응답 데이터 정제 및 시각화, 주요 인사이트 도출", CardType.WORK,false)
+		);
+	}
+
+	@ParameterizedTest(name = "카드 ID {0} 수정 테스트")
+	@DisplayName("인사이트 카드를 수정한다")
+	@MethodSource("editInsightCardRequests")
+	void editInsightCard(Long cardId, InsightCardRequest insightCardRequest,CardType cardType) {
+		//given
+		given(userService.getAuthenticatedUser(authentication)).willReturn(user);
+
+		InsightCard cardToEdit = (cardType == CardType.PERSON)
+			? person_insightCard
+			: work_insightCard;
+
+		given(insightCardRepository.findById(cardId)).willReturn(Optional.of(cardToEdit));
+
+		var response = insightCardService.editInsightCard(cardId, insightCardRequest, authentication);
+
+		assertThat(response).isNotNull();
+		assertThat(response.getTitle()).isEqualTo(insightCardRequest.getTitle());
+
+	}
+
+	private static Stream<Arguments> editInsightCardRequests() {
+		return Stream.of(
+			Arguments.of(
+				1L,
+				new InsightCardRequest("이민지", null, null, CardType.PERSON, true),
+				CardType.PERSON
+			),
+			Arguments.of(
+				2L,
+				new InsightCardRequest("웹 성능 개선", "효율적인 데이터 주고받기", null, CardType.WORK, false),
+				CardType.WORK
+			)
+		);
+
+	}
 
 }
+
