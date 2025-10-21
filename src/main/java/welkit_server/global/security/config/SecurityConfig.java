@@ -63,7 +63,7 @@ public class SecurityConfig {
         http.httpBasic(basic -> basic.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/community/posts", "/community/posts/search").permitAll()
+                .requestMatchers(HttpMethod.GET, "/community/posts", "/community/posts/search", "/community/posts/**").permitAll()
                 .requestMatchers("/users/signup/**", "/users/login", "/users/logout", "/auth/**",
                         "/privacy/**", "/agreement/**", "/").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")

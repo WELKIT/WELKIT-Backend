@@ -1,5 +1,6 @@
 package welkit_server.global.exception;
 
+import jakarta.validation.ConstraintViolation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -111,6 +112,23 @@ public class GlobalExceptionHandler {
                 default -> ErrorMessage.WK_VALIDATION_MISSING;
             };
         }
+
+        return ResponseEntity.status(errorMessage.getStatus())
+                .body(ErrorResponse.of(errorMessage));
+    }
+
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(jakarta.validation.ConstraintViolationException e) {
+        ConstraintViolation<?> violation = e.getConstraintViolations().iterator().next();
+        String field = violation.getPropertyPath().toString();
+        String message = violation.getMessage();
+
+        ErrorMessage errorMessage = message.contains("크기가")
+                ? switch (field) {
+            case "searchPosts.keyword" -> ErrorMessage.COMMUNITY_SEARCH_KEYWORD_SIZE;
+            default -> ErrorMessage.WK_VALIDATION_LENGTH_EXCEEDED;
+        }
+                : ErrorMessage.WK_VALIDATION_MISSING;
 
         return ResponseEntity.status(errorMessage.getStatus())
                 .body(ErrorResponse.of(errorMessage));

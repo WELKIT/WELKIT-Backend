@@ -451,3 +451,19 @@ INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (9, 'RETROSP
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'TERMS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'INSIGHT_CARDS', false);
 INSERT INTO lock_settings (user_id, feature_name, is_locked) VALUES (10, 'RETROSPECTIVES', false);
+
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (6, '영업 노하우', '효과적인 영업 전략과 사례를 공유합니다.', 'SALES', 6, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (7, '고객 관리 경험', 'CS 업무 중 겪은 문제와 해결 방법 공유.', 'CUSTOMER_SUPPORT_TM', 7, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (8, '회계 및 세무 팁', '회계/세무 관련 실무 경험과 팁 공유.', 'ACCOUNTING_TAX', 8, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (9, '재무 분석 사례', '재무 분석 경험을 공유합니다.', 'ACCOUNTING_TAX', 8, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (10, '미디어/문화 소식', '최근 미디어 및 문화 트렌드 공유.', 'MEDIA_CULTURE_SPORTS', 9, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (11, '문화 이벤트 리뷰', '문화 관련 경험과 후기 공유.', 'MEDIA_CULTURE_SPORTS', 9, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (12, 'F&B 산업 분석', '최근 F&B 트렌드와 분석 자료 공유.', 'FOOD_BEVERAGE', 10, 'NORMAL', NOW());
+INSERT INTO community_posts (id, title, content, job_role, user_id, status, created_date) VALUES (13, '식음료 마케팅 전략', 'F&B 마케팅 사례 공유.', 'FOOD_BEVERAGE', 10, 'NORMAL', NOW());
+
+INSERT INTO community_comments (id, post_id, user_id, comment, parent_comment_id, created_date) VALUES (1, 6, 6, '좋은 전략이네요!', NULL, NOW());
+INSERT INTO community_comments (id, post_id, user_id, comment, parent_comment_id, created_date) VALUES (2, 6, 7, '도움이 되셨다니 다행이에요.', 1, NOW());
+INSERT INTO community_comments (id, post_id, user_id, comment, parent_comment_id, created_date) VALUES (3, 7, 8, '고객 관리 경험이 유익하네요.', NULL, NOW());
+INSERT INTO community_comments (id, post_id, user_id, comment, parent_comment_id, created_date) VALUES (4, 8, 9, '회계 팁 공유 감사합니다.', NULL, NOW());
+INSERT INTO community_comments (id, post_id, user_id, comment, parent_comment_id, created_date) VALUES (5, 9, 10, '문화 소식 재미있네요!', NULL, NOW());
+INSERT INTO community_comments (id, post_id, user_id, comment, parent_comment_id, created_date) VALUES (6, 10, 10, 'F&B 분석 자료 감사합니다.', NULL, NOW());

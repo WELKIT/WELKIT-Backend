@@ -28,9 +28,10 @@ public class FeatureLockInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String path = request.getRequestURI();
-        if (path.equals("/community/posts") || path.equals("/community/posts/search")) {
-            return true; // 인터셉터 제외
+        if (path.startsWith("/community")) {
+            return true;
         }
+
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() ||

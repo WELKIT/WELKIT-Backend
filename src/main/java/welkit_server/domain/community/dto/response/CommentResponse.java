@@ -20,6 +20,7 @@ import java.util.List;
 public class CommentResponse {
 
     private Long commentId;
+    private Long userId;
     private String content;
     private JobRole jobRole;
     private LocalDateTime createdAt;
@@ -33,6 +34,7 @@ public class CommentResponse {
         int helpfulCount = (int) comment.getFeedbacks().stream()
                 .filter(f -> Boolean.TRUE.equals(f.getIsHelpful()))
                 .count();
+
         int notHelpfulCount = (int) comment.getFeedbacks().stream()
                 .filter(f -> Boolean.FALSE.equals(f.getIsHelpful()))
                 .count();
@@ -41,7 +43,7 @@ public class CommentResponse {
                 comment.getFeedbacks().stream()
                         .filter(f -> f.getUser() != null && f.getUser().equals(currentUser))
                         .map(CommunityFeedBack::getIsHelpful)
-                        .filter(java.util.Objects::nonNull) // null 제거
+                        .filter(java.util.Objects::nonNull)
                         .findFirst()
                         .orElse(null));
 
@@ -49,15 +51,14 @@ public class CommentResponse {
                 .map(child -> fromEntity(child, currentUser))
                 .toList();
 
-        if (replies.isEmpty()) {
-            replies = null;
-        }
+        if (replies.isEmpty()) replies = null;
 
         return CommentResponse.builder()
                 .commentId(comment.getId())
+                .userId(comment.getUser().getId())
                 .content(comment.getComment())
                 .jobRole(comment.getUser().getJobRole())
-                .createdAt(comment.getCreatedAt())
+                .createdAt(comment.getCreatedDate())
                 .isHelpful(isHelpful)
                 .helpfulCount(helpfulCount)
                 .notHelpfulCount(notHelpfulCount)

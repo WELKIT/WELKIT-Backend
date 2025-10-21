@@ -45,14 +45,6 @@ public class CommunityComments extends BaseEntity {
     @JoinColumn(name = "target_id", insertable = false, updatable = false)
     private List<CommunityFeedBack> feedbacks;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
     public void editComment(String comment) {
         this.comment = comment;
     }
