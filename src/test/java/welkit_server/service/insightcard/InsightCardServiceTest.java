@@ -208,6 +208,20 @@ class InsightCardServiceTest {
 				CardType.WORK
 			)
 		);
+	}
+
+	@Test
+	@DisplayName("인사이트 카드 삭제 테스트")
+	void deleteInsightCard() {
+
+		Long cardId = 1L;
+
+		given(userService.getAuthenticatedUser(authentication)).willReturn(user);
+		given(insightCardRepository.findById(1L)).willReturn(Optional.of(person_insightCard));
+
+		insightCardService.deleteInsightCard(cardId, authentication);
+
+		verify(insightCardRepository).delete(person_insightCard);
 
 	}
 
