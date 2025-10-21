@@ -30,6 +30,8 @@ import welkit_server.global.config.BlockedDomainsConfig;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
 import welkit_server.global.redis.RedisUtil;
+import welkit_server.global.security.jwt.JWTUtil;
+
 import java.time.Duration;
 import java.util.List;
 
@@ -46,6 +48,7 @@ public class MyPageService {
     private final EmailService emailService;
     private final BlockedDomainsConfig blockedDomainsConfig;
     private final UserService userService;
+    private final JWTUtil jwtUtil;
 
     public MyPageResponse getMyPage(Authentication authentication) {
 
@@ -106,7 +109,7 @@ public class MyPageService {
         return FeatureLockSettingResponse.fromEntity(lockSetting);
     }
 
-    public void solveFeatureLock(SolveLockRequest solveLockRequest, Authentication authentication) {
+    public String solveFeatureLock(SolveLockRequest solveLockRequest, Authentication authentication) {
         User user = userService.getAuthenticatedUser(authentication);
         Long userId = user.getId();
         FeatureName feature = solveLockRequest.getFeatureName();
@@ -116,7 +119,28 @@ public class MyPageService {
         }
 
         String key = "feature-unlocked:" + userId + ":" + feature.name();
-        redisTemplate.opsForValue().set(key, "true", Duration.ofHours(3));
+        Long ttl = redisTemplate.getExpire(key); // 초 단위
+        if (ttl == null || ttl <= 0) {
+            ttl = Duration.ofHours(3).getSeconds();
+            redisTemplate.opsForValue().set(key, "true", Duration.ofHours(3));
+        }
+
+        // 초 → 시, 분, 초 계산
+        long hours = ttl / 3600;
+        long minutes = (ttl % 3600) / 60;
+        long seconds = ttl % 60;
+
+        String remainingTime = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+        String accessToken = jwtUtil.createUnLockJwtString(
+            user.getEmail(),
+            user.getId(),
+            user.getUserType().name(),
+            user.getJobRole().name(),
+            remainingTime,
+            60 * 60 * 1000L
+        );
+        return accessToken;
     }
 
     public void sendCompanyVerificationEmail(EmailPostRequest emailPostRequest, Authentication authentication) {
