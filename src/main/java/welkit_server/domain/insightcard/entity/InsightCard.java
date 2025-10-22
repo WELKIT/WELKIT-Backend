@@ -33,8 +33,8 @@ public class InsightCard extends BaseEntity {
     @Column(nullable = false, length = 25)
     private CardType type;
 
-    @Column(name = "is_favorite", nullable = false)
     @Builder.Default
+    @Column(name = "is_favorite", nullable = false)
     private boolean isFavorite = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -77,4 +77,7 @@ public class InsightCard extends BaseEntity {
         this.user = user;
     }
 
+    public void toggleFavorite() {
+        this.isFavorite = !this.isFavorite;
+    }
 }

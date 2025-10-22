@@ -231,6 +231,19 @@ public class InsightCardService {
         insightCardRepository.delete(insightCard);
     }
 
+    @Transactional
+    public InsightCardResponse controlIsFavorite(Long cardId, Authentication authentication) {
+
+        User currentUser = userService.getAuthenticatedUser(authentication);
+        InsightCard insightCard = findOwnedInsightCard(currentUser.getId(), cardId);
+
+        insightCard.toggleFavorite();
+        insightCard.updateUpdatedAt();
+
+        return InsightCardResponse.fromEntity(insightCard);
+
+    }
+
     public InsightCard findInsightCardById(Long cardId) {
         return insightCardRepository.findById(cardId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.INSIGHT_CARD_NOT_FOUND));
