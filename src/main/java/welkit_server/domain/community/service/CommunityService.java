@@ -24,6 +24,7 @@ import welkit_server.domain.user.service.UserService;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
+import welkit_server.util.MarkdownUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,8 @@ public class CommunityService {
     private final CommunityCommentRepository commentRepository;
     private final UserService userService;
 
-    public PostPageResponse getAllCommunityPosts(JobRole jobRole, int page, int size) {
+    // CommunityService.java
+    public PostPagePlainResponse getAllCommunityPosts(JobRole jobRole, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<CommunityPosts> posts;
 
@@ -47,13 +49,16 @@ public class CommunityService {
             posts = postRepository.findAll(pageable);
         }
 
-        List<PostSummaryResponse> postSummaries = posts.getContent().stream()
-                .map(PostSummaryResponse::fromEntity)
+        List<PostSummaryPlainResponse> postSummaries = posts.getContent().stream()
+                .map(post -> {
+                    String plainContent = MarkdownUtil.markdownToPlainText(post.getContent());
+                    return PostSummaryPlainResponse.fromEntity(post, plainContent);
+                })
                 .toList();
 
         PostPageInfoResponse pageInfo = getPostsInfo(posts);
 
-        return PostPageResponse.builder()
+        return PostPagePlainResponse.builder()
                 .postInfo(pageInfo)
                 .posts(postSummaries)
                 .build();
