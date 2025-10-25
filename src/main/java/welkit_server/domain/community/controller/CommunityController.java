@@ -28,14 +28,14 @@ public class CommunityController {
 
     @Operation(summary = "커뮤니티 글 전체 조회", description = "커뮤니티 글을 전체 조회합니다. 카테고리(직무)별로 필터링할 수 있습니다.")
     @GetMapping("/posts")
-    public ResponseEntity<SuccessResponse<PostPageResponse>> getAllPosts(
+    public ResponseEntity<SuccessResponse<PostPagePlainResponse>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) JobRole category
     ) {
-        PostPageResponse postsPageResponse = communityService.getAllCommunityPosts(category, page, size);
+        PostPagePlainResponse postsPagePlainResponse = communityService.getAllCommunityPosts(category, page, size);
 
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, postsPageResponse));
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, postsPagePlainResponse));
     }
 
     @Operation(summary = "커뮤니티 글 상세 조회", description = "커뮤니티 글의 상세 내용을 조회합니다. 글과 함께 해당 글의 댓글도 함께 조회합니다.")

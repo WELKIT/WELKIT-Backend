@@ -77,6 +77,13 @@ public class InsightCardController {
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, response));
     }
 
+    @Operation(summary = "인사이트 카드 즐겨찾기 추가 삭제", description = "사용자는 카드의 즐겨찾기를 설정할 수 있습니다")
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<SuccessResponse<InsightCardResponse>> toogleFavoriteInsightCard(@PathVariable("id") Long id, Authentication authentication) {
+        InsightCardResponse response = insightCardService.controlIsFavorite(id, authentication);
+        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.CREATED_SUCCESS, response));
+    }
+
 
     @Operation(summary = "인물 카드 생성", description = "새로운 인물 카드를 생성합니다")
     @PostMapping("/person")
