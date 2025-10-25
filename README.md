@@ -1,11 +1,8 @@
+# welkit
+### 신입사원의 성장을 돕는 온보딩 키트 WELKIT
 
 
-
-
-
-
-
-
+<img width="1920" height="1080" alt="KakaoTalk_Photo_2025-10-25-22-50-11" src="https://github.com/user-attachments/assets/9ad7db0f-129e-431d-8e11-b45ed768cf29" />
 
 ## 커밋 컨벤션
 
