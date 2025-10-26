@@ -11,6 +11,7 @@ import welkit_server.domain.user.dto.response.UserInfoResponse;
 import welkit_server.domain.user.entity.User;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
+import welkit_server.global.exception.model.NotFoundException;
 import welkit_server.global.exception.model.UnauthorizedException;
 import welkit_server.global.security.dto.CustomUserDetails;
 import welkit_server.global.security.jwt.JWTUtil;
@@ -25,7 +26,9 @@ public class UserService {
     private final JWTUtil jwtUtil;
 
     public void deleteUser(User user) {
-        userRepository.deleteById(user.getId());
+        userRepository.findById(user.getId())
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND));
+        userRepository.delete(user);
 
         String token = getTokenFromRequest();
         if (token != null) {
