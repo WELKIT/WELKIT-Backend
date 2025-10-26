@@ -38,27 +38,6 @@ public class GoogleSignupService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
-    // 세션에 이메일 저장
-    public void saveGoogleEmailToSession(String code, HttpSession session) {
-        String email = getEmailFromCode(code);
-        if (email == null || email.isEmpty()) {
-            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
-        }
-        session.setAttribute("googleEmail", email);
-        System.out.println("Google Email saved in session: " + email);
-    }
-
-    // 회원가입 처리
-    public void signupWithSessionEmail(HttpSession session, GoogleSignupRequest request) {
-        String email = (String) session.getAttribute("googleEmail");
-        if (email == null) {
-            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
-        }
-
-        signup(email, request.getJobRole());
-        session.removeAttribute("googleEmail");
-    }
-
     // 구글 코드로 이메일 가져오기
     public String getEmailFromCode(String code) {
         String tokenUrl = "https://oauth2.googleapis.com/token";

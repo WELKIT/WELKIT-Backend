@@ -1,8 +1,9 @@
 package welkit_server.domain.auth.signup.google.controller;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import welkit_server.domain.auth.signup.google.dto.GoogleSignupRequest;
@@ -17,22 +18,24 @@ public class GoogleSignupController {
 
     private final GoogleSignupService googleSignupService;
 
-    // 1. 구글 인증 콜백 → 세션에 이메일 저장
     @GetMapping("/callback")
-    public ResponseEntity<Void> googleCallback(@RequestParam("code") String code, HttpSession session) {
-        googleSignupService.saveGoogleEmailToSession(code, session);
-        return ResponseEntity.status(302)
-                .header("Location", "http://localhost:3000/users/signup/google")
+    public ResponseEntity<Void> googleCallback(@RequestParam("code") String code) {
+        // 프론트엔드가 code를 받아 바로 서버에 POST /users/signup/google 로 보낼 예정
+        String redirectUrl = String.format("http://localhost:3000/users/signup/google?code=%s", code);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, redirectUrl)
                 .build();
     }
 
-    // 2. 구글 인증 후 회원가입
     @PostMapping
     public ResponseEntity<SuccessResponse> signupWithGoogle(
-            @RequestBody @Valid GoogleSignupRequest request,
-            HttpSession session) {
+            @RequestParam("code") String code,
+            @RequestBody @Valid GoogleSignupRequest request) {
 
-        googleSignupService.signupWithSessionEmail(session, request);
+        String email = googleSignupService.getEmailFromCode(code);
+
+        googleSignupService.signup(email, request.getJobRole());
+
         return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.GOOGLE_COMPANY_REGISTER_SUCCESS, null));
     }
 

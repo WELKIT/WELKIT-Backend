@@ -25,7 +25,7 @@ public class Term extends BaseEntity {
     private String definition;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private TermCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
