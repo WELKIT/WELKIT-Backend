@@ -20,8 +20,8 @@ public class GoogleSignupController {
 
     @GetMapping("/callback")
     public ResponseEntity<Void> googleCallback(@RequestParam("code") String code) {
-        // 프론트엔드가 code를 받아 바로 서버에 POST /users/signup/google 로 보낼 예정
-        String redirectUrl = String.format("http://localhost:3000/users/signup/google?code=%s", code);
+        String redirectUrl = googleSignupService.handleGoogleCallback(code);
+
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, redirectUrl)
                 .build();
@@ -32,11 +32,11 @@ public class GoogleSignupController {
             @RequestParam("code") String code,
             @RequestBody @Valid GoogleSignupRequest request) {
 
-        String email = googleSignupService.getEmailFromCode(code);
+        String token = googleSignupService.signupWithGoogle(code, request);
 
-        googleSignupService.signup(email, request.getJobRole());
-
-        return ResponseEntity.ok(SuccessResponse.of(SuccessMessage.GOOGLE_COMPANY_REGISTER_SUCCESS, null));
+        return ResponseEntity.ok(
+                SuccessResponse.of(SuccessMessage.GOOGLE_COMPANY_REGISTER_SUCCESS, token)
+        );
     }
 
 }
