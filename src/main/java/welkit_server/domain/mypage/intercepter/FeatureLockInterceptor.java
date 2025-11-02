@@ -28,14 +28,14 @@ public class FeatureLockInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String path = request.getRequestURI();
-        if (path.startsWith("/community")) {
+
+        if (path.startsWith("/community") || path.equals("/mypage/solve-lock")) {
             return true;
         }
 
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() ||
-                !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            !(authentication.getPrincipal() instanceof CustomUserDetails)) {
             throw new UnauthorizedException(ErrorMessage.SESSION_EXPIRED);
         }
 
@@ -53,8 +53,9 @@ public class FeatureLockInterceptor implements HandlerInterceptor {
 
         String key = String.format(FEATURE_UNLOCK_KEY, userId, feature.name());
         String unlocked = redisTemplate.opsForValue().get(key);
+        System.out.println(key);
 
-        if ("true".equals(unlocked)) {
+        if (unlocked == null || "true".equals(unlocked)) {
             return true;
         }
 
