@@ -7,6 +7,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import welkit_server.domain.mail.model.EmailCodePurpose;
 
+import java.util.concurrent.TimeUnit;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -39,6 +41,20 @@ public class RedisUtil {
         String key = email + ":" + purpose.name() + ":verified";
         String result = redisTemplate.opsForValue().get(key);
         return "true".equals(result);
+    }
+
+    // Google OAuth2 용 인증 코드 저장
+    public void saveCodeEmail(String code, String email) {
+        log.info("Redis 저장 시도: code = {}, email = {}", code, email);
+        redisTemplate.opsForValue().set(code, email, 5, TimeUnit.MINUTES); // 5분 TTL
+    }
+
+    public String getEmailByCode(String code) {
+        return redisTemplate.opsForValue().get(code);
+    }
+
+    public void deleteCode(String code) {
+        redisTemplate.delete(code);
     }
 
 }

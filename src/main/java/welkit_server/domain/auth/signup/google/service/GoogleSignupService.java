@@ -1,7 +1,5 @@
-// GoogleSignupService.java
 package welkit_server.domain.auth.signup.google.service;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -19,6 +17,10 @@ import welkit_server.domain.user.model.JobRole;
 import welkit_server.domain.user.repository.UserRepository;
 import welkit_server.global.exception.message.ErrorMessage;
 import welkit_server.global.exception.model.BadRequestException;
+import welkit_server.global.exception.model.NotFoundException;
+import welkit_server.global.redis.RedisUtil;
+import welkit_server.global.security.jwt.JWTUtil;
+
 import java.util.*;
 
 @Service
@@ -27,6 +29,8 @@ public class GoogleSignupService {
 
     private final UserRepository userRepository;
     private final LockSettingRepository lockSettingRepository;
+    private final JWTUtil jwtUtil;
+    private final RedisUtil redisUtil;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -38,7 +42,34 @@ public class GoogleSignupService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
-    // 구글 코드로 이메일 가져오기
+    public String handleGoogleCallback(String code) {
+        String email = getEmailFromCode(code);
+        boolean isExistingUser = existsByGoogleEmail(email);
+
+        redisUtil.saveCodeEmail(code, email);
+
+        if (isExistingUser) {
+            String token = login(email);
+            return String.format("http://localhost:3000/dictionary?token=%s", token);
+        } else {
+            return String.format("http://localhost:3000/users/signup/google?code=%s", code);
+        }
+    }
+
+    public String signupWithGoogle(String code, GoogleSignupRequest request) {
+        String email = redisUtil.getEmailByCode(code);
+        if (email == null) {
+            throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
+        }
+
+        signup(email, request.getJobRole());
+        String token = login(email);
+
+        redisUtil.deleteCode(code);
+
+        return token;
+    }
+
     public String getEmailFromCode(String code) {
         String tokenUrl = "https://oauth2.googleapis.com/token";
 
@@ -71,12 +102,14 @@ public class GoogleSignupService {
         if (body == null || !body.containsKey("email")) {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
-      
+
         return (String) body.get("email");
     }
 
-    // DB 저장
     public void signup(String email, JobRole jobRole) {
+        if (jobRole == null) {
+            throw new BadRequestException(ErrorMessage.WK_VALIDATION_NULL_OR_BLANK);
+        }
         if (userRepository.existsByGoogleEmail(email)) {
             throw new BadRequestException(ErrorMessage.DUPLICATE_EMAIL);
         }
@@ -103,4 +136,20 @@ public class GoogleSignupService {
         lockSettingRepository.saveAll(lockSettings);
     }
 
+    public String login(String email) {
+        User user = userRepository.findByGoogleEmail(email)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+        return jwtUtil.createJwt(
+                user.getLoginEmail(),
+                user.getId(),
+                user.getUserType().name(),
+                user.getJobRole().name(),
+                60 * 60 * 1000L
+        );
+    }
+
+    public boolean existsByGoogleEmail(String email) {
+        return userRepository.existsByGoogleEmail(email);
+    }
 }
