@@ -28,7 +28,15 @@ public interface TermRepository extends JpaRepository<Term, Long> {
             @Param("categoryId") List<Long>categoryId,
             Pageable pageable);
 
-    @Query("""
+    @Query("SELECT t FROM Term t " +
+        "WHERE t.user = :user " +
+        "AND t.category.id IN :categoryId  " +
+        "ORDER BY t.lastModifiedDate DESC")
+    List<Term> findAllTermsByCategory(
+        @Param("user") User user,
+        @Param("categoryId") Long categoryId);
+
+        @Query("""
            SELECT t FROM Term t
            WHERE t.user = :user
            AND (:keyword IS NULL OR t.name LIKE %:keyword% OR t.definition LIKE %:keyword%)
