@@ -17,24 +17,24 @@ public interface InsightCardRepository extends JpaRepository<InsightCard, Long> 
 
     @Query("SELECT i FROM InsightCard i " +
             "WHERE i.user = :user AND i.type = 'PERSON' " +
-            "ORDER BY i.updatedAt DESC")
+            "ORDER BY i.createdDate DESC")
     Page<InsightCard> findAllInsightPersonCards(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT i FROM InsightCard i " +
             "WHERE i.user = :user AND i.type = 'WORK' " +
-            "ORDER BY i.updatedAt DESC")
+            "ORDER BY i.createdDate DESC")
     Page<InsightCard> findAllInsightWorkCards(@Param("user") User user,Pageable pageable);
 
     List<InsightCard> findTop4ByUserIdAndTypeAndLastViewedAtIsNotNullOrderByLastViewedAtDesc(Long userId, CardType type);
 
     @Query("SELECT i FROM InsightCard i " +
             "WHERE i.user = :user AND i.type ='PERSON' AND i.isFavorite = true " +
-            "ORDER BY i.updatedAt DESC")
+            "ORDER BY i.createdDate DESC")
     Page<InsightCard> findFavoritePersonCards(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT i FROM InsightCard i " +
             "WHERE i.user = :user AND i.type ='WORK' AND i.isFavorite = true " +
-            "ORDER BY i.updatedAt DESC")
+            "ORDER BY i.createdDate DESC")
     Page<InsightCard> findFavoriteWorkCards(@Param("user") User user, Pageable pageable);
 
     @Query("""

@@ -105,8 +105,9 @@ public class User extends BaseEntity {
         this.lockPin = lockPin;
     }
 
-    public void setEmailType(EmailType emailType){
+    public void setEmailType( EmailType emailType, boolean isCompanyVerified){
         this.emailType = emailType;
+        this.isCompanyVerified = isCompanyVerified;
     }
 
     public void updateJobRole(JobRole newRole){

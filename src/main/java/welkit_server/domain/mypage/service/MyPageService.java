@@ -176,7 +176,7 @@ public class MyPageService {
             throw new BadRequestException(ErrorMessage.INVALID_EMAIL_VERIFICATION);
         }
 
-        user.setEmailType(EmailType.COMPANY_EMAIL);
+        user.setEmailType(EmailType.COMPANY_EMAIL, true);
     }
 
     @Transactional

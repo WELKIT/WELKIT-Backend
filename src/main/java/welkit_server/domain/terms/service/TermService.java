@@ -184,6 +184,13 @@ public class TermService {
         Term term = findOwnedTerm(currentUser.getId(), termId);
 
         termRepository.delete(term);
+
+        long countTerms = termRepository.findAllTermsByCategory(currentUser, term.getCategory().getId()).stream().count();
+
+        if(countTerms == 0) {
+            termCategoryRepository.delete(term.getCategory());
+        }
+
     }
 
     public Term getTermById(Long termId) {
