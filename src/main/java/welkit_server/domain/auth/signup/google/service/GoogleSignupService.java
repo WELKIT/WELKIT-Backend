@@ -50,9 +50,9 @@ public class GoogleSignupService {
 
         if (isExistingUser) {
             String token = login(email);
-            return String.format("http://localhost:3000/dictionary?token=%s", token);
+            return String.format("https://www.welkit.kr/dictionary?token=%s", token);
         } else {
-            return String.format("http://localhost:3000/users/signup/google?code=%s", code);
+            return String.format("https://www.welkit.kr/users/signup/google?code=%s", code);
         }
     }
 

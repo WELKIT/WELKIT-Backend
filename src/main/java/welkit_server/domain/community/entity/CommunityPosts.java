@@ -2,6 +2,7 @@ package welkit_server.domain.community.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 import welkit_server.domain.community.dto.request.PostUpdateRequest;
 import welkit_server.domain.community.model.CommunityPostStatus;
@@ -43,12 +44,14 @@ public class CommunityPosts extends BaseEntity {
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @BatchSize(size = 10)
     private List<CommunityComments> comments = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @Where(clause = "target_type = 'POSTS'")
     @JoinColumn(name = "target_id", insertable = false, updatable = false)
     @Builder.Default
+    @BatchSize(size = 10)
     private List<CommunityFeedBack> feedbacks = new ArrayList<>();
 
     public void editPost(PostUpdateRequest request) {
